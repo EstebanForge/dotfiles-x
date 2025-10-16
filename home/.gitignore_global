@@ -1,0 +1,111 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+#*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+*.Trashes
+ehthumbs.db
+Thumbs.db
+*.bak
+*[Tt]humbs.db
+
+# IDE files #
+#############
+.vscode/
+nbproject
+.~lock.*
+.buildpath
+.idea
+.project
+.settings
+*~
+*.sublime-project
+.svn
+.cvs
+*.komodoproject
+*.sublime-workspace
+*.swp
+.sublime-gulp.cache
+sublime-gulp.log
+.zed
+
+# WordPress #
+#############
+**/sitemap.xml
+**/sitemap.xml.gz
+**/wp-config.php
+**/local-config.php
+**/wp-config-local.php
+**/searchreplacedb2.php
+**wp-content/backup-db/
+**wp-content/cache/
+**wp-content/advanced-cache.php
+**wp-content/object-cache.php
+**wp-content/wp-cache-config.php
+**wp-content/w3-total-cache-config.php
+**wp-content/db.php
+**wp-content/backups/
+**wp-content/blogs.dir/
+**wp-content/uploads/
+**wp-content/upgrade/
+**wp-content/w3tc-config/
+**wp-content/vendor/
+**wp-content/plugins/hello.php
+
+# TCattd's addons #
+###################
+**access_log**
+**error_log**
+**sftp-config.json**
+**dandelion.yml**
+**.ftppass**
+**.sass-cache**
+**.codekit-cache**
+**config.codekit**
+**node_modules/**
+**bower_components/**
+
+# LLM "AI" Agents
+################
+**/copilot-instructions.md
+.clinerules
+.windsurfrules
+.cursorrules
+**/documentation-md/
+**/codex-hub/
+**/.claude/
+**/.qwen/
+**/.gemini/
+**AGENTS.md**
+**CLAUDE.md**
+

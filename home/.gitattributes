@@ -1,0 +1,31 @@
+# Set the default behavior to automatically handle line endings.
+# Git will normalize line endings to LF in the repository and convert them
+# to the native line ending of the OS when you check out files.
+* text=auto
+
+# Explicitly declare common text files to ensure they are treated as text.
+# This helps Git's auto-detection.
+*.c text
+*.h text
+*.java text
+*.js text
+*.json text
+*.html text
+*.css text
+*.scss text
+*.py text
+*.rb text
+*.sh text
+*.xml text
+*.yml text
+*.md text
+
+# Denote files that are truly binary and should not be modified by Git.
+# This prevents Git from trying to "fix" line endings in them.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary

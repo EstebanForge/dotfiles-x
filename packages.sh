@@ -43,6 +43,7 @@ brew install handbrake
 brew install --cask iconchamp
 brew install --cask iina
 brew install --cask imageoptim
+brew install --cask jump-desktop
 brew install --cask jordanbaird-ice
 brew install --cask kextviewr
 brew install --cask knockknock
@@ -53,7 +54,7 @@ brew install markedit
 brew install mas
 brew install --cask macwhisper
 brew install --cask mediainfo
-brew install --cask microsoft-remote-desktop
+
 brew install --cask middleclick
 brew install mkvtoolnix
 brew install mpv

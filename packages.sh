@@ -115,6 +115,10 @@ brew install --cask font-roboto
 brew install --cask font-iosevka
 brew install --cask font-esteban
 brew install fastmod
+brew install --cask gas-mask
+brew install --cask mission-control-plus
+brew install --cask sensei
+brew install topgrade
 
 npm install -g claude-code-wakatime
 npm install -g postcss

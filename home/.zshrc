@@ -88,34 +88,8 @@ brewup() {
     echo "Homebrew packages updated and cleaned up."
 }
 
-npmup() {
-    echo "Updating and cleaning NPM packages..."
-    npm update -g
-    npm cache clean --force
-    npm audit fix --force
-    echo "NPM packages updated and cleaned."
-}
-
-npmclean() {
-    echo "Cleaning NPM cache and fixing vulnerabilities..."
-    npm cache clean --force
-    npm audit fix --force
-    npm prune
-    echo "NPM cleanup completed."
-}
-
-masup() {
-    echo "Updating Mac App Store apps..."
-    mas upgrade
-    echo "Mac App Store apps updated."
-}
-
 sysup() {
-    echo "Updating System."
-    npmup
-    brewup
-    masup
-    echo "System updated."
+    topgrade
 }
 
 # Use gls (GNU ls) for enhanced functionality, including coloring and directory grouping.

@@ -106,6 +106,8 @@ sublime-gulp.log
 **/.claude/
 **/.qwen/
 **/.gemini/
+**/.specify/
+**/.opencode/
 **AGENTS.md**
 **CLAUDE.md**
-
+**GEMINI.md**

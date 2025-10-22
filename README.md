@@ -1,69 +1,196 @@
-# macOS Dotfiles
+# Cross-Platform Dotfiles with Chezmoi
 
-Personalized macOS dotfiles for setting up a development environment on macOS. Includes system configurations, Homebrew package installations, and productivity tools.
+This repository contains a unified dotfiles setup using [chezmoi](https://www.chezmoi.io/) that works across Unix and Unix-like systems including macOS and Linux distributions (primarily Fedora).
+
+## Quick Start
+
+### On a new machine:
+
+```bash
+# Initialize and apply dotfiles in one command
+chezmoi init --apply estebanforge/dotfiles-x
+
+# Set up secrets (required for API keys)
+chezmoi secret keyring set --service=anthropic --user=$USER
+```
+
+### On existing machine:
+
+```bash
+# Initialize from repository
+chezmoi init estebanforge/dotfiles-x
+cd ~/.local/share/chezmoi
+
+# Initialize chezmoi
+chezmoi init
+
+# Copy templates to chezmoi source directory
+cp home/dot_* ~/.local/share/chezmoi/
+cp .chezmoi.toml.tmpl ~/.local/share/chezmoi/
+
+# Apply dotfiles
+chezmoi apply
+
+# Set up secrets
+chezmoi secret keyring set --service=anthropic --user=$USER
+```
+
+## Repository Structure
+
+```
+dotfiles-x/
+├── home/                           # Your dotfiles templates
+│   ├── dot_zshrc.tmpl             # Zsh configuration with OS detection
+│   ├── dot_gitconfig.tmpl         # Git configuration with variables
+│   └── dot_gitignore_global       # Global gitignore
+├── scripts/                       # Optional setup scripts
+│   ├── install_macos.sh           # macOS package installation
+│   ├── install_fedora.sh          # Fedora package installation
+│   ├── configure_macos.sh         # macOS system settings
+│   └── configure_fedora.sh        # Fedora GNOME settings
+├── .chezmoi.toml.tmpl             # Configuration template
+├── .chezmoiignore                 # Files to ignore
+└── README.md                      # This file
+```
 
 ## Features
 
-- **System Configuration**: Customizes macOS defaults for Finder, Dock, Safari, Terminal, and more.
-- **Package Management**: Installs Homebrew and a curated list of formulas and casks via `packages.sh`.
-- **Zsh Setup**: Includes Zsh with a custom theme, autosuggestions, completions, and syntax highlighting.
-- **Quiet Login**: Suppresses the "Last login" message for a cleaner and faster terminal startup.
-- **Consistent Git Handling**: Configures a global `.gitattributes` and `.gitignore` to ensure consistent behavior across all your repositories.
-- **Security Tweaks**: Disables captive portal and other privacy-focused settings.
+- **Cross-platform**: Works on Unix and Unix-like systems (macOS, Linux)
+- **Template-based**: OS-specific configurations with shared settings
+- **Secure**: API keys stored in system keyring, not in version control
+- **Auto-sync**: Automatic commits and pushes to your repo
+- **Single command setup**: Works on new machines with one command
 
-## Prerequisites
+## Configuration
 
-- macOS 12+ (tested on Sequoia 15)
-- Internet connection for downloading packages
-- Administrator privileges (sudo access)
+### Personal Information
 
-## Installation
+When you first run `chezmoi init`, you'll be prompted for:
+- Full name
+- Email address  
+- Computer name
 
-1. **Clone or Download** this repository to your local machine.
+These are stored in `~/.config/chezmoi/chezmoi.toml` and used in templates.
 
-2. **Run the Setup Script**:
-   ```bash
-   cd dotfiles-macos
-   chmod +x setup.sh packages.sh
-   ./setup.sh
-   ```
+### Security
 
-   This will:
-   - Prompt for sudo password
-   - Set computer name to "ATTD-Zen4" (edit `setup.sh` to change)
-   - Configure macOS system preferences
-   - Install Homebrew
-   - Install packages from `packages.sh`
-   - Restart affected applications
+API keys and secrets are stored securely using the system keyring:
 
-3. **Post-Setup**:
-   - Log out and log back in for all changes to take effect.
-   - Some settings (e.g., Dock) may require a restart.
+```bash
+# Set API key (do this once per machine)
+chezmoi secret keyring set --service=anthropic --user=$USER
 
-## What's Included
+# The key is then available in templates as:
+# {{ keyring "anthropic" .chezmoi.username }}
+```
 
-- `setup.sh`: Main configuration script for macOS defaults and Homebrew.
-- `packages.sh`: Installs Homebrew packages (see `brew_packages.md` for list).
-- `brew_packages.md`: Documentation of installed packages.
+## Supported Platforms
 
-## Customization
+### macOS
+- Homebrew package installation
+- System defaults and preferences
+- Finder, Dock, and desktop settings
+- Native app configurations
 
-- **Computer Name**: Edit the `COMPUTER_NAME` variable in `setup.sh` (currently "ATTD-Zen4").
-- **Packages**: Modify `packages.sh` to add/remove packages.
-- **Settings**: Uncomment or edit defaults in `setup.sh` for personal preferences.
+### Linux (Fedora-based)
+- DNF package installation
+- Flatpak application management
+- GNOME desktop configuration
+- Development environment setup
 
-## Troubleshooting
+### Other Unix-like Systems
+- Core dotfiles work on any Unix-like system
+- Template system allows for OS-specific adaptations
+- Package management scripts can be adapted for other distros
 
-- If Homebrew fails, ensure Xcode Command Line Tools are installed: `xcode-select --install`
-- For permission issues, run with `sudo` where needed.
-- Check system logs if apps don't restart properly.
+## Daily Usage
 
-## Notes
+```bash
+# Check status of managed files
+chezmoi status
 
-- Back up your system before running, as this modifies macOS defaults.
-- Some settings are macOS version-specific; tested on Sequoia.
-- Contributions welcome—fork and submit PRs.
+# See what would change
+chezmoi diff
+
+# Apply changes
+chezmoi apply
+
+# Edit a managed file
+chezmoi edit ~/.zshrc
+
+# Add a new file to management
+chezmoi add ~/.newconfig
+
+# Pull and apply latest changes from repo
+chezmoi update
+```
+
+## Adding New Dotfiles
+
+1. Edit the file in your home directory normally
+2. Add it to chezmoi: `chezmoi add ~/.newfile`
+3. If it needs OS-specific logic, rename to `.tmpl` and use template syntax
+4. Commit changes: `chezmoi cd && git add . && git commit -m "Add newfile"`
+
+## Template Syntax
+
+Use templates for files that vary between machines:
+
+```go
+{{- if eq .chezmoi.os "darwin" }}
+# macOS-specific settings
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{- else if eq .chezmoi.os "linux" }}
+# Linux-specific settings
+if command -v brew >/dev/null 2>&1; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+{{- end }}
+
+# Use variables from config
+[user]
+    name = {{ .name | default "Your Name" }}
+    email = {{ .email | default "your@email.com" }}
+
+# Use secure secrets
+export API_KEY="{{ keyring "service" .chezmoi.username }}"
+```
+
+## Optional Package Installation
+
+After setting up dotfiles, you can optionally install packages:
+
+```bash
+# macOS
+./scripts/install_macos.sh
+./scripts/configure_macos.sh
+
+# Fedora
+./scripts/install_fedora.sh  
+./scripts/configure_fedora.sh
+```
+
+## Migration from Old Systems
+
+This setup replaces:
+- Manual dotfile management
+- `setup.sh` + `packages.sh` scripts
+- `backup.sh` + `restore.sh` scripts
+
+Benefits:
+- Single command for both platforms
+- Template-based configuration
+- Secure secrets management
+- Automatic version control
+- Cross-platform compatibility
+
+## Requirements
+
+- **macOS**: macOS 10.15+ with optional Homebrew
+- **Linux**: Tested on Fedora 40+, should work on other distributions
+- **All**: Git, Zsh, curl
+- **Optional**: Package managers (Homebrew for macOS, DNF/Flatpak for Fedora)
 
 ## License
 
-MIT License. Use at your own risk.
+MIT License - see [LICENSE](LICENSE) file for details.

@@ -1,0 +1,20 @@
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[user]
+	name = {{ .name | default "Esteban" }}
+	email = {{ .email | default "esteban@attitude.cl" }}
+[core]
+	excludesFile = ~/.gitignore_global
+	fileMode = false
+[init]
+	defaultBranch = main
+{{- if eq .chezmoi.os "darwin" }}
+[credential]
+	helper = osxkeychain
+{{- else if eq .chezmoi.os "linux" }}
+[credential]
+	helper = /usr/share/doc/git/contrib/credential/gnome-keyring/git-credential-gnome-keyring
+{{- end }}

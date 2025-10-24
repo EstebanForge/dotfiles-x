@@ -1,0 +1,108 @@
+# This file is for unifying the coding style for different editors and IDEs
+# editorconfig.org
+
+root = true
+
+# Global defaults
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Web development
+[*.{html,xml,json,yml,yaml,toml}]
+indent_size = 2
+
+[*.{css,scss,sass,less}]
+indent_size = 2
+
+# JavaScript/TypeScript
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+indent_size = 2
+
+# PHP
+[*.php]
+indent_size = 4
+
+# WordPress specific files
+[wp-config-sample.php]
+end_of_line = crlf
+
+# Configuration files
+[*.{ini,conf,config}]
+indent_size = 2
+
+# Shell scripts
+[*.sh]
+indent_size = 2
+
+# Python files
+[*.py]
+indent_size = 4
+
+# Makefiles
+[Makefile]
+indent_style = tab
+indent_size = 4
+
+# Markdown files (preserve trailing spaces for line breaks)
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# Text files
+[{*.txt,*.log}]
+end_of_line = crlf
+trim_trailing_whitespace = true
+
+# Package managers
+[package.json]
+indent_size = 2
+
+[composer.json]
+indent_size = 4
+
+# Docker files
+[Dockerfile]
+indent_size = 2
+
+[docker-compose.{yml,yaml}]
+indent_size = 2
+
+# Git files
+[.gitignore]
+indent_size = 2
+
+[.gitattributes]
+end_of_line = lf
+
+# Editor specific files
+[{.vscode,.sublime-project,.sublime-workspace}]
+indent_size = 2
+
+# Test files
+[*.{test,spec}.{js,ts,php}]
+indent_size = 2
+
+# Database files
+[*.sql]
+indent_size = 2
+
+# Scripts and automation
+[Gulpfile.js]
+indent_size = 2
+
+[webpack.config.js]
+indent_size = 2
+
+# Tailwind CSS
+[tailwind.config.js]
+indent_size = 2
+
+# Environment files
+[.env*]
+indent_size = 2
+end_of_line = lf

@@ -1,0 +1,138 @@
+# Enhanced topgrade configuration for dotfiles-x
+# Builds upon existing configuration with cross-platform optimizations
+
+[misc]
+# Don't ask for confirmations (override to true for unattended updates)
+# assume_yes = true
+
+# Run `sudo -v` to cache credentials at start of run
+pre_sudo = true
+
+# Retry failed commands
+retry_count = 2
+
+# Display time in step titles (true for detailed timing)
+display_time = true
+
+# Show reason for skipped steps
+show_skipped = true
+
+# Run specific steps - uncomment to limit updates
+# only = ["brew", "npm", "composer", "git"]
+
+# Include any additional configuration file(s)
+# [include] sections are processed in order you write them
+# Files in $CONFIG_DIR/topgrade.d/ are automatically included before this file
+#[include]
+# paths = ["/etc/topgrade.toml"]
+
+# Commands to run before anything
+#[pre_commands]
+# "Backup important configs" = "cp ~/.zshrc ~/.zshrc.backup"
+
+# Commands to run after anything
+[post_commands]
+"Cleanup Homebrew" = "brew cleanup --prune=7"
+"Cleanup npm cache" = "npm cache clean --force"
+"Check dotfile status" = "dots-check"
+
+# Custom commands to run during update
+[commands]
+"Update Composer global packages" = "composer global update"
+
+# Update WordPress CLI tools
+"Update WordPress CLI" = "wp cli update"
+
+# Update global npm packages (ensure specific tools stay current)
+"Update global npm tools" = "npm update -g @github/copilot claude-code-wakatime postcss postcss-cli"
+
+# Mac App Store updates (macOS only)
+[macos]
+"Update Mac App Store apps" = "mas upgrade"
+"Optimize macOS Homebrew" = "brew doctor"
+
+# Linux-specific configurations
+[linux]
+"Update DNF cache" = "sudo dnf makecache"
+"Check DNF issues" = "sudo dnf check"
+
+# Composer configuration
+[composer]
+self_update = true
+
+# Homebrew configuration
+[brew]
+# Brew-specific options
+greedy_cask = true
+autoupdate_repositories = true
+
+# For BrewCask step
+greedy_latest = true
+
+# For BrewCask step
+greedy_auto_updates = true
+
+# For BrewFormula step
+autoremove = true
+
+# For BrewFormula step
+fetch_head = true
+
+# NPM configuration
+[npm]
+# Update global packages
+# Set to false to use our custom command above for specific packages
+autoupdate = false
+
+# Git repository management
+[git]
+# How many repos to pull at max in parallel
+max_concurrency = 5
+
+# Additional git repositories to pull
+repos = [
+    "~/.dotfiles",
+    # Add more repositories if needed
+]
+
+# Arguments to pass Git when pulling Repositories
+arguments = "--rebase --autostash"
+
+# Linux distribution specific settings
+[linux]
+# DNF arguments for package updates
+dnf_arguments = "--refresh"
+
+# Enable telemetry manager updates
+enable_tlmgr = true
+
+# Windows-specific (for future WSL support)
+[windows]
+# Accept all Windows updates automatically
+accept_all_updates = false
+
+# Whether to automatically reboot after updates
+updates_auto_reboot = "ask"
+
+# Open remotes in new terminal
+open_remotes_in_new_terminal = true
+
+# WSL configuration
+wsl_update_pre_release = true
+wsl_update_use_web_download = true
+
+# Winget configuration
+winget_install_silently = true
+
+# VS Code extensions
+[vscode]
+# Profile for extensions (empty means default)
+profile = ""
+
+# Container management
+[containers]
+# Specify containers to ignore while updating (Wildcard supported)
+ignored_containers = ["ghcr.io/rancher-sandbox/rancher-desktop/rdx-proxy:latest"]
+
+# Runtime for containers (default: "docker")
+runtime = "docker"

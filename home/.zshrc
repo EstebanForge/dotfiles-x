@@ -97,8 +97,46 @@ if [[ "$(uname)" == "Darwin" ]]; then
     }
 fi
 
+# Enhanced system update function with dotfile integration
 sysup() {
+    echo "🔄 Starting system update with topgrade..."
     topgrade
+    echo "✅ System update complete!"
+    echo ""
+    echo "🔍 Checking dotfile status..."
+    cd ~/.dotfiles
+    if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
+        echo "⚠️  Dotfiles have changes. Run 'dots status' to check."
+    else
+        echo "✅ Dotfiles are up to date!"
+    fi
+}
+
+# Full system and dotfile update
+sysup-full() {
+    echo "🚀 Full system and dotfiles update..."
+    echo ""
+
+    # 1. Update system packages
+    echo "1️⃣ Updating system packages..."
+    sysup
+
+    echo ""
+    # 2. Update dotfiles
+    echo "2️⃣ Updating dotfiles..."
+    dots sync
+
+    echo ""
+    # 3. Complete status
+    echo "🎉 Full update complete!"
+    echo "💡 Run 'exec zsh' to reload shell with latest changes"
+}
+
+# Quick dotfile check (now uses dots.sh)
+dots-check() {
+    echo "🔍 Quick dotfile health check..."
+    cd ~/.dotfiles
+    ./dots.sh health
 }
 
 # Use gls (GNU ls) for enhanced functionality, including coloring and directory grouping.

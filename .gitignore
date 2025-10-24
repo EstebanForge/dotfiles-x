@@ -37,3 +37,6 @@ Temporary Items
 
 # Local ZSH config
 .zshrc.local
+
+# Secrets file (never commit!)
+.secrets

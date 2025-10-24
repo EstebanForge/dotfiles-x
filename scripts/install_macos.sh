@@ -58,7 +58,14 @@ brew install gh
 brew install prettier
 brew install fastmod
 brew install topgrade
-brew install chezmoi
+
+# Install QuickLook plugins
+echo "Installing QuickLook plugins..."
+brew install --cask qlmarkdown
+brew install --cask quickjson
+brew install --cask suspicious-package
+brew install --cask apparency
+brew install --cask quicklookase
 
 # Install casks (GUI applications)
 echo "Installing casks..."
@@ -148,5 +155,6 @@ echo "Installing npm packages..."
 npm install -g claude-code-wakatime
 npm install -g postcss
 npm install -g postcss-cli
+npm install -g @github/copilot
 
 echo "macOS package installation complete!"

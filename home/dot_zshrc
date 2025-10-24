@@ -15,15 +15,16 @@ compinit
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-{{- if eq .chezmoi.os "darwin" }}
-# 1. Homebrew (macOS)
-eval "$(/opt/homebrew/bin/brew shellenv)" # Correct path for Apple Silicon (M-series)
-{{- else if eq .chezmoi.os "linux" }}
-# Linux package manager paths
-if command -v brew >/dev/null 2>&1; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# OS-specific Homebrew setup
+if [[ "$(uname)" == "Darwin" ]]; then
+    # macOS
+    eval "$(/opt/homebrew/bin/brew shellenv)" # Correct path for Apple Silicon (M-series)
+elif [[ "$(uname)" == "Linux" ]]; then
+    # Linux
+    if command -v brew >/dev/null 2>&1; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    fi
 fi
-{{- end }}
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
@@ -56,18 +57,19 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
-{{- if eq .chezmoi.os "darwin" }}
-source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-#source $HOMEBREW_PREFIX/share/zsh-completions/zsh-completions.zsh
-{{- else if eq .chezmoi.os "linux" }}
-if [[ -d /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions ]]; then
-    source /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# OS-specific plugin loading
+if [[ "$(uname)" == "Darwin" ]]; then
+    source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    #source $HOMEBREW_PREFIX/share/zsh-completions/zsh-completions.zsh
+elif [[ "$(uname)" == "Linux" ]]; then
+    if [[ -d /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions ]]; then
+        source /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    fi
+    if [[ -d /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting ]]; then
+        source /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    fi
 fi
-if [[ -d /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting ]]; then
-    source /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
-{{- end }}
 
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE="20"
 ZSH_AUTOSUGGEST_USE_ASYNC=1
@@ -87,31 +89,31 @@ if [[ -n $SSH_CONNECTION ]]; then
 fi
 
 # Updaters
-{{- if eq .chezmoi.os "darwin" }}
-brewup() {
-    echo "Updating and upgrading Homebrew packages..."
-    brew update && brew upgrade && brew cleanup
-    echo "Homebrew packages updated and cleaned up."
-}
-{{- end }}
+if [[ "$(uname)" == "Darwin" ]]; then
+    brewup() {
+        echo "Updating and upgrading Homebrew packages..."
+        brew update && brew upgrade && brew cleanup
+        echo "Homebrew packages updated and cleaned up."
+    }
+fi
 
 sysup() {
     topgrade
 }
 
 # Use gls (GNU ls) for enhanced functionality, including coloring and directory grouping.
-{{- if eq .chezmoi.os "darwin" }}
-# The 'g' prefix is required when using coreutils installed via Homebrew.
-alias ls='gls -GFh --color -h --group-directories-first'
-alias ll='gls --color -alF --group-directories-first'
-alias la='gls --color -A'
-alias l='gls --color -CF'
-{{- else if eq .chezmoi.os "linux" }}
-alias ls='ls -GFh --color -h --group-directories-first'
-alias ll='ls --color -alF --group-directories-first'
-alias la='ls --color -A'
-alias l='ls --color -CF'
-{{- end }}
+if [[ "$(uname)" == "Darwin" ]]; then
+    # The 'g' prefix is required when using coreutils installed via Homebrew.
+    alias ls='gls -GFh --color -h --group-directories-first'
+    alias ll='gls --color -alF --group-directories-first'
+    alias la='gls --color -A'
+    alias l='gls --color -CF'
+elif [[ "$(uname)" == "Linux" ]]; then
+    alias ls='ls -GFh --color -h --group-directories-first'
+    alias ll='ls --color -alF --group-directories-first'
+    alias la='ls --color -A'
+    alias l='ls --color -CF'
+fi
 alias artisan='php artisan'
 alias cat='bat'
 
@@ -136,9 +138,9 @@ export PATH="$HOME/.local/bin:$PATH"
 # HOMEBREW
 export HOMEBREW_NO_ENV_HINTS=1
 
-# Claude code with Z's GLM - use keyring for security
-if command -v chezmoi >/dev/null 2>&1; then
-    export ANTHROPIC_API_KEY="{{ keyring \"anthropic\" .chezmoi.username | default \"\" }}"
+# Load secrets file if it exists
+if [[ -f ~/.secrets ]]; then
+    source ~/.secrets
 fi
 
 zai() {

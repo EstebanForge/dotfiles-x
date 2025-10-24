@@ -3,7 +3,7 @@
 # macOS Homebrew packages installation script
 # This script installs all Homebrew packages and casks
 
-# Check if Homebrew is installed
+# Install Homebrew first
 if ! command -v brew &> /dev/null; then
     echo "Homebrew not found. Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -13,6 +13,16 @@ fi
 echo "Updating Homebrew..."
 brew update
 
+# Install latest bash
+echo "Installing latest bash..."
+brew install bash
+
+# Restart script with new bash if we just installed it
+if [[ "$BASH_RESTART" != "1" ]]; then
+    echo "Restarting script with updated bash..."
+    BASH_RESTART=1 exec /opt/homebrew/bin/bash "$0" "$@"
+fi
+
 # Install taps
 echo "Installing taps..."
 brew tap pakerwreah/calendr
@@ -20,7 +30,6 @@ brew tap pakerwreah/calendr
 # Install formulae (command-line tools)
 echo "Installing formulae..."
 brew install alienator88-sentinel
-brew install bash
 brew install bat
 brew install codex
 brew install composer
@@ -30,6 +39,7 @@ brew install ffmpeg
 brew install gemini-cli
 brew install git
 brew install gulp-cli
+brew install jq
 brew install handbrake
 brew install markedit
 brew install mas
@@ -124,7 +134,7 @@ brew install --cask sublime-merge
 brew install --cask sublime-text
 brew install --cask superkey
 brew install --cask taskexplorer
-brew install --cask the-unarchiver
+
 brew install --cask transmission
 brew install --cask tuxera-ntfs
 brew install --cask typora
@@ -149,6 +159,7 @@ brew install --cask gas-mask
 brew install --cask mission-control-plus
 brew install --cask sensei
 brew install --cask keepingyouawake
+brew install --cask keka
 
 # Install npm packages
 echo "Installing npm packages..."

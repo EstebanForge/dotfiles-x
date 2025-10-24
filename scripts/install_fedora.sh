@@ -143,12 +143,12 @@ echo "Installing Homebrew packages..."
 brew install git
 brew install fastfetch
 brew install topgrade
-brew install chezmoi
 
 # Install npm packages
 echo "Installing npm packages..."
 npm install -g claude-code-wakatime
 npm install -g postcss
 npm install -g postcss-cli
+npm install -g @github/copilot
 
 echo "Fedora package installation complete!"

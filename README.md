@@ -1,88 +1,119 @@
-# Cross-Platform Dotfiles with Chezmoi
+# Cross-Platform Dotfiles
 
-This repository contains a unified dotfiles setup using [chezmoi](https://www.chezmoi.io/) that works across Unix and Unix-like systems including macOS and Linux distributions (primarily Fedora).
+This repository contains a unified dotfiles setup that works across Unix and Unix-like systems including macOS and Linux distributions (primarily Fedora).
 
 ## Quick Start
 
 ### On a new machine:
 
 ```bash
-# Initialize and apply dotfiles in one command
-chezmoi init --apply estebanforge/dotfiles-x
+# Clone the repository
+git clone https://github.com/estebanforge/dotfiles-x.git ~/.dotfiles
+cd ~/.dotfiles
 
-# Set up secrets (required for API keys)
-chezmoi secret keyring set --service=anthropic --user=$USER
+# Run the setup script to create symlinks
+./setup.sh install
+
+# Reload shell configuration
+source ~/.zshrc
 ```
 
 ### On existing machine:
 
 ```bash
-# Initialize from repository
-chezmoi init estebanforge/dotfiles-x
-cd ~/.local/share/chezmoi
+# Clone the repository
+git clone https://github.com/estebanforge/dotfiles-x.git ~/.dotfiles
+cd ~/.dotfiles
 
-# Initialize chezmoi
-chezmoi init
+# Run the setup script (automatically backs up existing files)
+./setup.sh install
 
-# Copy templates to chezmoi source directory
-cp home/dot_* ~/.local/share/chezmoi/
-cp .chezmoi.toml.tmpl ~/.local/share/chezmoi/
+# Reload shell configuration
+source ~/.zshrc
+```
 
-# Apply dotfiles
-chezmoi apply
+### Setup Script Commands
 
-# Set up secrets
-chezmoi secret keyring set --service=anthropic --user=$USER
+The setup script provides several commands:
+
+```bash
+./setup.sh install    # Install dotfiles (create symlinks)
+./setup.sh status     # Check current status of dotfiles
+./setup.sh cleanup    # Remove existing symlinks
+./setup.sh help       # Show help information
+```
+
+### Secrets Management
+
+The dotfiles include a secrets management system:
+
+1. **Template file**: `home/dot_secrets.example` - Contains example secrets and documentation
+2. **Your secrets**: `~/.secrets` - Your actual secrets (never committed to git)
+3. **Auto-loading**: Secrets are automatically loaded when shell starts
+
+**Setup your secrets:**
+
+```bash
+# After running ./setup.sh install, edit your secrets:
+nano ~/.secrets
+
+# Set secure permissions:
+chmod 600 ~/.secrets
+```
+
+**Using secrets in scripts:**
+
+```bash
+#!/bin/bash
+# Source secrets to access environment variables
+source ~/.secrets
+
+# Use your API keys
+curl -H "Authorization: Bearer $ANTHROPIC_API_KEY" https://api.anthropic.com/v1/messages
 ```
 
 ## Repository Structure
 
 ```
 dotfiles-x/
-├── home/                           # Your dotfiles templates
-│   ├── dot_zshrc.tmpl             # Zsh configuration with OS detection
-│   ├── dot_gitconfig.tmpl         # Git configuration with variables
-│   └── dot_gitignore_global       # Global gitignore
-├── scripts/                       # Optional setup scripts
-│   ├── install_macos.sh           # macOS package installation
-│   ├── install_fedora.sh          # Fedora package installation
-│   ├── configure_macos.sh         # macOS system settings
-│   └── configure_fedora.sh        # Fedora GNOME settings
-├── .chezmoi.toml.tmpl             # Configuration template
-├── .chezmoiignore                 # Files to ignore
-└── README.md                      # This file
+├── home/                           # Your dotfiles
+│   ├── dot_zshrc                   # Zsh configuration with OS detection
+│   ├── dot_gitconfig               # Git configuration
+│   ├── dot_gitignore_global        # Global gitignore
+│   └── dot_secrets.example         # Secrets template (copy to ~/.secrets)
+├── scripts/                        # Optional setup scripts
+│   ├── install_macos.sh            # macOS package installation
+│   ├── install_fedora.sh           # Fedora package installation
+│   ├── configure_macos.sh          # macOS system settings
+│   └── configure_fedora.sh         # Fedora GNOME settings
+├── setup.sh                        # Setup script for symlinks
+└── README.md                       # This file
 ```
 
 ## Features
 
 - **Cross-platform**: Works on Unix and Unix-like systems (macOS, Linux)
-- **Template-based**: OS-specific configurations with shared settings
-- **Secure**: API keys stored in system keyring, not in version control
-- **Auto-sync**: Automatic commits and pushes to your repo
-- **Single command setup**: Works on new machines with one command
+- **OS-specific configurations**: Shared settings with platform-specific adaptations
+- **Symlink-based management**: Easy updates and version control of dotfiles
+- **Secure secrets management**: Template-based secrets with git-safe storage
+- **Package management scripts**: Automated installation for common tools
+- **Single command setup**: Works on new machines with minimal effort
+- **Automatic backups**: Existing files are backed up before being replaced
 
 ## Configuration
 
 ### Personal Information
 
-When you first run `chezmoi init`, you'll be prompted for:
-- Full name
-- Email address  
-- Computer name
-
-These are stored in `~/.config/chezmoi/chezmoi.toml` and used in templates.
+Edit the dotfiles after copying to customize:
+- `~/.gitconfig`: Update your name and email
+- `~/.zshrc`: Customize shell settings and aliases
 
 ### Security
 
-API keys and secrets are stored securely using the system keyring:
-
-```bash
-# Set API key (do this once per machine)
-chezmoi secret keyring set --service=anthropic --user=$USER
-
-# The key is then available in templates as:
-# {{ keyring "anthropic" .chezmoi.username }}
-```
+API keys and secrets should be stored securely using your preferred method:
+- Environment variables
+- System keyring tools
+- Secret management tools
 
 ## Supported Platforms
 
@@ -100,61 +131,8 @@ chezmoi secret keyring set --service=anthropic --user=$USER
 
 ### Other Unix-like Systems
 - Core dotfiles work on any Unix-like system
-- Template system allows for OS-specific adaptations
+- OS-specific adaptations can be made manually
 - Package management scripts can be adapted for other distros
-
-## Daily Usage
-
-```bash
-# Check status of managed files
-chezmoi status
-
-# See what would change
-chezmoi diff
-
-# Apply changes
-chezmoi apply
-
-# Edit a managed file
-chezmoi edit ~/.zshrc
-
-# Add a new file to management
-chezmoi add ~/.newconfig
-
-# Pull and apply latest changes from repo
-chezmoi update
-```
-
-## Adding New Dotfiles
-
-1. Edit the file in your home directory normally
-2. Add it to chezmoi: `chezmoi add ~/.newfile`
-3. If it needs OS-specific logic, rename to `.tmpl` and use template syntax
-4. Commit changes: `chezmoi cd && git add . && git commit -m "Add newfile"`
-
-## Template Syntax
-
-Use templates for files that vary between machines:
-
-```go
-{{- if eq .chezmoi.os "darwin" }}
-# macOS-specific settings
-eval "$(/opt/homebrew/bin/brew shellenv)"
-{{- else if eq .chezmoi.os "linux" }}
-# Linux-specific settings
-if command -v brew >/dev/null 2>&1; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-{{- end }}
-
-# Use variables from config
-[user]
-    name = {{ .name | default "Your Name" }}
-    email = {{ .email | default "your@email.com" }}
-
-# Use secure secrets
-export API_KEY="{{ keyring "service" .chezmoi.username }}"
-```
 
 ## Optional Package Installation
 
@@ -170,19 +148,26 @@ After setting up dotfiles, you can optionally install packages:
 ./scripts/configure_fedora.sh
 ```
 
-## Migration from Old Systems
+## Adding New Dotfiles
 
-This setup replaces:
-- Manual dotfile management
-- `setup.sh` + `packages.sh` scripts
-- `backup.sh` + `restore.sh` scripts
+1. Create the file in the `home/` directory with the `dot_` prefix
+2. Add the new file to the `dotfiles` array in `setup.sh`
+3. Update this README if needed
+4. Run `./setup.sh install` to create the symlink
+5. Commit changes: `git add . && git commit -m "Add new dotfile"`
 
-Benefits:
-- Single command for both platforms
-- Template-based configuration
-- Secure secrets management
-- Automatic version control
-- Cross-platform compatibility
+### Example: Adding a new dotfile
+
+```bash
+# Create the new dotfile in home/ directory
+echo "export MY_VAR=value" > home/dot_myconfig
+
+# Edit setup.sh to add the new file to the dotfiles array:
+# "dot_myconfig:.myconfig"
+
+# Install the new dotfile
+./setup.sh install
+```
 
 ## Requirements
 

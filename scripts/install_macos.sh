@@ -41,7 +41,6 @@ brew install git
 brew install gulp-cli
 brew install jq
 brew install handbrake
-brew install markedit
 brew install mas
 brew install mkvtoolnix
 brew install mpv
@@ -71,11 +70,9 @@ brew install topgrade
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
-brew install --cask qlmarkdown
+brew install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package apparency quicklookase qlvideo
 brew install --cask quickjson
-brew install --cask suspicious-package
-brew install --cask apparency
-brew install --cask quicklookase
+brew install --cask keka
 
 # Install casks (GUI applications)
 echo "Installing casks..."

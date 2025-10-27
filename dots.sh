@@ -1,9 +1,84 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# Ensure we are running with Bash (>=5.x on macOS); restart with Homebrew bash when available.
+if [[ -z "${BASH_VERSINFO:-}" ]]; then
+    echo "dots.sh requires Bash to run." >&2
+    exit 1
+fi
+
+if [[ "$(uname)" == "Darwin" && "${DOTS_BASH_RESTARTED:-0}" != "1" ]]; then
+    if (( BASH_VERSINFO[0] < 5 )); then
+        for candidate in /opt/homebrew/bin/bash /usr/local/bin/bash; do
+            if [[ -x "$candidate" ]]; then
+                export DOTS_BASH_RESTARTED=1
+                exec "$candidate" "$0" "$@"
+            fi
+        done
+
+        brew_cmd="$(command -v brew || true)"
+        if [[ -z "$brew_cmd" ]]; then
+            echo "dots.sh requires Bash 5.x or later on macOS."
+            echo "Homebrew is required to install a newer Bash."
+            if [[ -t 0 ]]; then
+                read -r -p "Install Homebrew now? [y/N]: " install_brew
+                if [[ "$install_brew" =~ ^[Yy]$ ]]; then
+                    echo "Installing Homebrew..."
+                    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
+                        echo "Homebrew installation failed. Please install it manually and retry." >&2
+                        exit 1
+                    }
+                    for candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+                        if [[ -x "$candidate" ]]; then
+                            brew_cmd="$candidate"
+                            break
+                        fi
+                    done
+                else
+                    echo "Install Homebrew with:" >&2
+                    echo "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"" >&2
+                    echo "Then run: brew install bash" >&2
+                    exit 1
+                fi
+            else
+                echo "Install Homebrew with:" >&2
+                echo "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"" >&2
+                echo "Then run: brew install bash" >&2
+                exit 1
+            fi
+        fi
+
+        if [[ -z "$brew_cmd" ]]; then
+            echo "Homebrew was not found after installation. Please ensure it is on your PATH, then run: brew install bash" >&2
+            exit 1
+        fi
+
+        if ! "$brew_cmd" ls --versions bash >/dev/null 2>&1; then
+            echo "Installing Bash 5 with Homebrew..."
+            "$brew_cmd" install bash || {
+                echo "Failed to install Bash via Homebrew. Install it manually and rerun dots.sh." >&2
+                exit 1
+            }
+        fi
+
+        brew_prefix="$("$brew_cmd" --prefix 2>/dev/null || true)"
+        if [[ -n "$brew_prefix" ]]; then
+            brew_bash="$brew_prefix/bin/bash"
+            if [[ -x "$brew_bash" ]]; then
+                export DOTS_BASH_RESTARTED=1
+                exec "$brew_bash" "$0" "$@"
+            fi
+        fi
+
+        echo "Bash 5.x was not found even after Homebrew checks." >&2
+        echo "Ensure Homebrew's bash is installed and accessible, then rerun dots.sh." >&2
+        exit 1
+    fi
+fi
+
+set -euo pipefail
 
 # Comprehensive dotfiles management script
 # Usage: dots [COMMAND] [OPTIONS]
-
-set -euo pipefail
 
 # Colors for output
 RED='\033[0;31m'

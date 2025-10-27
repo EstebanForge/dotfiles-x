@@ -67,6 +67,7 @@ brew install gh
 brew install prettier
 brew install fastmod
 brew install topgrade
+brew install tree
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."

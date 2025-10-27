@@ -242,6 +242,11 @@ defaults write org.m0k.transmission WarningLegal -bool false
 # https://github.com/drduh/OS-X-Security-and-Privacy-Guide
 sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.captive.control Active -bool false
 
+# Disable Remote Desktop daemon
+# To revert: launchctl load -w /System/Library/LaunchAgents/com.apple.rcd.plist
+echo "Disabling Remote Desktop daemon"
+launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist
+
 ###############################################################################
 # Kill affected applications                                                  #
 ###############################################################################

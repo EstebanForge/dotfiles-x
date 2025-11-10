@@ -143,6 +143,15 @@ echo "Installing Homebrew packages..."
 brew install git
 brew install fastfetch
 brew install topgrade
+brew install ripgrep
+brew install ast-grep
+brew install fzf
+brew install bat
+brew install eza
+brew install zoxide
+brew install httpie
+brew install shellcheck
+brew install git-delta
 
 # Install npm packages
 echo "Installing npm packages..."

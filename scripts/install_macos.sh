@@ -40,6 +40,8 @@ brew install gemini-cli
 brew install git
 brew install gulp-cli
 brew install jq
+brew install yq
+brew install zola
 brew install handbrake
 brew install mas
 brew install mkvtoolnix
@@ -57,8 +59,10 @@ brew install volta
 brew install wp-cli
 brew install yarn
 brew install yt-dlp
+brew install tlrc
 brew install aliases
 brew install coreutils
+brew install procs
 brew install python
 brew install sass/sass/sass
 brew install tailscale
@@ -68,6 +72,17 @@ brew install prettier
 brew install fastmod
 brew install topgrade
 brew install tree
+brew install git-cliff
+brew install fd
+brew install ripgrep
+brew install ast-grep
+brew install sd
+brew install fzf
+brew install zoxide
+brew install httpie
+brew install shellcheck
+brew install tmux
+brew install just
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."

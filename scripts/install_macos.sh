@@ -39,6 +39,7 @@ brew install ffmpeg
 brew install gemini-cli
 brew install git
 brew install gulp-cli
+brew install subversion
 brew install jq
 brew install yq
 brew install zola

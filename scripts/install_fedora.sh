@@ -127,6 +127,7 @@ flatpak install -y flathub org.sqlitebrowser.sqlitebrowser
 flatpak install -y flathub org.videolan.VLC
 flatpak install -y flathub tv.plex.PlexDesktop
 flatpak install -y flathub us.zoom.Zoom
+flatpak install -y flathub org.nextcloud.Nextcloud
 
 # Install Homebrew for Linux (if not already installed)
 if ! command -v brew &> /dev/null; then
@@ -152,6 +153,9 @@ brew install zoxide
 brew install httpie
 brew install shellcheck
 brew install git-delta
+brew install go
+brew install yamllint
+brew install vite
 
 # Install npm packages
 echo "Installing npm packages..."

@@ -69,6 +69,7 @@ brew install sass/sass/sass
 brew install tailscale
 brew install github-copilot-cli
 brew install gh
+brew install go
 brew install prettier
 brew install fastmod
 brew install topgrade
@@ -84,6 +85,8 @@ brew install httpie
 brew install shellcheck
 brew install tmux
 brew install just
+brew install yamllint
+brew install vite
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
@@ -102,6 +105,7 @@ brew install --cask beyond-compare
 brew install --cask bitwarden
 brew install --cask brave-browser
 brew install --cask bruno
+brew install --cask voiden
 brew install --cask balenaetcher
 brew install --cask calendr
 brew install --cask calibre
@@ -174,6 +178,7 @@ brew install --cask mission-control-plus
 brew install --cask sensei
 brew install --cask keepingyouawake
 brew install --cask keka
+brew install --cask nextcloud
 
 # Install npm packages
 echo "Installing npm packages..."

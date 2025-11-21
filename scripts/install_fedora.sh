@@ -69,7 +69,8 @@ sudo dnf install -y \
     libwebp \
     flite \
     pcre \
-    libffi
+    libffi \
+    nss
 
 # Install Flatpak apps
 echo "Installing Flatpak apps..."
@@ -93,6 +94,8 @@ flatpak install -y flathub dev.deedles.Trayscale
 flatpak install -y flathub dev.geopjr.Collision
 flatpak install -y flathub fr.handbrake.ghb
 flatpak install -y flathub io.github.cboxdoerfer.FSearch
+flatpak install -y flathub com.felixnkate.Permute
+flatpak install -y flathub com.amazonaws.SessionManagerPlugin
 flatpak install -y flathub io.github.flattool.Warehouse
 flatpak install -y flathub io.github.giantpinkrobots.flatsweep
 flatpak install -y flathub io.github.peazip.PeaZip
@@ -156,6 +159,10 @@ brew install git-delta
 brew install go
 brew install yamllint
 brew install vite
+brew install terraform
+brew install awscli
+brew install mkcert
+brew install cloudflared
 
 # Install npm packages
 echo "Installing npm packages..."

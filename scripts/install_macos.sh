@@ -26,6 +26,7 @@ fi
 # Install taps
 echo "Installing taps..."
 brew tap pakerwreah/calendr
+brew tap hashicorp/tap
 
 # Install formulae (command-line tools)
 echo "Installing formulae..."
@@ -87,6 +88,11 @@ brew install tmux
 brew install just
 brew install yamllint
 brew install vite
+brew install hashicorp/tap/terraform
+brew install awscli
+brew install mkcert
+brew install nss
+brew install cloudflared
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
@@ -152,6 +158,9 @@ brew install --cask sublime-merge
 brew install --cask sublime-text
 brew install --cask superkey
 brew install --cask taskexplorer
+brew install --cask handbrake-app
+brew install --cask permute
+brew install --cask session-manager-plugin
 
 brew install --cask transmission
 brew install --cask tuxera-ntfs
@@ -179,6 +188,8 @@ brew install --cask sensei
 brew install --cask keepingyouawake
 brew install --cask keka
 brew install --cask nextcloud
+brew install --cask claude
+brew install --cask antigravity
 
 # Install npm packages
 echo "Installing npm packages..."

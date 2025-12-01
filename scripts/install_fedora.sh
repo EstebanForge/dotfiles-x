@@ -157,6 +157,7 @@ brew install httpie
 brew install shellcheck
 brew install git-delta
 brew install go
+brew install uv
 brew install yamllint
 brew install vite
 brew install terraform
@@ -165,8 +166,10 @@ brew install mkcert
 brew install cloudflared
 
 # Install npm packages
-echo "Installing npm packages..."
-npm install -g claude-code-wakatime
+
+# Install wakatime-cli
+echo "Installing wakatime-cli..."
+brew install wakatime-clinpm install -g claude-code-wakatime
 npm install -g postcss
 npm install -g postcss-cli
 npm install -g @github/copilot

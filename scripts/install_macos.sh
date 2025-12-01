@@ -66,6 +66,7 @@ brew install aliases
 brew install coreutils
 brew install procs
 brew install python
+brew install uv
 brew install sass/sass/sass
 brew install tailscale
 brew install github-copilot-cli
@@ -128,6 +129,8 @@ brew install --cask filebot
 brew install --cask firefox
 brew install --cask font-iosevka-nerd-font
 brew install --cask font-iosevka-term-nerd-font
+brew install --cask font-open-sans
+brew install --cask font-oswald
 brew install --cask ghostty
 brew install --cask github
 brew install --cask google-drive
@@ -194,6 +197,10 @@ brew install --cask antigravity
 # Install npm packages
 echo "Installing npm packages..."
 npm install -g claude-code-wakatime
+
+# Install wakatime-cli
+echo "Installing wakatime-cli..."
+brew install wakatime-cli
 npm install -g postcss
 npm install -g postcss-cli
 npm install -g @github/copilot

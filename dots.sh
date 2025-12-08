@@ -405,6 +405,22 @@ setup_new_machine() {
         fi
     fi
 
+    # Setup crontab if requested
+    if [[ "${2:-}" == "--with-crontab" ]] || [[ "${1:-}" == "--with-crontab" ]]; then
+        print_status "Setting up crontab entries..."
+        if [[ "$(uname)" == "Darwin" ]]; then
+            if [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]; then
+                print_status "Running macOS crontab setup..."
+                "$DOTFILES_DIR/scripts/crontab_macos.sh" install
+            fi
+        elif [[ "$(uname)" == "Linux" ]]; then
+            if [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]]; then
+                print_status "Running Fedora crontab setup..."
+                "$DOTFILES_DIR/scripts/crontab_fedora.sh" install
+            fi
+        fi
+    fi
+
     print_success "New machine setup complete!"
     print_status "Next steps:"
     print_status "  1. Edit ~/.secrets with your actual API keys"
@@ -445,6 +461,33 @@ show_history() {
 
     echo ""
     print_status "Use 'dots restore <commit-hash>' to restore to a specific commit"
+}
+
+# Function to setup crontab
+setup_crontab() {
+    local action="${1:-install}"
+    print_header "Crontab Setup"
+    
+    if [[ "$(uname)" == "Darwin" ]]; then
+        if [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]; then
+            print_status "Running macOS crontab $action..."
+            "$DOTFILES_DIR/scripts/crontab_macos.sh" "$action"
+        else
+            print_error "macOS crontab script not found"
+            return 1
+        fi
+    elif [[ "$(uname)" == "Linux" ]]; then
+        if [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]]; then
+            print_status "Running Fedora crontab $action..."
+            "$DOTFILES_DIR/scripts/crontab_fedora.sh" "$action"
+        else
+            print_error "Fedora crontab script not found"
+            return 1
+        fi
+    else
+        print_error "Unsupported operating system for crontab setup"
+        return 1
+    fi
 }
 
 # Function to show health check
@@ -791,11 +834,14 @@ COMMANDS:
     restore <commit>   Restore to specific git commit
     history           Show recent git history
     health            Run comprehensive health check
+    crontab [action]  Manage crontab entries (install/show/remove/backup)
     help, -h, --help Show this help message
 
 NEW MACHINE SETUP:
     dots setup-machine           # Basic setup
     dots setup-machine --with-packages  # Setup + install packages
+    dots setup-machine --with-crontab   # Setup + install crontab entries
+    dots setup-machine --with-packages --with-crontab  # Setup + packages + crontab
 
 SYNC COMMANDS:
     dots sync                  # Full sync (pull, push, install)
@@ -808,6 +854,12 @@ RESTORE COMMANDS:
 STATUS COMMANDS:
     dots status               # Detailed status of all dotfiles
     dots health               # Overall system health check
+
+CRONTAB COMMANDS:
+    dots crontab install      # Install crontab entries
+    dots crontab show         # Show current crontab entries
+    dots crontab remove       # Remove all crontab entries
+    dots crontab backup       # Backup existing crontab
 
 EXAMPLES:
     dots install              # Install all dotfiles
@@ -859,6 +911,9 @@ main() {
             ;;
         "health"|"check")
             health_check
+            ;;
+        "crontab")
+            setup_crontab "${args[0]:-install}"
             ;;
         "help"|"-h"|"--help")
             show_help

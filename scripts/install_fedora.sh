@@ -146,6 +146,7 @@ fi
 echo "Installing Homebrew packages..."
 brew install git
 brew install fastfetch
+brew install gemini-cli
 brew install topgrade
 brew install ripgrep
 brew install ast-grep
@@ -169,7 +170,8 @@ brew install cloudflared
 
 # Install wakatime-cli
 echo "Installing wakatime-cli..."
-brew install wakatime-clinpm install -g claude-code-wakatime
+brew install wakatime-cli
+npm install -g claude-code-wakatime
 npm install -g postcss
 npm install -g postcss-cli
 npm install -g @github/copilot

@@ -9,8 +9,8 @@ sudo dnf update -y
 
 # Install RPM Fusion repositories (for proprietary codecs)
 echo "Installing RPM Fusion repositories..."
-sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
-sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$\(rpm -E %fedora\).noarch.rpm
+sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$\(rpm -E %fedora\).noarch.rpm
 
 # Install development tools group
 echo "Installing development tools group..."
@@ -70,7 +70,8 @@ sudo dnf install -y \
     flite \
     pcre \
     libffi \
-    nss
+    nss \
+    bubblewrap
 
 # Install Flatpak apps
 echo "Installing Flatpak apps..."
@@ -163,10 +164,20 @@ brew install yamllint
 brew install vite
 brew install terraform
 brew install awscli
+brew install aws-nuke
 brew install mkcert
 brew install cloudflared
+brew install composer
+brew install gulp-cli
+brew install tailwindcss
+brew install volta
+brew install nvm
+brew install webpack
 
 # Install npm packages
+
+# Install Bun
+curl -fsSL https://bun.sh/install | bash
 
 # Install wakatime-cli
 echo "Installing wakatime-cli..."

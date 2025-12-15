@@ -154,6 +154,7 @@ elif [[ "$(uname)" == "Linux" ]]; then
 fi
 alias artisan='php artisan'
 alias cat='bat'
+alias qs='open -a "QSpace Pro"'
 
 ######################################
 # PATH AND ENVIRONMENT CONFIGURATION #

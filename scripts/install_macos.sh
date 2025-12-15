@@ -64,6 +64,7 @@ brew install yt-dlp
 brew install tlrc
 brew install aliases
 brew install coreutils
+brew install gnu-sed
 brew install procs
 brew install python
 brew install uv
@@ -91,6 +92,7 @@ brew install yamllint
 brew install vite
 brew install hashicorp/tap/terraform
 brew install awscli
+brew install aws-nuke
 brew install mkcert
 brew install nss
 brew install cloudflared

@@ -27,6 +27,7 @@ fi
 echo "Installing taps..."
 brew tap pakerwreah/calendr
 brew tap hashicorp/tap
+brew tap oven-sh/bun
 
 # Install formulae (command-line tools)
 echo "Installing formulae..."
@@ -70,7 +71,6 @@ brew install python
 brew install uv
 brew install sass/sass/sass
 brew install tailscale
-brew install github-copilot-cli
 brew install gh
 brew install go
 brew install prettier
@@ -96,6 +96,8 @@ brew install aws-nuke
 brew install mkcert
 brew install nss
 brew install cloudflared
+brew install oven-sh/bun/bun
+brew install unzip
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."

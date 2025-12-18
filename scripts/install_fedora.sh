@@ -71,7 +71,8 @@ sudo dnf install -y \
     pcre \
     libffi \
     nss \
-    bubblewrap
+    bubblewrap \
+    unzip
 
 # Install Flatpak apps
 echo "Installing Flatpak apps..."

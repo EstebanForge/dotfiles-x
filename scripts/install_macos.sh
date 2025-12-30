@@ -48,6 +48,7 @@ brew install zola
 brew install handbrake
 brew install mas
 brew install mkvtoolnix
+brew install music-decoy
 brew install mpv
 brew install node
 brew install openssl
@@ -112,6 +113,7 @@ brew install --cask affinity-designer
 brew install --cask affinity-photo
 brew install --cask alfred
 brew install --cask bettermouse
+brew install --cask bettertouchtool
 brew install --cask beyond-compare
 brew install --cask bitwarden
 brew install --cask brave-browser
@@ -135,7 +137,6 @@ brew install --cask font-iosevka-nerd-font
 brew install --cask font-iosevka-term-nerd-font
 brew install --cask font-open-sans
 brew install --cask font-oswald
-brew install --cask ghostty
 brew install --cask github
 brew install --cask google-drive
 brew install --cask iconchamp

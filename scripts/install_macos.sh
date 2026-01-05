@@ -29,6 +29,8 @@ brew tap pakerwreah/calendr
 brew tap hashicorp/tap
 brew tap oven-sh/bun
 brew tap EstebanForge/tap
+brew tap max-sixty/worktrunk
+brew tap shivammathur/tap
 
 # Install formulae (command-line tools)
 echo "Installing formulae..."
@@ -104,6 +106,8 @@ brew install EstebanForge/tap/mcp-cli-ent
 brew install EstebanForge/tap/construct-cli
 brew install mise
 brew install EstebanForge/tap/md-over-here
+brew install max-sixty/worktrunk/wt
+brew install shivammathur/tap/pcov@8.5
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."

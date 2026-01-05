@@ -147,6 +147,8 @@ fi
 # Install common development tools via Homebrew
 echo "Installing Homebrew packages..."
 brew tap EstebanForge/tap
+brew tap max-sixty/worktrunk
+brew tap shivammathur/tap
 brew install git
 brew install fastfetch
 brew install gemini-cli
@@ -179,6 +181,8 @@ brew install EstebanForge/tap/mcp-cli-ent
 brew install EstebanForge/tap/construct-cli
 brew install mise
 brew install EstebanForge/tap/md-over-here
+brew install max-sixty/worktrunk/wt
+brew install shivammathur/tap/pcov@8.5
 
 # Install npm packages
 

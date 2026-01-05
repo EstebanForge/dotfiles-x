@@ -146,6 +146,7 @@ fi
 
 # Install common development tools via Homebrew
 echo "Installing Homebrew packages..."
+brew tap EstebanForge/tap
 brew install git
 brew install fastfetch
 brew install gemini-cli
@@ -174,6 +175,10 @@ brew install tailwindcss
 brew install volta
 brew install nvm
 brew install webpack
+brew install EstebanForge/tap/mcp-cli-ent
+brew install EstebanForge/tap/construct-cli
+brew install mise
+brew install EstebanForge/tap/md-over-here
 
 # Install npm packages
 

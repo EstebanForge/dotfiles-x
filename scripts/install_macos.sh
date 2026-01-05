@@ -28,6 +28,7 @@ echo "Installing taps..."
 brew tap pakerwreah/calendr
 brew tap hashicorp/tap
 brew tap oven-sh/bun
+brew tap EstebanForge/tap
 
 # Install formulae (command-line tools)
 echo "Installing formulae..."
@@ -99,6 +100,10 @@ brew install nss
 brew install cloudflared
 brew install oven-sh/bun/bun
 brew install unzip
+brew install EstebanForge/tap/mcp-cli-ent
+brew install EstebanForge/tap/construct-cli
+brew install mise
+brew install EstebanForge/tap/md-over-here
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
@@ -118,18 +123,15 @@ brew install --cask beyond-compare
 brew install --cask bitwarden
 brew install --cask brave-browser
 brew install --cask bruno
-brew install --cask voiden
 brew install --cask balenaetcher
 brew install --cask calendr
 brew install --cask calibre
 brew install --cask claude-code
 brew install --cask command-tab-plus
-brew install --cask commander-one
 brew install --cask coteditor
 brew install --cask cryptomator
 brew install --cask daisydisk
 brew install --cask dbeaver-community
-brew install --cask displaylink
 brew install --cask ferdium
 brew install --cask filebot
 brew install --cask firefox
@@ -154,7 +156,6 @@ brew install --cask mediainfo
 brew install --cask middleclick
 brew install --cask nordvpn
 brew install --cask obsidian
-brew install --cask opencode
 brew install --cask orbstack
 brew install --cask path-finder
 brew install --cask qspace-pro

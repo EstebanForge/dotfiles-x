@@ -52,6 +52,7 @@ sudo dnf install -y \
     solaar \
     solaar-udev \
     subversion \
+    sshpass \
     tailscale \
     ulauncher \
     yt-dlp \
@@ -161,6 +162,7 @@ brew install eza
 brew install zoxide
 brew install httpie
 brew install shellcheck
+brew install sshpass
 brew install git-delta
 brew install go
 brew install uv

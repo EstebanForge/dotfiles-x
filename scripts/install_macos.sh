@@ -90,6 +90,7 @@ brew install fzf
 brew install zoxide
 brew install httpie
 brew install shellcheck
+brew install sshpass
 brew install tmux
 brew install just
 brew install yamllint

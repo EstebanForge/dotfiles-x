@@ -1,7 +1,22 @@
 #!/usr/bin/env bash
 
+# Re-exec with Bash when invoked from another shell (for example: zsh script.sh).
+if [[ -z "${BASH_VERSION:-}" ]]; then
+    if command -v bash >/dev/null 2>&1; then
+        exec bash "$0" "$@"
+    fi
+    echo "This script requires Bash to run." >&2
+    exit 1
+fi
+
 # Fedora Linux packages installation script
 # This script installs DNF packages, Flatpak apps, and sets up development environment
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/brew_shared.sh
+source "$SCRIPT_DIR/lib/brew_shared.sh"
 
 # Update system
 echo "Updating system packages..."
@@ -9,8 +24,8 @@ sudo dnf update -y
 
 # Install RPM Fusion repositories (for proprietary codecs)
 echo "Installing RPM Fusion repositories..."
-sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$\(rpm -E %fedora\).noarch.rpm
-sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$\(rpm -E %fedora\).noarch.rpm
+sudo dnf install -y "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm"
+sudo dnf install -y "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
 
 # Install development tools group
 echo "Installing development tools group..."
@@ -147,43 +162,11 @@ fi
 
 # Install common development tools via Homebrew
 echo "Installing Homebrew packages..."
-brew tap EstebanForge/tap
-brew tap max-sixty/worktrunk
-brew tap shivammathur/tap
-brew install git
-brew install fastfetch
-brew install gemini-cli
-brew install topgrade
-brew install ripgrep
-brew install ast-grep
-brew install fzf
-brew install bat
-brew install eza
-brew install zoxide
-brew install httpie
-brew install shellcheck
-brew install sshpass
-brew install git-delta
-brew install go
-brew install uv
-brew install yamllint
-brew install vite
-brew install terraform
-brew install awscli
-brew install aws-nuke
-brew install mkcert
-brew install cloudflared
-brew install composer
-brew install gulp-cli
-brew install tailwindcss
+install_shared_brew_packages
+
+# Fedora-specific Homebrew packages
 brew install volta
 brew install webpack
-brew install EstebanForge/tap/mcp-cli-ent
-brew install EstebanForge/tap/construct-cli
-brew install mise
-brew install EstebanForge/tap/md-over-here
-brew install max-sixty/worktrunk/wt
-brew install shivammathur/tap/pcov@8.5
 
 # Ensure volta's managed node/npm is on PATH for this script session
 export VOLTA_HOME="$HOME/.volta"

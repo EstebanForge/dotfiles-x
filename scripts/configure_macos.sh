@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# Re-exec with Bash when invoked from another shell (for example: zsh script.sh).
+if [[ -z "${BASH_VERSION:-}" ]]; then
+    if command -v bash >/dev/null 2>&1; then
+        exec bash "$0" "$@"
+    fi
+    echo "This script requires Bash to run." >&2
+    exit 1
+fi
+
 # macOS system configuration script
 # This script applies macOS defaults and system settings
 

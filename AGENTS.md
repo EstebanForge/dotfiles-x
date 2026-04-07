@@ -14,10 +14,10 @@ The project uses a symlink-based approach with automation scripts to achieve thi
 ## Key Files
 
 *   `home/`: This directory contains the dotfiles that will be symlinked to your home directory:
-    *   `dot_zshrc`: Zsh configuration with OS-specific logic and secure API key management.
-    *   `dot_gitconfig`: Git configuration with user details.
-    *   `dot_gitignore_global`: Global gitignore rules for all projects.
-    *   `dot_secrets.example`: Secrets management template for API keys and sensitive data.
+    *   `.zshrc`: Zsh configuration with OS-specific logic and secure API key management.
+    *   `.gitconfig`: Git configuration with user details.
+    *   `.gitignore_global`: Global gitignore rules for all projects.
+    *   `.secrets.example`: Secrets management template for API keys and sensitive data.
 
 *   `scripts/`: Optional setup scripts for package installation and system configuration:
     *   `install_macos.sh`: macOS package installation using Homebrew.
@@ -25,7 +25,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `configure_macos.sh`: macOS system settings and preferences.
     *   `configure_fedora.sh`: Fedora GNOME desktop configuration.
 
-*   `setup.sh`: Main setup script for managing symlinks, backups, and dotfile deployment.
+*   `dots.sh`: Main setup script for managing symlinks, backups, and dotfile deployment.
 
 ## Building and Running
 
@@ -39,7 +39,7 @@ git clone https://github.com/estebanforge/dotfiles-x.git ~/.dotfiles
 cd ~/.dotfiles
 
 # Install dotfiles (creates symlinks automatically)
-./setup.sh install
+./dots.sh install
 
 # Reload shell configuration
 source ~/.zshrc
@@ -60,7 +60,7 @@ chmod 600 ~/.secrets
 
 2.  **Install dotfiles:**
     ```bash
-    ./setup.sh install
+    ./dots.sh install
     ```
 
 3.  **Set up your secrets:**
@@ -86,15 +86,15 @@ chmod 600 ~/.secrets
 The setup script provides several commands:
 
 ```bash
-./setup.sh install    # Install dotfiles (create symlinks)
-./setup.sh status     # Check current status of dotfiles
-./setup.sh cleanup    # Remove existing symlinks
-./setup.sh help       # Show help information
+./dots.sh install    # Install dotfiles (create symlinks)
+./dots.sh status     # Check current status of dotfiles
+./dots.sh cleanup    # Remove existing symlinks
+./dots.sh help       # Show help information
 ```
 
 ## Development Conventions
 
 *   **Adding new packages:** To add a new application or tool, add a new `brew install` or `brew install --cask` line to the appropriate `install_*.sh` script for your platform.
-*   **Adding new dotfiles:** If you want to manage a new configuration file, add it to the `home/` directory with the `dot_` prefix. Then update the `dotfiles` array in `setup.sh` to include the new file.
+*   **Adding new dotfiles:** If you want to manage a new configuration file, add it to the `home/` directory using its final filename (for example: `.myconfig`). Then update the `dotfiles` array in `dots.sh` to include the new file.
 *   **Customizing macOS settings:** The `configure_macos.sh` script contains `defaults write` commands to change macOS settings. You can add, remove, or modify these commands to fit your preferences.
 *   **Backup Management:** The setup script automatically creates timestamped backups of existing files before creating symlinks.

@@ -55,6 +55,8 @@ show_skipped = true
 [linux]
 "Update DNF cache" = "sudo dnf makecache"
 "Check DNF issues" = "sudo dnf check"
+dnf_arguments = "--refresh"
+enable_tlmgr = true
 
 # Composer configuration
 [composer]
@@ -97,14 +99,6 @@ repos = [
 
 # Arguments to pass Git when pulling Repositories
 arguments = "--rebase --autostash"
-
-# Linux distribution specific settings
-[linux]
-# DNF arguments for package updates
-dnf_arguments = "--refresh"
-
-# Enable telemetry manager updates
-enable_tlmgr = true
 
 # Windows-specific (for future WSL support)
 [windows]

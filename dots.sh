@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-# Ensure we are running with Bash (>=5.x on macOS); restart with Homebrew bash when available.
-if [[ -z "${BASH_VERSINFO:-}" ]]; then
+# Re-exec with Bash when invoked from another shell (for example: zsh dots.sh).
+if [[ -z "${BASH_VERSION:-}" ]]; then
+    if command -v bash >/dev/null 2>&1; then
+        exec bash "$0" "$@"
+    fi
     echo "dots.sh requires Bash to run." >&2
     exit 1
 fi
@@ -153,6 +156,16 @@ create_symlink() {
     fi
 }
 
+# Function to setup stable dots command
+setup_dots_command() {
+    local bin_dir="$HOME_DIR/.local/bin"
+    local command_target="$bin_dir/dots"
+    local command_source="$DOTFILES_DIR/dots.sh"
+
+    mkdir -p "$bin_dir"
+    create_symlink "$command_source" "$command_target"
+}
+
 # Function to setup SSH configuration
 setup_ssh_config() {
     local ssh_source="$DOTFILES_DIR/home/.ssh/config"
@@ -217,6 +230,9 @@ setup_dotfiles() {
     # Setup secrets file
     setup_secrets
 
+    # Setup dots command symlink
+    setup_dots_command
+
     print_success "Dotfiles setup complete!"
     print_status "Run 'exec zsh' to reload shell configuration"
 }
@@ -254,6 +270,7 @@ cleanup_symlinks() {
         ".editorconfig"
         ".ssh/config"
         ".config/topgrade/topgrade.toml"
+        ".local/bin/dots"
     )
 
     for dotfile in "${dotfiles[@]}"; do
@@ -307,6 +324,24 @@ show_status() {
             all_good=false
         fi
     done
+
+    local dots_target="$HOME_DIR/.local/bin/dots"
+    if [[ -L "$dots_target" ]]; then
+        local dots_link_target
+        dots_link_target="$(readlink "$dots_target")"
+        if [[ "$dots_link_target" == "$DOTFILES_DIR/dots.sh" ]]; then
+            print_success ".local/bin/dots → dots.sh ✓"
+        else
+            print_warning ".local/bin/dots → $dots_link_target (different target)"
+            all_good=false
+        fi
+    elif [[ -f "$dots_target" ]]; then
+        print_warning ".local/bin/dots exists but is not a symlink"
+        all_good=false
+    else
+        print_error ".local/bin/dots does not exist"
+        all_good=false
+    fi
 
     # Git repository status
     echo ""
@@ -437,12 +472,46 @@ setup_new_machine() {
 
 # Function to restore from git
 restore_from_git() {
-    local commit_hash="${1:-HEAD}"
+    local commit_hash="HEAD"
+    local force=false
+    local arg
+
+    for arg in "$@"; do
+        case "$arg" in
+            "--force")
+                force=true
+                ;;
+            -*)
+                print_error "Unknown option for restore: $arg"
+                print_status "Usage: dots restore [commit] [--force]"
+                return 1
+                ;;
+            *)
+                commit_hash="$arg"
+                ;;
+        esac
+    done
+
     print_header "Restoring from Git"
 
     cd "$DOTFILES_DIR"
 
     print_status "Restoring to commit: $commit_hash"
+
+    if [[ "$force" != true ]]; then
+        print_warning "This will run 'git reset --hard $commit_hash' and discard local changes."
+        if [[ -t 0 ]]; then
+            local confirmation
+            read -r -p "Type 'yes' to continue: " confirmation
+            if [[ "$confirmation" != "yes" ]]; then
+                print_status "Restore cancelled."
+                return 1
+            fi
+        else
+            print_error "Non-interactive shell detected. Re-run with --force to continue."
+            return 1
+        fi
+    fi
 
     if git reset --hard "$commit_hash"; then
         print_success "Repository restored to $commit_hash"
@@ -875,6 +944,7 @@ SYNC COMMANDS:
 RESTORE COMMANDS:
     dots restore               # Restore to latest commit
     dots restore abc123        # Restore to specific commit
+    dots restore abc123 --force # Skip restore confirmation prompt
     dots history               # Show commit history
 
 STATUS COMMANDS:
@@ -930,7 +1000,7 @@ main() {
             setup_new_machine "${args[@]}"
             ;;
         "restore"|"r")
-            restore_from_git "${args[0]:-HEAD}"
+            restore_from_git "${args[@]}"
             ;;
         "history"|"log")
             show_history

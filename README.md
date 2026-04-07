@@ -12,7 +12,7 @@ git clone https://github.com/estebanforge/dotfiles-x.git ~/.dotfiles
 cd ~/.dotfiles
 
 # Run the setup script to create symlinks
-./setup.sh install
+./dots.sh install
 
 # Reload shell configuration
 source ~/.zshrc
@@ -26,7 +26,7 @@ git clone https://github.com/estebanforge/dotfiles-x.git ~/.dotfiles
 cd ~/.dotfiles
 
 # Run the setup script (automatically backs up existing files)
-./setup.sh install
+./dots.sh install
 
 # Reload shell configuration
 source ~/.zshrc
@@ -37,24 +37,24 @@ source ~/.zshrc
 The setup script provides several commands:
 
 ```bash
-./setup.sh install    # Install dotfiles (create symlinks)
-./setup.sh status     # Check current status of dotfiles
-./setup.sh cleanup    # Remove existing symlinks
-./setup.sh help       # Show help information
+./dots.sh install    # Install dotfiles (create symlinks)
+./dots.sh status     # Check current status of dotfiles
+./dots.sh cleanup    # Remove existing symlinks
+./dots.sh help       # Show help information
 ```
 
 ### Secrets Management
 
 The dotfiles include a secrets management system:
 
-1. **Template file**: `home/dot_secrets.example` - Contains example secrets and documentation
+1. **Template file**: `home/.secrets.example` - Contains example secrets and documentation
 2. **Your secrets**: `~/.secrets` - Your actual secrets (never committed to git)
 3. **Auto-loading**: Secrets are automatically loaded when shell starts
 
 **Setup your secrets:**
 
 ```bash
-# After running ./setup.sh install, edit your secrets:
+# After running ./dots.sh install, edit your secrets:
 nano ~/.secrets
 
 # Set secure permissions:
@@ -77,16 +77,16 @@ curl -H "Authorization: Bearer $ANTHROPIC_API_KEY" https://api.anthropic.com/v1/
 ```
 dotfiles-x/
 ├── home/                           # Your dotfiles
-│   ├── dot_zshrc                   # Zsh configuration with OS detection
-│   ├── dot_gitconfig               # Git configuration
-│   ├── dot_gitignore_global        # Global gitignore
-│   └── dot_secrets.example         # Secrets template (copy to ~/.secrets)
+│   ├── .zshrc                   # Zsh configuration with OS detection
+│   ├── .gitconfig               # Git configuration
+│   ├── .gitignore_global        # Global gitignore
+│   └── .secrets.example         # Secrets template (copy to ~/.secrets)
 ├── scripts/                        # Optional setup scripts
 │   ├── install_macos.sh            # macOS package installation
 │   ├── install_fedora.sh           # Fedora package installation
 │   ├── configure_macos.sh          # macOS system settings
 │   └── configure_fedora.sh         # Fedora GNOME settings
-├── setup.sh                        # Setup script for symlinks
+├── dots.sh                        # Setup script for symlinks
 └── README.md                       # This file
 ```
 
@@ -150,23 +150,23 @@ After setting up dotfiles, you can optionally install packages:
 
 ## Adding New Dotfiles
 
-1. Create the file in the `home/` directory with the `dot_` prefix
-2. Add the new file to the `dotfiles` array in `setup.sh`
+1. Create the file in the `home/` directory using the final filename (for example: `.myconfig`)
+2. Add the new file to the `dotfiles` array in `dots.sh`
 3. Update this README if needed
-4. Run `./setup.sh install` to create the symlink
+4. Run `./dots.sh install` to create the symlink
 5. Commit changes: `git add . && git commit -m "Add new dotfile"`
 
 ### Example: Adding a new dotfile
 
 ```bash
 # Create the new dotfile in home/ directory
-echo "export MY_VAR=value" > home/dot_myconfig
+echo "export MY_VAR=value" > home/.myconfig
 
-# Edit setup.sh to add the new file to the dotfiles array:
-# "dot_myconfig:.myconfig"
+# Edit dots.sh to add the new file to the dotfiles array:
+# ".myconfig:.myconfig"
 
 # Install the new dotfile
-./setup.sh install
+./dots.sh install
 ```
 
 ## Requirements

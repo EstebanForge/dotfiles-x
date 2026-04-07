@@ -1,13 +1,71 @@
 #!/usr/bin/env bash
 
+# Re-exec with Bash when invoked from another shell (for example: zsh script.sh).
+if [[ -z "${BASH_VERSION:-}" ]]; then
+    if command -v bash >/dev/null 2>&1; then
+        exec bash "$0" "$@"
+    fi
+    echo "This script requires Bash to run." >&2
+    exit 1
+fi
+
 # macOS Homebrew packages installation script
 # This script installs all Homebrew packages and casks
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/brew_shared.sh
+source "$SCRIPT_DIR/lib/brew_shared.sh"
+
+ensure_xcode_clt() {
+    if xcode-select -p >/dev/null 2>&1 && [[ -d "/Library/Developer/CommandLineTools" ]]; then
+        return
+    fi
+
+    echo "Xcode Command Line Tools are not installed. Triggering installation..."
+    xcode-select --install || true
+    echo "Complete Command Line Tools installation, then rerun this script."
+    exit 0
+}
+
+ensure_homebrew_permissions() {
+    local brew_prefix user_name
+    local -a fix_paths=()
+
+    brew_prefix="$(brew --prefix)"
+    user_name="${SUDO_USER:-$USER}"
+
+    local -a candidates=(
+        "$HOME/Library/Caches/Homebrew"
+        "$HOME/Library/Logs/Homebrew"
+        "$brew_prefix"
+        "$brew_prefix/Caskroom"
+    )
+
+    local path
+    for path in "${candidates[@]}"; do
+        [[ -e "$path" ]] || continue
+        if [[ ! -w "$path" ]]; then
+            fix_paths+=("$path")
+        fi
+    done
+
+    if (( ${#fix_paths[@]} > 0 )); then
+        echo "Fixing Homebrew permissions..."
+        sudo chown -R "$user_name" "${fix_paths[@]}"
+        sudo chmod -R u+rwX "${fix_paths[@]}"
+    fi
+}
 
 # Install Homebrew first
 if ! command -v brew &> /dev/null; then
     echo "Homebrew not found. Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
+
+ensure_xcode_clt
+ensure_homebrew_permissions
 
 # Update Homebrew
 echo "Updating Homebrew..."
@@ -18,7 +76,7 @@ echo "Installing latest bash..."
 brew install bash
 
 # Restart script with new bash if we just installed it
-if [[ "$BASH_RESTART" != "1" ]]; then
+if [[ "${BASH_RESTART:-0}" != "1" ]]; then
     echo "Restarting script with updated bash..."
     BASH_RESTART=1 exec /opt/homebrew/bin/bash "$0" "$@"
 fi
@@ -26,24 +84,15 @@ fi
 # Install taps
 echo "Installing taps..."
 brew tap pakerwreah/calendr
-brew tap hashicorp/tap
 brew tap oven-sh/bun
-brew tap EstebanForge/tap
-brew tap max-sixty/worktrunk
-brew tap shivammathur/tap
+install_shared_brew_packages
 
 # Install formulae (command-line tools)
 echo "Installing formulae..."
 brew install alienator88-sentinel
-brew install bat
 brew install codex
-brew install composer
 brew install cv
-brew install fastfetch
 brew install ffmpeg
-brew install gemini-cli
-brew install git
-brew install gulp-cli
 brew install subversion
 brew install jq
 brew install yq
@@ -60,7 +109,6 @@ brew install php-cs-fixer
 brew install qwen-code
 brew install specify
 brew install tailspin
-brew install tailwindcss
 brew install volta
 brew install wp-cli
 brew install yarn
@@ -71,55 +119,29 @@ brew install coreutils
 brew install gnu-sed
 brew install procs
 brew install python
-brew install uv
 brew install sass/sass/sass
 brew install tailscale
 brew install gh
-brew install go
 brew install prettier
 brew install fastmod
-brew install topgrade
 brew install tree
 brew install git-cliff
 brew install fd
-brew install ripgrep
-brew install ast-grep
 brew install sd
-brew install fzf
-brew install zoxide
-brew install httpie
-brew install shellcheck
-brew install sshpass
 brew install tmux
-brew install just
-brew install yamllint
-brew install vite
-brew install hashicorp/tap/terraform
-brew install awscli
-brew install aws-nuke
-brew install mkcert
 brew install nss
-brew install cloudflared
 brew install oven-sh/bun/bun
 brew install unzip
-brew install EstebanForge/tap/mcp-cli-ent
-brew install EstebanForge/tap/construct-cli
-brew install mise
-brew install EstebanForge/tap/md-over-here
-brew install max-sixty/worktrunk/wt
-brew install shivammathur/tap/pcov@8.5
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
-brew install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package apparency quicklookase qlvideo
+brew install qlimagesize suspicious-package apparency quicklookase qlvideo
 brew install --cask quickjson
 brew install --cask keka
 
 # Install casks (GUI applications)
 echo "Installing casks..."
 brew install --cask 1password
-brew install --cask affinity-designer
-brew install --cask affinity-photo
 brew install --cask alfred
 brew install --cask bettermouse
 brew install --cask bettertouchtool
@@ -195,7 +217,6 @@ brew install --cask font-cantarell
 brew install --cask font-roboto
 brew install --cask font-iosevka
 brew install --cask font-esteban
-brew install --cask gas-mask
 brew install --cask mission-control-plus
 brew install --cask sensei
 brew install --cask keepingyouawake

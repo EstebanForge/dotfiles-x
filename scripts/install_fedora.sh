@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Fedora Linux packages installation script
 # This script installs DNF packages, Flatpak apps, and sets up development environment
@@ -177,7 +177,6 @@ brew install composer
 brew install gulp-cli
 brew install tailwindcss
 brew install volta
-brew install nvm
 brew install webpack
 brew install EstebanForge/tap/mcp-cli-ent
 brew install EstebanForge/tap/construct-cli
@@ -186,7 +185,10 @@ brew install EstebanForge/tap/md-over-here
 brew install max-sixty/worktrunk/wt
 brew install shivammathur/tap/pcov@8.5
 
-# Install npm packages
+# Ensure volta's managed node/npm is on PATH for this script session
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+volta install node 2>/dev/null || true
 
 # Install Bun
 curl -fsSL https://bun.sh/install | bash

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # macOS Homebrew packages installation script
 # This script installs all Homebrew packages and casks
@@ -48,7 +48,6 @@ brew install subversion
 brew install jq
 brew install yq
 brew install zola
-brew install handbrake
 brew install mas
 brew install mkvtoolnix
 brew install music-decoy
@@ -186,9 +185,9 @@ brew install --cask windsurf
 brew install --cask zoom
 brew install --cask elmedia-player
 brew install --cask unite
-brew install --cask zsh-autosuggestions
-brew install --cask zsh-completions
-brew install --cask zsh-syntax-highlighting
+brew install zsh-autosuggestions
+brew install zsh-completions
+brew install zsh-syntax-highlighting
 brew install --cask ungoogled-chromium
 brew install --cask font-inconsolata-nerd-font
 brew install --cask font-arial
@@ -200,13 +199,16 @@ brew install --cask gas-mask
 brew install --cask mission-control-plus
 brew install --cask sensei
 brew install --cask keepingyouawake
-brew install --cask keka
 brew install --cask nextcloud
 brew install --cask claude
 brew install --cask antigravity
 
 # Install npm packages
 echo "Installing npm packages..."
+# Ensure volta's managed node/npm is on PATH for this script session
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+volta install node 2>/dev/null || true
 npm install -g claude-code-wakatime
 
 # Install wakatime-cli

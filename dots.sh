@@ -86,7 +86,6 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
 # Get the directory where this script is located
@@ -122,7 +121,8 @@ print_header() {
 backup_file() {
     local file="$1"
     if [[ -f "$file" || -L "$file" ]]; then
-        local backup="${file}.backup.$(date +%Y%m%d_%H%M%S)"
+        local backup
+        backup="${file}.backup.$(date +%Y%m%d_%H%M%S)"
         print_warning "Backing up existing $file to $backup"
         mv "$file" "$backup"
     fi
@@ -160,7 +160,8 @@ setup_ssh_config() {
 
     if [[ -f "$ssh_source" ]]; then
         # Create SSH directory if it doesn't exist
-        local ssh_dir="$(dirname "$ssh_target")"
+        local ssh_dir
+        ssh_dir="$(dirname "$ssh_target")"
         if [[ ! -d "$ssh_dir" ]]; then
             print_status "Creating SSH directory: $ssh_dir"
             mkdir -p "$ssh_dir"
@@ -321,15 +322,16 @@ show_status() {
     # Remote status
     echo ""
     print_status "Remote sync status:"
-    local local_commit=$(git rev-parse HEAD 2>/dev/null)
-    local remote_commit=$(git rev-parse origin/main 2>/dev/null)
+    local local_commit remote_commit
+    local_commit=$(git rev-parse HEAD 2>/dev/null)
+    remote_commit=$(git rev-parse origin/main 2>/dev/null)
     if [[ "$local_commit" == "$remote_commit" ]]; then
         print_success "Synced with remote"
     else
         print_warning "Out of sync with remote (run 'dots sync')"
     fi
 
-    return $([[ "$all_good" == true ]] && echo 0 || echo 1)
+    [[ "$all_good" == true ]]
 }
 
 # Function to sync dotfiles
@@ -340,9 +342,14 @@ sync_dotfiles() {
 
     # Check for uncommitted changes
     if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
-        print_status "Found local changes, committing..."
-        git add -A
-        git commit -m "Update dotfiles ($(date +'%Y-%m-%d %H:%M:%S'))"
+        print_warning "Found local changes"
+        print_status "Please review and commit manually:"
+        echo "  cd \"$DOTFILES_DIR\""
+        echo "  git status"
+        echo "  git add <files>"
+        echo "  git commit"
+        print_warning "Skipping auto-commit for safety"
+        return 1
     fi
 
     # Pull latest changes
@@ -516,7 +523,8 @@ health_check() {
 
         # Check remote configuration
         if git remote get-url origin >/dev/null 2>&1; then
-            local remote_url=$(git remote get-url origin)
+            local remote_url
+            remote_url=$(git remote get-url origin)
             print_success "✅ Remote origin configured: $remote_url"
 
             # Check if remote is accessible
@@ -540,8 +548,9 @@ health_check() {
         fi
 
         # Check if synced with remote
-        local local_commit=$(git rev-parse HEAD 2>/dev/null)
-        local remote_commit=$(git rev-parse origin/main 2>/dev/null)
+        local local_commit remote_commit
+        local_commit=$(git rev-parse HEAD 2>/dev/null)
+        remote_commit=$(git rev-parse origin/main 2>/dev/null)
         if [[ "$local_commit" == "$remote_commit" ]] && [[ -n "$remote_commit" ]]; then
             print_success "✅ Synced with remote"
         else
@@ -559,7 +568,8 @@ health_check() {
 
     # Check if ZSH config is symlinked properly
     if [[ -L "$HOME/.zshrc" ]]; then
-        local zsh_target="$(readlink "$HOME/.zshrc")"
+        local zsh_target
+        zsh_target="$(readlink "$HOME/.zshrc")"
         if [[ -f "$zsh_target" ]] && [[ "$zsh_target" == "$DOTFILES_DIR/home/.zshrc" ]]; then
             print_success "✅ ZSH configuration is properly symlinked"
         else
@@ -578,9 +588,11 @@ health_check() {
         # Check if Oh My Zsh is up to date
         cd "$HOME/.oh-my-zsh"
         if git status >/dev/null 2>&1; then
-            local omz_local=$(git rev-parse HEAD 2>/dev/null)
+            local omz_local
+            omz_local=$(git rev-parse HEAD 2>/dev/null)
             if git fetch --dry-run >/dev/null 2>&1; then
-                local omz_remote=$(git rev-parse origin/master 2>/dev/null)
+                local omz_remote
+                omz_remote=$(git rev-parse origin/master 2>/dev/null)
                 if [[ "$omz_local" != "$omz_remote" ]]; then
                     print_warning "⚠️  Oh My Zsh updates available"
                     ((warnings++))
@@ -612,7 +624,8 @@ health_check() {
         fi
 
         # Check for outdated packages
-        local outdated_count=$(brew outdated | wc -l | tr -d ' ')
+        local outdated_count
+        outdated_count=$(brew outdated | wc -l | tr -d ' ')
         if [[ $outdated_count -eq 0 ]]; then
             print_success "✅ All Homebrew packages are up to date"
         else
@@ -630,7 +643,8 @@ health_check() {
 
         # Check if npm is configured correctly
         if npm config get prefix >/dev/null 2>&1; then
-            local npm_prefix=$(npm config get prefix)
+            local npm_prefix
+            npm_prefix=$(npm config get prefix)
             if [[ -w "$npm_prefix" ]]; then
                 print_success "✅ npm is properly configured"
             else
@@ -648,7 +662,8 @@ health_check() {
         print_success "✅ Composer is installed"
 
         # Check Composer version
-        local composer_version=$(composer --version 2>/dev/null | cut -d' ' -f2)
+        local composer_version
+        composer_version=$(composer --version 2>/dev/null | cut -d' ' -f2)
         print_status "✅ Composer version: $composer_version"
     else
         print_warning "⚠️  Composer is not installed"
@@ -694,8 +709,10 @@ health_check() {
     if [[ -f "$HOME/.ssh/config" ]]; then
         print_success "✅ SSH configuration exists"
 
-        # Check SSH permissions
-        if [[ "$(stat -f %A "$HOME/.ssh")" == "drwx------" ]]; then
+        # Check SSH permissions — stat flag differs between macOS (-f) and Linux (-c)
+        local ssh_dir_perms
+        ssh_dir_perms="$(stat -f '%A' "$HOME/.ssh" 2>/dev/null || stat -c '%A' "$HOME/.ssh" 2>/dev/null)"
+        if [[ "$ssh_dir_perms" == "drwx------" ]]; then
             print_success "✅ SSH directory has correct permissions (700)"
         else
             print_warning "⚠️  SSH directory permissions may be insecure"
@@ -703,7 +720,9 @@ health_check() {
         fi
 
         if [[ -f "$HOME/.ssh/config" ]]; then
-            if [[ "$(stat -f %A "$HOME/.ssh/config")" == "-rw-------" ]]; then
+            local ssh_cfg_perms
+            ssh_cfg_perms="$(stat -f '%A' "$HOME/.ssh/config" 2>/dev/null || stat -c '%A' "$HOME/.ssh/config" 2>/dev/null)"
+            if [[ "$ssh_cfg_perms" == "-rw-------" ]]; then
                 print_success "✅ SSH config file has correct permissions (600)"
             else
                 print_warning "⚠️  SSH config file permissions may be insecure"
@@ -717,7 +736,9 @@ health_check() {
 
     # Secrets file security
     if [[ -f "$HOME/.secrets" ]]; then
-        if [[ "$(stat -f %A "$HOME/.secrets")" == "-rw-------" ]]; then
+        local secrets_perms
+        secrets_perms="$(stat -f '%A' "$HOME/.secrets" 2>/dev/null || stat -c '%A' "$HOME/.secrets" 2>/dev/null)"
+        if [[ "$secrets_perms" == "-rw-------" ]]; then
             print_success "✅ Secrets file has correct permissions (600)"
         else
             print_warning "⚠️  Secrets file permissions may be insecure"
@@ -732,7 +753,8 @@ health_check() {
     print_status "7. Checking system performance indicators..."
 
     # Check available disk space
-    local disk_usage=$(df "$HOME" | awk 'NR==2 {print $5}' | sed 's/%//')
+    local disk_usage
+    disk_usage=$(df "$HOME" | awk 'NR==2 {print $5}' | sed 's/%//')
     if [[ $disk_usage -lt 90 ]]; then
         print_success "✅ Home directory has sufficient disk space (${disk_usage}% used)"
     elif [[ $disk_usage -lt 95 ]]; then
@@ -745,7 +767,8 @@ health_check() {
 
     # Check memory usage (macOS)
     if [[ "$(uname)" == "Darwin" ]]; then
-        local memory_pressure=$(memory_pressure | head -1 | grep -o '[0-9]\+%')
+        local memory_pressure
+        memory_pressure=$(memory_pressure | head -1 | grep -o '[0-9]\+%')
         if [[ -n "$memory_pressure" ]]; then
             if [[ ${memory_pressure%?} -lt 80 ]]; then
                 print_success "✅ Memory pressure is normal"
@@ -759,17 +782,20 @@ health_check() {
     fi
 
     # Check if running on supported OS
-    local os_name=$(uname -s)
+    local os_name
+    os_name=$(uname -s)
     case "$os_name" in
         "Darwin")
             print_success "✅ Running on macOS (supported)"
-            local macos_version=$(sw_vers -productVersion)
+            local macos_version
+            macos_version=$(sw_vers -productVersion)
             print_status "ℹ️  macOS version: $macos_version"
             ;;
         "Linux")
             print_success "✅ Running on Linux (supported)"
             if [[ -f /etc/os-release ]]; then
-                local linux_distro=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
+                local linux_distro
+                linux_distro=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
                 print_status "ℹ️  Linux distribution: $linux_distro"
             fi
             ;;

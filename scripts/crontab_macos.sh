@@ -27,7 +27,8 @@ print_error() {
 # Function to backup existing crontab
 backup_crontab() {
     if crontab -l >/dev/null 2>&1; then
-        local backup_file="$HOME/.crontab.backup.$(date +%Y%m%d_%H%M%S)"
+        local backup_file
+        backup_file="$HOME/.crontab.backup.$(date +%Y%m%d_%H%M%S)"
         crontab -l >"$backup_file"
         print_status "Existing crontab backed up to: $backup_file"
     fi
@@ -35,7 +36,8 @@ backup_crontab() {
 
 # Function to install crontab entries
 install_crontab() {
-    local temp_crontab=$(mktemp)
+    local temp_crontab
+    temp_crontab=$(mktemp)
     
     # Get existing crontab if it exists
     if crontab -l >/dev/null 2>&1; then

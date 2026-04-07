@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Fedora GNOME configuration script
 # This script applies GNOME settings and desktop customizations

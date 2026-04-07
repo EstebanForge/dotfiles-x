@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # macOS system configuration script
 # This script applies macOS defaults and system settings
 
 # Set computer name (as done via System Preferences → Sharing)
-COMPUTER_NAME="{{ .computerName | default "ATTD-Zen4" }}"
+COMPUTER_NAME="ATTD-Zen4"
 sudo scutil --set ComputerName "$COMPUTER_NAME"
 sudo scutil --set HostName "$COMPUTER_NAME"
 sudo scutil --set LocalHostName "$COMPUTER_NAME"
@@ -118,7 +118,7 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
-echo "Disable the "reopen windows when logging back in" option"
+echo 'Disable the "reopen windows when logging back in" option'
 defaults write com.apple.loginwindow TALLogoutSavesState -bool false
 defaults write com.apple.loginwindow LoginwindowLaunchesRelaunchApps -bool false
 

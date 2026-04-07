@@ -8,10 +8,6 @@ fi
 DISABLE_MAGIC_FUNCTIONS="true"
 #DISABLE_COMPFIX="true"
 
-# Initialize completion system
-autoload -Uz compinit
-compinit
-
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -82,11 +78,7 @@ ZSH_AUTOSUGGEST_USE_ASYNC=1
 # export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-    export EDITOR='nano'
-  else
-    export EDITOR='nano'
-fi
+export EDITOR='nano'
 
 # Updaters
 if [[ "$(uname)" == "Darwin" ]]; then
@@ -104,11 +96,15 @@ sysup() {
     echo "✅ System update complete!"
     echo ""
     echo "🔍 Checking dotfile status..."
-    cd ~/.dotfiles
-    if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
-        echo "⚠️  Dotfiles have changes. Run 'dots status' to check."
+    if [[ -d ~/.dotfiles ]]; then
+        cd ~/.dotfiles
+        if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
+            echo "⚠️  Dotfiles have changes. Run 'dots status' to check."
+        else
+            echo "✅ Dotfiles are up to date!"
+        fi
     else
-        echo "✅ Dotfiles are up to date!"
+        echo "⚠️  ~/.dotfiles directory not found"
     fi
 }
 
@@ -153,8 +149,13 @@ elif [[ "$(uname)" == "Linux" ]]; then
     alias l='ls --color -CF'
 fi
 alias artisan='php artisan'
+
+# macOS-only aliases
+if [[ "$(uname)" == "Darwin" ]]; then
+    alias qs='open -a "QSpace Pro"'
+fi
+
 alias cat='bat'
-alias qs='open -a "QSpace Pro"'
 
 ######################################
 # PATH AND ENVIRONMENT CONFIGURATION #
@@ -199,9 +200,6 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 
 # Added by Windsurf
 export PATH="$HOME/.codeium/windsurf/bin:$PATH"
-
-# Wicket Tools PATH
-export PATH="$HOME/.local/bin:$PATH"
 
 # Load custom plugins
 if [[ -n "$ZSH_VERSION" ]]; then

@@ -83,6 +83,11 @@ set -euo pipefail
 # Comprehensive dotfiles management script
 # Usage: dots [COMMAND] [OPTIONS]
 
+# Source distro detection helper
+# shellcheck source=scripts/lib/detect_distro.sh
+source "$SCRIPT_DIR/scripts/lib/detect_distro.sh"
+DISTRO="$(detect_distro)"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -213,6 +218,11 @@ setup_dotfiles() {
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
     )
 
+    # Add .bashrc on deb-based distros
+    if [[ "$DISTRO" == "deb" ]]; then
+        dotfiles+=(".bashrc:.bashrc")
+    fi
+
     for dotfile in "${dotfiles[@]}"; do
         local source_file="${dotfile%%:*}"
         local target_file="${dotfile##*:}"
@@ -273,6 +283,11 @@ cleanup_symlinks() {
         ".local/bin/dots"
     )
 
+    # Add .bashrc on deb-based distros
+    if [[ "$DISTRO" == "deb" ]]; then
+        dotfiles+=(".bashrc")
+    fi
+
     for dotfile in "${dotfiles[@]}"; do
         local target_path="$HOME_DIR/$dotfile"
 
@@ -298,6 +313,11 @@ show_status() {
         ".ssh/config:.ssh/config"
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
     )
+
+    # Add .bashrc on deb-based distros
+    if [[ "$DISTRO" == "deb" ]]; then
+        dotfiles+=(".bashrc:.bashrc")
+    fi
 
     local all_good=true
     for dotfile in "${dotfiles[@]}"; do
@@ -434,33 +454,51 @@ setup_new_machine() {
     # Install system packages if requested
     if [[ "${1:-}" == "--with-packages" ]]; then
         print_status "Installing system packages..."
-        if [[ "$(uname)" == "Darwin" ]]; then
-            if [[ -f "$DOTFILES_DIR/scripts/install_macos.sh" ]]; then
-                print_status "Running macOS package installation..."
-                "$DOTFILES_DIR/scripts/install_macos.sh"
-            fi
-        elif [[ "$(uname)" == "Linux" ]]; then
-            if [[ -f "$DOTFILES_DIR/scripts/install_fedora.sh" ]]; then
-                print_status "Running Fedora package installation..."
-                "$DOTFILES_DIR/scripts/install_fedora.sh"
-            fi
-        fi
+        case "$DISTRO" in
+            macos)
+                if [[ -f "$DOTFILES_DIR/scripts/install_macos.sh" ]]; then
+                    print_status "Running macOS package installation..."
+                    "$DOTFILES_DIR/scripts/install_macos.sh"
+                fi
+                ;;
+            fedora)
+                if [[ -f "$DOTFILES_DIR/scripts/install_fedora.sh" ]]; then
+                    print_status "Running Fedora package installation..."
+                    "$DOTFILES_DIR/scripts/install_fedora.sh"
+                fi
+                ;;
+            deb)
+                if [[ -f "$DOTFILES_DIR/scripts/install_deb.sh" ]]; then
+                    print_status "Running Debian-based package installation..."
+                    "$DOTFILES_DIR/scripts/install_deb.sh"
+                fi
+                ;;
+        esac
     fi
 
     # Setup crontab if requested
     if [[ "${2:-}" == "--with-crontab" ]] || [[ "${1:-}" == "--with-crontab" ]]; then
         print_status "Setting up crontab entries..."
-        if [[ "$(uname)" == "Darwin" ]]; then
-            if [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]; then
-                print_status "Running macOS crontab setup..."
-                "$DOTFILES_DIR/scripts/crontab_macos.sh" install
-            fi
-        elif [[ "$(uname)" == "Linux" ]]; then
-            if [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]]; then
-                print_status "Running Fedora crontab setup..."
-                "$DOTFILES_DIR/scripts/crontab_fedora.sh" install
-            fi
-        fi
+        case "$DISTRO" in
+            macos)
+                if [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]; then
+                    print_status "Running macOS crontab setup..."
+                    "$DOTFILES_DIR/scripts/crontab_macos.sh" install
+                fi
+                ;;
+            fedora)
+                if [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]]; then
+                    print_status "Running Fedora crontab setup..."
+                    "$DOTFILES_DIR/scripts/crontab_fedora.sh" install
+                fi
+                ;;
+            deb)
+                if [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]; then
+                    print_status "Running Debian-based crontab setup..."
+                    "$DOTFILES_DIR/scripts/crontab_deb.sh" install
+                fi
+                ;;
+        esac
     fi
 
     print_success "New machine setup complete!"
@@ -543,27 +581,40 @@ show_history() {
 setup_crontab() {
     local action="${1:-install}"
     print_header "Crontab Setup"
-    
-    if [[ "$(uname)" == "Darwin" ]]; then
-        if [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]; then
-            print_status "Running macOS crontab $action..."
-            "$DOTFILES_DIR/scripts/crontab_macos.sh" "$action"
-        else
-            print_error "macOS crontab script not found"
+
+    case "$DISTRO" in
+        macos)
+            if [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]; then
+                print_status "Running macOS crontab $action..."
+                "$DOTFILES_DIR/scripts/crontab_macos.sh" "$action"
+            else
+                print_error "macOS crontab script not found"
+                return 1
+            fi
+            ;;
+        fedora)
+            if [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]]; then
+                print_status "Running Fedora crontab $action..."
+                "$DOTFILES_DIR/scripts/crontab_fedora.sh" "$action"
+            else
+                print_error "Fedora crontab script not found"
+                return 1
+            fi
+            ;;
+        deb)
+            if [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]; then
+                print_status "Running Debian-based crontab $action..."
+                "$DOTFILES_DIR/scripts/crontab_deb.sh" "$action"
+            else
+                print_error "Debian-based crontab script not found"
+                return 1
+            fi
+            ;;
+        *)
+            print_error "Unsupported operating system for crontab setup"
             return 1
-        fi
-    elif [[ "$(uname)" == "Linux" ]]; then
-        if [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]]; then
-            print_status "Running Fedora crontab $action..."
-            "$DOTFILES_DIR/scripts/crontab_fedora.sh" "$action"
-        else
-            print_error "Fedora crontab script not found"
-            return 1
-        fi
-    else
-        print_error "Unsupported operating system for crontab setup"
-        return 1
-    fi
+            ;;
+    esac
 }
 
 # Function to show health check
@@ -861,7 +912,18 @@ health_check() {
             print_status "ℹ️  macOS version: $macos_version"
             ;;
         "Linux")
-            print_success "✅ Running on Linux (supported)"
+            case "$DISTRO" in
+                fedora)
+                    print_success "✅ Running on Fedora Linux (supported)"
+                    ;;
+                deb)
+                    print_success "✅ Running on Debian-based Linux (supported)"
+                    ;;
+                *)
+                    print_warning "⚠️  Running on unsupported Linux distro"
+                    ((warnings++))
+                    ;;
+            esac
             if [[ -f /etc/os-release ]]; then
                 local linux_distro
                 linux_distro=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
@@ -967,12 +1029,18 @@ EXAMPLES:
 
 FILES MANAGED:
     • ~/.zshrc               - ZSH shell configuration
+    • ~/.bashrc              - Bash shell configuration (deb distros only)
     • ~/.gitconfig            - Git configuration
     • ~/.ssh/config           - SSH client configuration
     • ~/.editorconfig         - Editor configuration
     • ~/.secrets.example      - Secrets template
     • ~/.gitignore_global     - Global git ignore
     • ~/.config/topgrade/topgrade.toml - Update configuration
+
+SUPPORTED PLATFORMS:
+    • macOS (Homebrew)
+    • Fedora Linux (DNF/Flatpak)
+    • Debian-based (apt)
 
 For more information, see: https://github.com/estebanforge/dotfiles-x
 EOF

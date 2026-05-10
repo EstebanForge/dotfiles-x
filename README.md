@@ -1,6 +1,6 @@
 # Cross-Platform Dotfiles
 
-This repository contains a unified dotfiles setup that works across Unix and Unix-like systems including macOS and Linux distributions (primarily Fedora).
+This repository contains a unified dotfiles setup that works across Unix and Unix-like systems including macOS and Linux distributions (Fedora, Debian-based).
 
 ## Quick Start
 
@@ -15,7 +15,7 @@ cd ~/.dotfiles
 ./dots.sh install
 
 # Reload shell configuration
-source ~/.zshrc
+source ~/.zshrc  # or source ~/.bashrc on deb distros
 ```
 
 ### On existing machine:
@@ -29,7 +29,7 @@ cd ~/.dotfiles
 ./dots.sh install
 
 # Reload shell configuration
-source ~/.zshrc
+source ~/.zshrc  # or source ~/.bashrc on deb distros
 ```
 
 ### Setup Script Commands
@@ -78,25 +78,35 @@ curl -H "Authorization: Bearer $ANTHROPIC_API_KEY" https://api.anthropic.com/v1/
 dotfiles-x/
 ├── home/                           # Your dotfiles
 │   ├── .zshrc                   # Zsh configuration with OS detection
+│   ├── .bashrc                  # Bash configuration (deb distros)
 │   ├── .gitconfig               # Git configuration
 │   ├── .gitignore_global        # Global gitignore
 │   └── .secrets.example         # Secrets template (copy to ~/.secrets)
 ├── scripts/                        # Optional setup scripts
 │   ├── install_macos.sh            # macOS package installation
 │   ├── install_fedora.sh           # Fedora package installation
+│   ├── install_deb.sh              # Debian-based package installation
 │   ├── configure_macos.sh          # macOS system settings
-│   └── configure_fedora.sh         # Fedora GNOME settings
+│   ├── configure_fedora.sh         # Fedora GNOME settings
+│   ├── configure_deb.sh            # Debian-based GNOME settings
+│   ├── crontab_macos.sh            # macOS crontab management
+│   ├── crontab_fedora.sh           # Fedora crontab management
+│   ├── crontab_deb.sh              # Debian-based crontab management
+│   └── lib/                        # Shared libraries
+│       ├── brew_shared.sh          # Shared Homebrew packages
+│       └── detect_distro.sh        # Distro detection helper
 ├── dots.sh                        # Setup script for symlinks
 └── README.md                       # This file
 ```
 
 ## Features
 
-- **Cross-platform**: Works on Unix and Unix-like systems (macOS, Linux)
+- **Cross-platform**: Works on macOS, Fedora, and Debian-based distros
 - **OS-specific configurations**: Shared settings with platform-specific adaptations
+- **Auto-distro detection**: Automatically detects your distro and routes to correct scripts
 - **Symlink-based management**: Easy updates and version control of dotfiles
 - **Secure secrets management**: Template-based secrets with git-safe storage
-- **Package management scripts**: Automated installation for common tools
+- **Package management scripts**: Automated installation for common tools (Homebrew, DNF, apt)
 - **Single command setup**: Works on new machines with minimal effort
 - **Automatic backups**: Existing files are backed up before being replaced
 
@@ -129,10 +139,11 @@ API keys and secrets should be stored securely using your preferred method:
 - GNOME desktop configuration
 - Development environment setup
 
-### Other Unix-like Systems
-- Core dotfiles work on any Unix-like system
-- OS-specific adaptations can be made manually
-- Package management scripts can be adapted for other distros
+### Linux (Debian-based)
+- apt package installation
+- GNOME desktop configuration
+- Bash shell configuration (.bashrc) auto-linked on deb distros
+- Development environment setup via Homebrew + apt
 
 ## Optional Package Installation
 

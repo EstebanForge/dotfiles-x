@@ -653,7 +653,7 @@ health_check() {
     echo ""
     print_status "4. Checking package managers..."
 
-    # Homebrew health check (required on macOS, optional on Linux)
+    # Homebrew health check (required on all platforms)
     if command -v brew >/dev/null 2>&1; then
         print_success "✅ Homebrew is installed"
 
@@ -672,12 +672,9 @@ health_check() {
             print_warning "⚠️  $outdated_count Homebrew packages need updates"
             ((warnings++))
         fi
-    elif [[ "$DISTRO" == "macos" ]]; then
-        print_error "❌ Homebrew is not installed"
-        ((issues++))
     else
-        print_warning "⚠️  Homebrew not found on PATH (run install script to set up)"
-        ((warnings++))
+        print_error "❌ Homebrew is not installed (run: dots install --packages)"
+        ((issues++))
     fi
 
     # npm health check
@@ -734,8 +731,7 @@ health_check() {
     fi
 
     # Essential tools
-    local essential_tools=("zsh" "curl" "git")
-    [[ "$DISTRO" == "macos" ]] && essential_tools+=("brew")
+    local essential_tools=("zsh" "curl" "git" "brew")
     for tool in "${essential_tools[@]}"; do
         if command -v "$tool" >/dev/null 2>&1; then
             print_success "✅ $tool is available"

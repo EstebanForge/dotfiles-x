@@ -1,6 +1,6 @@
 # Cross-Platform Dotfiles
 
-This repository contains a unified dotfiles setup that works across Unix and Unix-like systems including macOS and Linux distributions (Fedora, Debian-based).
+This repository contains a unified dotfiles setup that works across Unix and Unix-like systems including macOS and Linux distributions (Fedora, Deb-based).
 
 ## Quick Start
 
@@ -85,13 +85,13 @@ dotfiles-x/
 ├── scripts/                        # Optional setup scripts
 │   ├── install_macos.sh            # macOS package installation
 │   ├── install_fedora.sh           # Fedora package installation
-│   ├── install_deb.sh              # Debian-based package installation
+│   ├── install_deb.sh              # Deb-based package installation
 │   ├── configure_macos.sh          # macOS system settings
 │   ├── configure_fedora.sh         # Fedora GNOME settings
-│   ├── configure_deb.sh            # Debian-based GNOME settings
+│   ├── configure_deb.sh            # Deb-based GNOME settings
 │   ├── crontab_macos.sh            # macOS crontab management
 │   ├── crontab_fedora.sh           # Fedora crontab management
-│   ├── crontab_deb.sh              # Debian-based crontab management
+│   ├── crontab_deb.sh              # Deb-based crontab management
 │   └── lib/                        # Shared libraries
 │       ├── brew_shared.sh          # Shared Homebrew packages
 │       └── detect_distro.sh        # Distro detection helper
@@ -101,7 +101,7 @@ dotfiles-x/
 
 ## Features
 
-- **Cross-platform**: Works on macOS, Fedora, and Debian-based distros
+- **Cross-platform**: Works on macOS, Fedora, and Deb-based distros
 - **OS-specific configurations**: Shared settings with platform-specific adaptations
 - **Auto-distro detection**: Automatically detects your distro and routes to correct scripts
 - **Symlink-based management**: Easy updates and version control of dotfiles
@@ -139,7 +139,7 @@ API keys and secrets should be stored securely using your preferred method:
 - GNOME desktop configuration
 - Development environment setup
 
-### Linux (Debian-based)
+### Linux (Deb-based)
 - apt package installation
 - GNOME desktop configuration
 - Bash shell configuration (.bashrc) auto-linked on deb distros

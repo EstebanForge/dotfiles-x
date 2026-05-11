@@ -7,7 +7,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
 *   **Symlink Management:** For managing dotfiles across multiple machines with simple symbolic links and backup capabilities.
 *   **Homebrew (all platforms):** Primary package manager for dev tools on macOS and Linux. Required on all platforms.
 *   **DNF/Flatpak (RPM):** For system packages and GUI apps on RPM-based Linux (Fedora, etc.).
-*   **apt (Debian-based):** For system packages and GUI apps on Debian-based distros.
+*   **apt (Deb-based):** For system packages and GUI apps on Deb-based distros.
 *   **Zsh (Z Shell):** As the default shell, configured with plugins for improved productivity. Updated Bash also available.
 *   **Git:** For version control, with a global gitignore and user configuration.
 *   **Cross-platform Support:** OS-specific configurations with automatic platform detection via `scripts/lib/detect_distro.sh`.
@@ -27,13 +27,13 @@ The project uses a symlink-based approach with automation scripts to achieve thi
 *   `scripts/`: Setup scripts for package installation and system configuration:
     *   `install_macos.sh`: macOS package installation using Homebrew.
     *   `install_rpm.sh`: RPM-based Linux package installation using DNF and Flatpak.
-    *   `install_deb.sh`: Debian-based Linux package installation using apt.
+    *   `install_deb.sh`: Deb-based Linux package installation using apt.
     *   `configure_macos.sh`: macOS system settings and preferences.
     *   `configure_rpm.sh`: RPM-based GNOME desktop configuration.
-    *   `configure_deb.sh`: Debian-based desktop configuration.
+    *   `configure_deb.sh`: Deb-based desktop configuration.
     *   `crontab_macos.sh`: macOS crontab entry management.
     *   `crontab_rpm.sh`: RPM crontab entry management.
-    *   `crontab_deb.sh`: Debian-based crontab entry management.
+    *   `crontab_deb.sh`: Deb-based crontab entry management.
     *   `lib/detect_distro.sh`: Distro detection helper (returns `macos`, `rpm`, or `deb`).
     *   `lib/brew_shared.sh`: Shared Homebrew taps and formulae used by all platform install scripts.
     *   `lib/flatpak_shared.sh`: Shared Flatpak app list installed on all Linux platforms (RPM and deb).
@@ -96,7 +96,7 @@ vim ~/.secrets
     ./scripts/install_rpm.sh
     ./scripts/configure_rpm.sh
 
-    # Debian-based
+    # Deb-based
     ./scripts/install_deb.sh
     ./scripts/configure_deb.sh
     ```

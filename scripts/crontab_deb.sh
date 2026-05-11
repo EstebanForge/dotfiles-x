@@ -9,8 +9,8 @@ if [[ -z "${BASH_VERSION:-}" ]]; then
     exit 1
 fi
 
-# Crontab setup script for Debian-based systems
-# Supports ZorinOS, Ubuntu, and other Debian-based distros.
+# Crontab setup script for Deb-based systems
+# Supports ZorinOS, Ubuntu, and other Deb-based distros.
 
 set -euo pipefail
 
@@ -20,7 +20,7 @@ source "$SCRIPT_DIR/lib/detect_distro.sh"
 
 distro="$(detect_distro)"
 if [[ "$distro" != "deb" ]]; then
-    echo "This script is for Debian-based distros. Detected: $distro" >&2
+    echo "This script is for Deb-based distros. Detected: $distro" >&2
     exit 1
 fi
 
@@ -112,7 +112,7 @@ check_dependencies() {
 }
 
 main() {
-    print_status "Debian-based Crontab Setup Script"
+    print_status "Deb-based Crontab Setup Script"
     print_status "==================================="
 
     check_dependencies

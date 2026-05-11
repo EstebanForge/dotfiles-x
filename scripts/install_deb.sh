@@ -9,8 +9,8 @@ if [[ -z "${BASH_VERSION:-}" ]]; then
     exit 1
 fi
 
-# Debian-based packages installation script
-# Supports ZorinOS, Ubuntu, and other Debian-based distros
+# Deb-based packages installation script
+# Supports ZorinOS, Ubuntu, and other Deb-based distros
 
 set -euo pipefail
 
@@ -25,7 +25,7 @@ source "$SCRIPT_DIR/lib/detect_distro.sh"
 # Verify we're on a deb-based distro
 distro="$(detect_distro)"
 if [[ "$distro" != "deb" ]]; then
-    echo "This script is for Debian-based distros. Detected: $distro" >&2
+    echo "This script is for Deb-based distros. Detected: $distro" >&2
     echo "Use install_fedora.sh or install_macos.sh instead." >&2
     exit 1
 fi
@@ -263,4 +263,4 @@ else
     echo "zsh is already the default shell."
 fi
 
-echo "Debian-based package installation complete!"
+echo "Deb-based package installation complete!"

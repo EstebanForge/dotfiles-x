@@ -527,10 +527,10 @@ setup_crontab() {
             ;;
         deb)
             if [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]; then
-                print_status "Running Debian-based crontab $action..."
+                print_status "Running Deb-based crontab $action..."
                 "$DOTFILES_DIR/scripts/crontab_deb.sh" "$action"
             else
-                print_error "Debian-based crontab script not found"
+                print_error "Deb-based crontab script not found"
                 return 1
             fi
             ;;
@@ -837,7 +837,7 @@ health_check() {
                     print_success "✅ Running on RPM-based Linux (supported)"
                     ;;
                 deb)
-                    print_success "✅ Running on Debian-based Linux (supported)"
+                    print_success "✅ Running on Deb-based Linux (supported)"
                     ;;
                 *)
                     print_warning "⚠️  Running on unsupported Linux distro"
@@ -938,7 +938,7 @@ FILES MANAGED:
     ~/.config/topgrade/topgrade.toml    Update manager configuration
 
 SUPPORTED PLATFORMS:
-    macOS (Homebrew) · Fedora Linux (DNF/Flatpak) · Debian-based (apt)
+    macOS (Homebrew) · Fedora Linux (DNF/Flatpak) · Deb-based (apt)
 
 For more information, see: https://github.com/estebanforge/dotfiles-x
 EOF

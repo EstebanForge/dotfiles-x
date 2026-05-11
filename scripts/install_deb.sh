@@ -141,23 +141,18 @@ sudo apt install -y \
     zsh \
     bleachbit \
     btrfs-progs \
-    chromium-browser \
     filezilla \
     flameshot \
-    gnome-commander \
     gnome-tweaks \
     meld \
-    menulibre \
     meson \
     mpv \
     python3-pip \
     solaar \
     subversion \
     sshpass \
-    tailscale \
     yt-dlp \
     dconf-editor \
-    fastfetch \
     git \
     hdparm \
     ninja-build \
@@ -167,27 +162,20 @@ sudo apt install -y \
     libicu-dev \
     libjpeg-turbo8-dev \
     libwebp-dev \
-    libflite-dev \
-    libpcre3-dev \
     libffi-dev \
     libnss3-dev \
     bubblewrap \
     unzip \
     curl \
     wget \
-    git-delta \
     bat \
     ripgrep \
     fzf \
-    eza \
     shellcheck \
-    git-cliff \
     tree \
     tmux \
     jq \
-    yq \
     httpie \
-    just \
     golang-go \
     composer \
     php-cli \
@@ -200,6 +188,12 @@ sudo apt install -y \
     nodejs \
     npm
 
+# Install tailscale via official script (not in standard apt repos)
+if ! command -v tailscale >/dev/null 2>&1; then
+    echo "Installing tailscale..."
+    curl -fsSL https://tailscale.com/install.sh | sh
+fi
+
 # Install additional GUI apps via apt
 # (where available; some apps may need Flatpak or manual install)
 echo "Installing GUI applications via apt..."
@@ -211,6 +205,7 @@ sudo apt install -y \
     sqlitebrowser \
     remmina \
     nextcloud-desktop \
+    chromium \
     || true
 
 # Apps not in standard apt repos - install via Flatpak if available
@@ -222,19 +217,15 @@ if command -v flatpak >/dev/null 2>&1; then
     flatpak install -y flathub org.kde.kdenlive 2>/dev/null || true
 fi
 
-# Install deb-specific tools not available via apt
-echo "Installing additional tools via pip..."
-pip3 install --user --break-system-packages mkcert 2>/dev/null || true
-
 # Install Homebrew for Linux (if not already installed)
 if ! command -v brew &> /dev/null; then
     echo "Installing Homebrew for Linux..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-    # Add Homebrew to PATH
-    test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
-    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
+
+# Ensure Homebrew is on PATH regardless of whether it was just installed
+test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # Install common development tools via Homebrew
 echo "Installing Homebrew packages..."

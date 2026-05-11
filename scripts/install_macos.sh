@@ -78,7 +78,11 @@ brew install bash
 # Restart script with new bash if we just installed it
 if [[ "${BASH_RESTART:-0}" != "1" ]]; then
     echo "Restarting script with updated bash..."
-    BASH_RESTART=1 exec /opt/homebrew/bin/bash "$0" "$@"
+    for _new_bash in /opt/homebrew/bin/bash /usr/local/bin/bash; do
+        if [[ -x "$_new_bash" ]]; then
+            BASH_RESTART=1 exec "$_new_bash" "$0" "$@"
+        fi
+    done
 fi
 
 # Install taps

@@ -60,6 +60,7 @@ SHARED_FLATPAK_APPS=(
     tv.plex.PlexDesktop
     us.zoom.Zoom
     org.nextcloud.Nextcloud
+    io.github.pol_rivero.github-desktop-plus
 )
 
 install_shared_flatpak_apps() {

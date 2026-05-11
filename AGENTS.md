@@ -35,7 +35,8 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `crontab_fedora.sh`: Fedora crontab entry management.
     *   `crontab_deb.sh`: Debian-based crontab entry management.
     *   `lib/detect_distro.sh`: Distro detection helper (returns `macos`, `fedora`, or `deb`).
-    *   `lib/brew_shared.sh`: Shared Homebrew install logic used across install scripts.
+    *   `lib/brew_shared.sh`: Shared Homebrew taps and formulae used by all platform install scripts.
+    *   `lib/flatpak_shared.sh`: Shared Flatpak app list installed on all Linux platforms (Fedora and deb).
 
 *   `dots.sh`: Main dotfile management script. After `install`, also symlinked to `~/.local/bin/dots` for global use as `dots <command>`.
 
@@ -151,6 +152,7 @@ dots help                                # Show help message
 *   **Adding crontab entries:** Edit the relevant `crontab_<platform>.sh` script.
 *   **Customizing settings:** `configure_macos.sh` uses `defaults write` commands; `configure_fedora.sh` and `configure_deb.sh` use `gsettings`/`dconf` commands.
 *   **Distro detection:** Import `scripts/lib/detect_distro.sh` and call `detect_distro` to get `macos`, `fedora`, or `deb`. Do not replicate detection logic elsewhere.
-*   **Shared Homebrew logic:** Shared install helpers live in `scripts/lib/brew_shared.sh`. Extend it instead of duplicating across platform scripts.
+*   **Shared Homebrew logic:** Shared taps and formulae live in `scripts/lib/brew_shared.sh`. Extend it instead of duplicating across platform scripts.
+*   **Shared Flatpak apps:** The full Linux Flatpak app list lives in `scripts/lib/flatpak_shared.sh`. Both `install_fedora.sh` and `install_deb.sh` source it. Add new Flatpak apps there, not in the individual install scripts.
 *   **Backup Management:** `dots.sh` automatically creates timestamped backups (`.backup.YYYYMMDD_HHMMSS`) of existing files before creating symlinks.
 *   **Bash requirement:** `dots.sh` requires Bash 5.x. On macOS with the system Bash (3.x), it auto-detects and re-execs with Homebrew Bash, installing it if needed.

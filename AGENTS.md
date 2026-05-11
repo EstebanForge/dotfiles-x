@@ -6,7 +6,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
 
 *   **Symlink Management:** For managing dotfiles across multiple machines with simple symbolic links and backup capabilities.
 *   **Homebrew (all platforms):** Primary package manager for dev tools on macOS and Linux. Required on all platforms.
-*   **DNF/Flatpak (Fedora):** For system packages and GUI apps on Fedora Linux.
+*   **DNF/Flatpak (RPM):** For system packages and GUI apps on RPM-based Linux (Fedora, etc.).
 *   **apt (Debian-based):** For system packages and GUI apps on Debian-based distros.
 *   **Zsh (Z Shell):** As the default shell, configured with plugins for improved productivity. Updated Bash also available.
 *   **Git:** For version control, with a global gitignore and user configuration.
@@ -26,17 +26,17 @@ The project uses a symlink-based approach with automation scripts to achieve thi
 
 *   `scripts/`: Setup scripts for package installation and system configuration:
     *   `install_macos.sh`: macOS package installation using Homebrew.
-    *   `install_fedora.sh`: Fedora Linux package installation using DNF and Flatpak.
+    *   `install_rpm.sh`: RPM-based Linux package installation using DNF and Flatpak.
     *   `install_deb.sh`: Debian-based Linux package installation using apt.
     *   `configure_macos.sh`: macOS system settings and preferences.
-    *   `configure_fedora.sh`: Fedora GNOME desktop configuration.
+    *   `configure_rpm.sh`: RPM-based GNOME desktop configuration.
     *   `configure_deb.sh`: Debian-based desktop configuration.
     *   `crontab_macos.sh`: macOS crontab entry management.
-    *   `crontab_fedora.sh`: Fedora crontab entry management.
+    *   `crontab_rpm.sh`: RPM crontab entry management.
     *   `crontab_deb.sh`: Debian-based crontab entry management.
-    *   `lib/detect_distro.sh`: Distro detection helper (returns `macos`, `fedora`, or `deb`).
+    *   `lib/detect_distro.sh`: Distro detection helper (returns `macos`, `rpm`, or `deb`).
     *   `lib/brew_shared.sh`: Shared Homebrew taps and formulae used by all platform install scripts.
-    *   `lib/flatpak_shared.sh`: Shared Flatpak app list installed on all Linux platforms (Fedora and deb).
+    *   `lib/flatpak_shared.sh`: Shared Flatpak app list installed on all Linux platforms (RPM and deb).
 
 *   `dots.sh`: Main dotfile management script. After `install`, also symlinked to `~/.local/bin/dots` for global use as `dots <command>`.
 
@@ -93,8 +93,8 @@ vim ~/.secrets
     ./scripts/configure_macos.sh
 
     # Fedora Linux
-    ./scripts/install_fedora.sh
-    ./scripts/configure_fedora.sh
+    ./scripts/install_rpm.sh
+    ./scripts/configure_rpm.sh
 
     # Debian-based
     ./scripts/install_deb.sh
@@ -148,11 +148,11 @@ dots help                                # Show help message
 ## Development Conventions
 
 *   **Adding new dotfiles:** Add the file to `home/` using its final filename relative to `$HOME` (e.g., `.myconfig`). Then add a `"source:target"` entry to the `dotfiles` array in `dots.sh` and a matching entry to the `cleanup_symlinks` function.
-*   **Adding new packages:** Add `brew install` / `brew install --cask` lines to `install_macos.sh`, or the equivalent `dnf install` / `apt install` lines to `install_fedora.sh` / `install_deb.sh`.
+*   **Adding new packages:** Add `brew install` / `brew install --cask` lines to `install_macos.sh`, or the equivalent `dnf install` / `apt install` lines to `install_rpm.sh` / `install_deb.sh`.
 *   **Adding crontab entries:** Edit the relevant `crontab_<platform>.sh` script.
-*   **Customizing settings:** `configure_macos.sh` uses `defaults write` commands; `configure_fedora.sh` and `configure_deb.sh` use `gsettings`/`dconf` commands.
-*   **Distro detection:** Import `scripts/lib/detect_distro.sh` and call `detect_distro` to get `macos`, `fedora`, or `deb`. Do not replicate detection logic elsewhere.
+*   **Customizing settings:** `configure_macos.sh` uses `defaults write` commands; `configure_rpm.sh` and `configure_deb.sh` use `gsettings`/`dconf` commands.
+*   **Distro detection:** Import `scripts/lib/detect_distro.sh` and call `detect_distro` to get `macos`, `rpm`, or `deb`. Do not replicate detection logic elsewhere.
 *   **Shared Homebrew logic:** Shared taps and formulae live in `scripts/lib/brew_shared.sh`. Extend it instead of duplicating across platform scripts.
-*   **Shared Flatpak apps:** The full Linux Flatpak app list lives in `scripts/lib/flatpak_shared.sh`. Both `install_fedora.sh` and `install_deb.sh` source it. Add new Flatpak apps there, not in the individual install scripts.
+*   **Shared Flatpak apps:** The full Linux Flatpak app list lives in `scripts/lib/flatpak_shared.sh`. Both `install_rpm.sh` and `install_deb.sh` source it. Add new Flatpak apps there, not in the individual install scripts.
 *   **Backup Management:** `dots.sh` automatically creates timestamped backups (`.backup.YYYYMMDD_HHMMSS`) of existing files before creating symlinks.
 *   **Bash requirement:** `dots.sh` requires Bash 5.x. On macOS with the system Bash (3.x), it auto-detects and re-execs with Homebrew Bash, installing it if needed.

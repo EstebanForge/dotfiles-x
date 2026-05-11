@@ -2,7 +2,7 @@
 
 # Distro detection helper for dotfiles-x.
 # Usage: source this file, then call `detect_distro`.
-# Returns one of: macos, fedora, deb, unknown
+# Returns one of: macos, rpm, deb, unknown
 
 detect_distro() {
     local os_name
@@ -26,25 +26,25 @@ detect_distro() {
 
         # Direct matches
         case "$id" in
-            fedora)       echo "fedora"; return 0 ;;
-            ubuntu)       echo "deb";    return 0 ;;
-            zorin*)       echo "deb";    return 0 ;;
-            debian)       echo "deb";    return 0 ;;
-            linuxmint)    echo "deb";    return 0 ;;
-            pop)          echo "deb";    return 0 ;;
-            elementary*)  echo "deb";    return 0 ;;
+            fedora)       echo "rpm"; return 0 ;;
+            ubuntu)       echo "deb"; return 0 ;;
+            zorin*)       echo "deb"; return 0 ;;
+            debian)       echo "deb"; return 0 ;;
+            linuxmint)    echo "deb"; return 0 ;;
+            pop)          echo "deb"; return 0 ;;
+            elementary*)  echo "deb"; return 0 ;;
         esac
 
         # Fallback: check ID_LIKE
         case "$like" in
-            *fedora*)  echo "fedora"; return 0 ;;
-            *debian*)  echo "deb";    return 0 ;;
+            *fedora*|*rhel*)  echo "rpm"; return 0 ;;
+            *debian*)         echo "deb"; return 0 ;;
         esac
     fi
 
-    # Last resort: check for apt or dnf
+    # Last resort: check for dnf or apt
     if command -v dnf >/dev/null 2>&1; then
-        echo "fedora"
+        echo "rpm"
     elif command -v apt >/dev/null 2>&1; then
         echo "deb"
     else

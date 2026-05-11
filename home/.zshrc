@@ -161,10 +161,6 @@ alias cat='bat'
 # PATH AND ENVIRONMENT CONFIGURATION #
 ######################################
 
-# Volta (JavaScript Tool Manager)
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
-
 # PHP (from Homebrew) & Composer
 # Add brew-installed PHP to the PATH
 # Add Composer's vendor binaries to the PATH
@@ -198,9 +194,6 @@ export PATH="$HOME/.opencode/bin:$PATH"
 export PATH="$PATH:$HOME/.lmstudio/bin"
 # End of LM Studio CLI section
 
-# Added by Windsurf
-export PATH="$HOME/.codeium/windsurf/bin:$PATH"
-
 # Load custom plugins
 if [[ -n "$ZSH_VERSION" ]]; then
   # Zsh: use null_glob to avoid errors
@@ -215,3 +208,7 @@ else
     [[ -f "$plugin" && -r "$plugin" ]] && source "$plugin"
   done
 fi
+
+eval "$(mise activate zsh)"
+eval "$(zoxide init zsh)"
+eval "$(atuin init zsh)"

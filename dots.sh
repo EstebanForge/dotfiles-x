@@ -516,12 +516,12 @@ setup_crontab() {
                 return 1
             fi
             ;;
-        fedora)
-            if [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]]; then
-                print_status "Running Fedora crontab $action..."
-                "$DOTFILES_DIR/scripts/crontab_fedora.sh" "$action"
+        rpm)
+            if [[ -f "$DOTFILES_DIR/scripts/crontab_rpm.sh" ]]; then
+                print_status "Running RPM crontab $action..."
+                "$DOTFILES_DIR/scripts/crontab_rpm.sh" "$action"
             else
-                print_error "Fedora crontab script not found"
+                print_error "RPM crontab script not found"
                 return 1
             fi
             ;;
@@ -833,8 +833,8 @@ health_check() {
             ;;
         "Linux")
             case "$DISTRO" in
-                fedora)
-                    print_success "✅ Running on Fedora Linux (supported)"
+                rpm)
+                    print_success "✅ Running on RPM-based Linux (supported)"
                     ;;
                 deb)
                     print_success "✅ Running on Debian-based Linux (supported)"
@@ -967,7 +967,7 @@ main() {
                 print_status "Installing system packages..."
                 case "$DISTRO" in
                     macos)  [[ -f "$DOTFILES_DIR/scripts/install_macos.sh" ]]  && "$DOTFILES_DIR/scripts/install_macos.sh" ;;
-                    fedora) [[ -f "$DOTFILES_DIR/scripts/install_fedora.sh" ]] && "$DOTFILES_DIR/scripts/install_fedora.sh" ;;
+                    rpm)    [[ -f "$DOTFILES_DIR/scripts/install_rpm.sh" ]] && "$DOTFILES_DIR/scripts/install_rpm.sh" ;;
                     deb)    [[ -f "$DOTFILES_DIR/scripts/install_deb.sh" ]]    && "$DOTFILES_DIR/scripts/install_deb.sh" ;;
                 esac
             fi
@@ -975,9 +975,9 @@ main() {
             if [[ "$do_crontab" == true ]]; then
                 print_status "Setting up crontab entries..."
                 case "$DISTRO" in
-                    macos)  [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]  && "$DOTFILES_DIR/scripts/crontab_macos.sh" install ;;
-                    fedora) [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]] && "$DOTFILES_DIR/scripts/crontab_fedora.sh" install ;;
-                    deb)    [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]    && "$DOTFILES_DIR/scripts/crontab_deb.sh" install ;;
+                    macos)  [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]] && "$DOTFILES_DIR/scripts/crontab_macos.sh" install ;;
+                    rpm)    [[ -f "$DOTFILES_DIR/scripts/crontab_rpm.sh" ]]   && "$DOTFILES_DIR/scripts/crontab_rpm.sh" install ;;
+                    deb)    [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]   && "$DOTFILES_DIR/scripts/crontab_deb.sh" install ;;
                 esac
             fi
             ;;

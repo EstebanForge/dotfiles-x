@@ -91,11 +91,11 @@ remove_crontab() {
 
 # Function to check if cron service is running
 check_cron_service() {
-    if ! systemctl is-active --quiet cron; then
+    if ! systemctl is-active --quiet crond; then
         print_warning "Cron service is not running"
         print_status "Starting cron service..."
-        sudo systemctl start cron
-        sudo systemctl enable cron
+        sudo systemctl start crond
+        sudo systemctl enable crond
         print_status "Cron service started and enabled"
     else
         print_status "Cron service is running"

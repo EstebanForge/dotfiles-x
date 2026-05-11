@@ -47,7 +47,6 @@ sudo dnf install -y \
     libxcrypt-compat \
     ffmpeg \
     nautilus-python \
-    wl-copy \
     xsel \
     xclip \
     zsh \
@@ -154,11 +153,11 @@ flatpak install -y flathub org.nextcloud.Nextcloud
 if ! command -v brew &> /dev/null; then
     echo "Installing Homebrew for Linux..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
-    # Add Homebrew to PATH
-    test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
-    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
+
+# Ensure Homebrew is on PATH regardless of whether it was just installed
+test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # Install common development tools via Homebrew
 echo "Installing Homebrew packages..."

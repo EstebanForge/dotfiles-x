@@ -12,7 +12,8 @@ fi
 # Debian-based GNOME configuration script
 # Applies GNOME settings for ZorinOS, Ubuntu, and other Debian-based distros.
 
-set -euo pipefail
+# gsettings calls are best-effort; set -e is intentionally omitted
+set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/detect_distro.sh

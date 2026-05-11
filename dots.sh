@@ -83,6 +83,11 @@ set -euo pipefail
 # Comprehensive dotfiles management script
 # Usage: dots [COMMAND] [OPTIONS]
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$SCRIPT_DIR"
+HOME_DIR="$HOME"
+
 # Source distro detection helper
 # shellcheck source=scripts/lib/detect_distro.sh
 source "$SCRIPT_DIR/scripts/lib/detect_distro.sh"
@@ -95,11 +100,6 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
-
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOTFILES_DIR="$SCRIPT_DIR"
-HOME_DIR="$HOME"
 
 # Version information
 VERSION="1.0.0"
@@ -219,7 +219,7 @@ setup_dotfiles() {
     )
 
     # Add .bashrc on deb-based distros
-    if [[ "$DISTRO" == "deb" ]]; then
+    if [[ "$DISTRO" != "macos" ]]; then
         dotfiles+=(".bashrc:.bashrc")
     fi
 
@@ -284,7 +284,7 @@ cleanup_symlinks() {
     )
 
     # Add .bashrc on deb-based distros
-    if [[ "$DISTRO" == "deb" ]]; then
+    if [[ "$DISTRO" != "macos" ]]; then
         dotfiles+=(".bashrc")
     fi
 
@@ -315,7 +315,7 @@ show_status() {
     )
 
     # Add .bashrc on deb-based distros
-    if [[ "$DISTRO" == "deb" ]]; then
+    if [[ "$DISTRO" != "macos" ]]; then
         dotfiles+=(".bashrc:.bashrc")
     fi
 
@@ -428,84 +428,6 @@ sync_dotfiles() {
     # Reinstall dotfiles
     print_status "Reinstalling dotfiles..."
     setup_dotfiles
-}
-
-# Function to setup new machine
-setup_new_machine() {
-    print_header "New Machine Setup"
-
-    print_status "Starting new machine dotfiles setup..."
-
-    # Check if git is available
-    if ! command -v git >/dev/null 2>&1; then
-        print_error "Git is not installed. Please install git first."
-        return 1
-    fi
-
-    # Check if we're in the dotfiles directory
-    if [[ ! -f "$DOTFILES_DIR/dots.sh" ]]; then
-        print_error "dots.sh not found in current directory"
-        return 1
-    fi
-
-    # Setup dotfiles
-    setup_dotfiles
-
-    # Install system packages if requested
-    if [[ "${1:-}" == "--with-packages" ]]; then
-        print_status "Installing system packages..."
-        case "$DISTRO" in
-            macos)
-                if [[ -f "$DOTFILES_DIR/scripts/install_macos.sh" ]]; then
-                    print_status "Running macOS package installation..."
-                    "$DOTFILES_DIR/scripts/install_macos.sh"
-                fi
-                ;;
-            fedora)
-                if [[ -f "$DOTFILES_DIR/scripts/install_fedora.sh" ]]; then
-                    print_status "Running Fedora package installation..."
-                    "$DOTFILES_DIR/scripts/install_fedora.sh"
-                fi
-                ;;
-            deb)
-                if [[ -f "$DOTFILES_DIR/scripts/install_deb.sh" ]]; then
-                    print_status "Running Debian-based package installation..."
-                    "$DOTFILES_DIR/scripts/install_deb.sh"
-                fi
-                ;;
-        esac
-    fi
-
-    # Setup crontab if requested
-    if [[ "${2:-}" == "--with-crontab" ]] || [[ "${1:-}" == "--with-crontab" ]]; then
-        print_status "Setting up crontab entries..."
-        case "$DISTRO" in
-            macos)
-                if [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]; then
-                    print_status "Running macOS crontab setup..."
-                    "$DOTFILES_DIR/scripts/crontab_macos.sh" install
-                fi
-                ;;
-            fedora)
-                if [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]]; then
-                    print_status "Running Fedora crontab setup..."
-                    "$DOTFILES_DIR/scripts/crontab_fedora.sh" install
-                fi
-                ;;
-            deb)
-                if [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]; then
-                    print_status "Running Debian-based crontab setup..."
-                    "$DOTFILES_DIR/scripts/crontab_deb.sh" install
-                fi
-                ;;
-        esac
-    fi
-
-    print_success "New machine setup complete!"
-    print_status "Next steps:"
-    print_status "  1. Edit ~/.secrets with your actual API keys"
-    print_status "  2. Run 'exec zsh' to reload shell"
-    print_status "  3. Run 'dots sync' to keep updated"
 }
 
 # Function to restore from git
@@ -977,70 +899,48 @@ health_check() {
 # Function to show help
 show_help() {
     cat << 'EOF'
-Comprehensive Dotfiles Management Script v1.0.0
+Dotfiles Management Script v1.0.0
 
 USAGE:
-    dots [COMMAND] [OPTIONS]
+    dots <command> [options]
 
 COMMANDS:
-    install           Install dotfiles (create symlinks)
-    cleanup           Remove existing symlinks
-    status            Check current status of dotfiles
-    sync              Pull, push, and sync dotfiles
-    setup-machine      Setup new machine
-    restore <commit>   Restore to specific git commit
-    history           Show recent git history
-    health            Run comprehensive health check
-    crontab [action]  Manage crontab entries (install/show/remove/backup)
-    help, -h, --help Show this help message
-
-NEW MACHINE SETUP:
-    dots setup-machine           # Basic setup
-    dots setup-machine --with-packages  # Setup + install packages
-    dots setup-machine --with-crontab   # Setup + install crontab entries
-    dots setup-machine --with-packages --with-crontab  # Setup + packages + crontab
-
-SYNC COMMANDS:
-    dots sync                  # Full sync (pull, push, install)
-
-RESTORE COMMANDS:
-    dots restore               # Restore to latest commit
-    dots restore abc123        # Restore to specific commit
-    dots restore abc123 --force # Skip restore confirmation prompt
-    dots history               # Show commit history
-
-STATUS COMMANDS:
-    dots status               # Detailed status of all dotfiles
-    dots health               # Overall system health check
-
-CRONTAB COMMANDS:
-    dots crontab install      # Install crontab entries
-    dots crontab show         # Show current crontab entries
-    dots crontab remove       # Remove all crontab entries
-    dots crontab backup       # Backup existing crontab
+    install                   Install dotfiles (create symlinks)
+    install --packages        Also install system packages
+    install --crontab         Also install crontab entries
+    cleanup                   Remove existing symlinks
+    status                    Check current status of dotfiles
+    sync                      Pull, push, and reinstall dotfiles
+    restore [commit]          Restore to a git commit (default: HEAD)
+    restore [commit] --force  Skip confirmation prompt
+    history                   Show recent git history
+    health                    Run comprehensive health check
+    crontab [action]          Manage crontab entries (install/show/remove/backup/service)
+    version                   Show script version
+    help                      Show this help message
 
 EXAMPLES:
-    dots install              # Install all dotfiles
-    dots status               # Check if everything is working
-    dots sync                 # Keep dotfiles updated
-    dots setup-machine         # Setup new computer
-    dots restore HEAD~1       # Restore to previous commit
-    dots health               # Run health diagnostics
+    dots install                        # Symlinks only
+    dots install --packages             # Symlinks + system packages
+    dots install --packages --crontab   # Full new machine setup
+    dots status                         # Check everything is linked
+    dots sync                           # Pull latest and reinstall
+    dots restore HEAD~1                 # Roll back one commit
+    dots health                         # Run health diagnostics
+    dots crontab show                   # Show scheduled jobs
 
 FILES MANAGED:
-    • ~/.zshrc               - ZSH shell configuration
-    • ~/.bashrc              - Bash shell configuration (deb distros only)
-    • ~/.gitconfig            - Git configuration
-    • ~/.ssh/config           - SSH client configuration
-    • ~/.editorconfig         - Editor configuration
-    • ~/.secrets.example      - Secrets template
-    • ~/.gitignore_global     - Global git ignore
-    • ~/.config/topgrade/topgrade.toml - Update configuration
+    ~/.zshrc                            ZSH configuration
+    ~/.bashrc                           Bash configuration (deb only)
+    ~/.gitconfig                        Git configuration
+    ~/.ssh/config                       SSH client configuration
+    ~/.editorconfig                     Editor configuration
+    ~/.secrets.example                  Secrets template
+    ~/.gitignore_global                 Global git ignore
+    ~/.config/topgrade/topgrade.toml    Update manager configuration
 
 SUPPORTED PLATFORMS:
-    • macOS (Homebrew)
-    • Fedora Linux (DNF/Flatpak)
-    • Debian-based (apt)
+    macOS (Homebrew) · Fedora Linux (DNF/Flatpak) · Debian-based (apt)
 
 For more information, see: https://github.com/estebanforge/dotfiles-x
 EOF
@@ -1053,7 +953,35 @@ main() {
 
     case "$command" in
         "install"|"setup")
+            local do_packages=false
+            local do_crontab=false
+            for _arg in "${args[@]+"${args[@]}"}"; do
+                case "$_arg" in
+                    --packages) do_packages=true ;;
+                    --crontab)  do_crontab=true ;;
+                    *) print_error "Unknown option: $_arg"; echo ""; show_help; exit 1 ;;
+                esac
+            done
+
             setup_dotfiles
+
+            if [[ "$do_packages" == true ]]; then
+                print_status "Installing system packages..."
+                case "$DISTRO" in
+                    macos)  [[ -f "$DOTFILES_DIR/scripts/install_macos.sh" ]]  && "$DOTFILES_DIR/scripts/install_macos.sh" ;;
+                    fedora) [[ -f "$DOTFILES_DIR/scripts/install_fedora.sh" ]] && "$DOTFILES_DIR/scripts/install_fedora.sh" ;;
+                    deb)    [[ -f "$DOTFILES_DIR/scripts/install_deb.sh" ]]    && "$DOTFILES_DIR/scripts/install_deb.sh" ;;
+                esac
+            fi
+
+            if [[ "$do_crontab" == true ]]; then
+                print_status "Setting up crontab entries..."
+                case "$DISTRO" in
+                    macos)  [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]  && "$DOTFILES_DIR/scripts/crontab_macos.sh" install ;;
+                    fedora) [[ -f "$DOTFILES_DIR/scripts/crontab_fedora.sh" ]] && "$DOTFILES_DIR/scripts/crontab_fedora.sh" install ;;
+                    deb)    [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]    && "$DOTFILES_DIR/scripts/crontab_deb.sh" install ;;
+                esac
+            fi
             ;;
         "cleanup"|"clean")
             cleanup_symlinks
@@ -1063,9 +991,6 @@ main() {
             ;;
         "sync"|"s")
             sync_dotfiles
-            ;;
-        "setup-machine"|"new")
-            setup_new_machine "${args[@]}"
             ;;
         "restore"|"r")
             restore_from_git "${args[@]}"

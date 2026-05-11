@@ -11,6 +11,9 @@ fi
 
 # Fedora GNOME configuration script
 # This script applies GNOME settings and desktop customizations
+# gsettings calls are best-effort; set -e is intentionally omitted
+
+set -uo pipefail
 
 echo "Configuring GNOME desktop environment..."
 

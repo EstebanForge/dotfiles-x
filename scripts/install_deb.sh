@@ -17,6 +17,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/brew_shared.sh
 source "$SCRIPT_DIR/lib/brew_shared.sh"
+# shellcheck source=lib/flatpak_shared.sh
+source "$SCRIPT_DIR/lib/flatpak_shared.sh"
 # shellcheck source=lib/detect_distro.sh
 source "$SCRIPT_DIR/lib/detect_distro.sh"
 
@@ -116,7 +118,7 @@ fi
 
 # Add Flathub repository
 echo "Adding Flathub repository..."
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
 # Update system
 echo "Updating system packages..."
@@ -208,14 +210,9 @@ sudo apt install -y \
     chromium \
     || true
 
-# Apps not in standard apt repos - install via Flatpak if available
-if command -v flatpak >/dev/null 2>&1; then
-    echo "Installing additional apps via Flatpak..."
-    flatpak install -y flathub org.signal.Signal 2>/dev/null || true
-    flatpak install -y flathub us.zoom.Zoom 2>/dev/null || true
-    flatpak install -y flathub com.jgraph.drawio.desktop 2>/dev/null || true
-    flatpak install -y flathub org.kde.kdenlive 2>/dev/null || true
-fi
+# Install Flatpak apps
+echo "Installing Flatpak apps..."
+install_shared_flatpak_apps
 
 # Install Homebrew for Linux (if not already installed)
 if ! command -v brew &> /dev/null; then

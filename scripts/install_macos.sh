@@ -95,7 +95,7 @@ install_shared_brew_packages
 echo "Installing formulae..."
 brew install alienator88-sentinel
 brew install codex
-brew install cv
+brew install progress
 brew install ffmpeg
 brew install subversion
 brew install jq
@@ -103,22 +103,17 @@ brew install yq
 brew install zola
 brew install mas
 brew install mkvtoolnix
-brew install music-decoy
 brew install mpv
 brew install node
 brew install openssl
-brew install pearcleaner
 brew install php
 brew install php-cs-fixer
 brew install qwen-code
 brew install specify
 brew install tailspin
-brew install volta
 brew install wp-cli
-brew install yarn
 brew install yt-dlp
 brew install tlrc
-brew install aliases
 brew install coreutils
 brew install gnu-sed
 brew install procs
@@ -156,7 +151,9 @@ brew install --cask bruno
 brew install --cask balenaetcher
 brew install --cask calendr
 brew install --cask calibre
+brew install --cask cameracontroller
 brew install --cask claude-code
+brew install --cask codexbar
 brew install --cask command-tab-plus
 brew install --cask coteditor
 brew install --cask cryptomator
@@ -164,12 +161,17 @@ brew install --cask daisydisk
 brew install --cask dbeaver-community
 brew install --cask ferdium
 brew install --cask filebot
+brew install --cask find-any-file
 brew install --cask firefox
+brew install --cask font-hack-nerd-font
 brew install --cask font-iosevka-nerd-font
 brew install --cask font-iosevka-term-nerd-font
+brew install --cask font-meslo-lg-nerd-font
 brew install --cask font-open-sans
 brew install --cask font-oswald
+brew install --cask ghostty
 brew install --cask github
+brew install --cask google-chrome
 brew install --cask google-drive
 brew install --cask iconchamp
 brew install --cask iina
@@ -180,16 +182,17 @@ brew install --cask kextviewr
 brew install --cask knockknock
 brew install --cask lm-studio
 brew install --cask localsend
-brew install --cask lulu
-brew install --cask macwhisper
 brew install --cask mediainfo
 brew install --cask middleclick
 brew install --cask nordvpn
 brew install --cask obsidian
 brew install --cask orbstack
 brew install --cask path-finder
+brew install --cask pearcleaner
+brew install --cask pictogram
 brew install --cask qspace-pro
 brew install --cask rectangle-pro
+brew install --cask shotcut
 brew install --cask shottr
 brew install --cask signal
 brew install --cask stay
@@ -199,7 +202,6 @@ brew install --cask superkey
 brew install --cask taskexplorer
 brew install --cask handbrake-app
 brew install --cask permute
-brew install --cask session-manager-plugin
 
 brew install --cask transmission
 brew install --cask tuxera-ntfs
@@ -207,14 +209,12 @@ brew install --cask typora
 brew install --cask uninstallpkg
 brew install --cask utm
 brew install --cask visual-studio-code
-brew install --cask windsurf
 brew install --cask zoom
 brew install --cask elmedia-player
-brew install --cask unite
+brew install --cask ente-auth
 brew install zsh-autosuggestions
 brew install zsh-completions
 brew install zsh-syntax-highlighting
-brew install --cask ungoogled-chromium
 brew install --cask font-inconsolata-nerd-font
 brew install --cask font-arial
 brew install --cask font-cantarell
@@ -222,9 +222,9 @@ brew install --cask font-roboto
 brew install --cask font-iosevka
 brew install --cask font-esteban
 brew install --cask mission-control-plus
-brew install --cask sensei
+brew install --cask muxy
+brew install --cask music-decoy
 brew install --cask keepingyouawake
-brew install --cask nextcloud
 brew install --cask claude
 brew install --cask antigravity
 
@@ -237,6 +237,7 @@ if volta install node; then
     npm install -g postcss
     npm install -g postcss-cli
     npm install -g @github/copilot
+    corepack enable yarn
 else
     echo "WARNING: volta failed to install node; skipping npm packages" >&2
 fi

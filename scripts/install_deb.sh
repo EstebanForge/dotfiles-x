@@ -250,4 +250,17 @@ else
     echo "WARNING: volta failed to install node; skipping npm packages" >&2
 fi
 
+# Set zsh as default shell
+echo "Setting zsh as default shell..."
+ZSH_PATH="$(command -v zsh)"
+if ! grep -qF "$ZSH_PATH" /etc/shells; then
+    echo "$ZSH_PATH" | sudo tee -a /etc/shells
+fi
+if [[ "$SHELL" != "$ZSH_PATH" ]]; then
+    sudo chsh -s "$ZSH_PATH" "$USER"
+    echo "Default shell changed to zsh. Re-login to apply."
+else
+    echo "zsh is already the default shell."
+fi
+
 echo "Debian-based package installation complete!"

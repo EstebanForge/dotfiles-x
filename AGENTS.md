@@ -5,9 +5,9 @@ This repository contains a unified dotfiles setup using symlinks to automate the
 The project uses a symlink-based approach with automation scripts to achieve this:
 
 *   **Symlink Management:** For managing dotfiles across multiple machines with simple symbolic links and backup capabilities.
-*   **Homebrew (macOS):** For installing and managing software packages on macOS.
-*   **DNF/Flatpak (Linux):** For installing and managing software packages on Fedora Linux.
-*   **apt (Linux):** For installing and managing software packages on Debian-based distros.
+*   **Homebrew (all platforms):** Primary package manager for dev tools on macOS and Linux. Required on all platforms.
+*   **DNF/Flatpak (Fedora):** For system packages and GUI apps on Fedora Linux.
+*   **apt (Debian-based):** For system packages and GUI apps on Debian-based distros.
 *   **Zsh (Z Shell):** As the default shell, configured with plugins for improved productivity. Updated Bash also available.
 *   **Git:** For version control, with a global gitignore and user configuration.
 *   **Cross-platform Support:** OS-specific configurations with automatic platform detection via `scripts/lib/detect_distro.sh`.

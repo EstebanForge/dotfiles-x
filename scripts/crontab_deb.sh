@@ -46,9 +46,16 @@ backup_crontab() {
 install_crontab() {
     local temp_crontab
     temp_crontab=$(mktemp)
+    trap 'rm -f "$temp_crontab"' EXIT
 
     if crontab -l >/dev/null 2>&1; then
         crontab -l >"$temp_crontab"
+    fi
+
+    # Skip if entry already exists
+    if grep -qF 'topgrade' "$temp_crontab" 2>/dev/null; then
+        print_status "Crontab entries already installed"
+        return 0
     fi
 
     cat >>"$temp_crontab" <<'EOF'
@@ -59,7 +66,6 @@ install_crontab() {
 EOF
 
     crontab "$temp_crontab"
-    rm "$temp_crontab"
     print_status "Crontab entries installed successfully"
 }
 

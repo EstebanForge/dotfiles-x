@@ -378,9 +378,11 @@ show_status() {
     echo ""
     print_status "Remote sync status:"
     local local_commit remote_commit
-    local_commit=$(git rev-parse HEAD 2>/dev/null)
-    remote_commit=$(git rev-parse origin/main 2>/dev/null)
-    if [[ "$local_commit" == "$remote_commit" ]]; then
+    local_commit=$(git rev-parse HEAD 2>/dev/null || true)
+    remote_commit=$(git rev-parse origin/main 2>/dev/null || true)
+    if [[ -z "$remote_commit" ]]; then
+        print_warning "Remote not available or not fetched"
+    elif [[ "$local_commit" == "$remote_commit" ]]; then
         print_success "Synced with remote"
     else
         print_warning "Out of sync with remote (run 'dots sync')"
@@ -417,7 +419,7 @@ sync_dotfiles() {
     fi
 
     # Push local changes
-    if git log origin/main..HEAD --oneline | grep -q .; then
+    if git log origin/main..HEAD --oneline 2>/dev/null | grep -q .; then
         print_status "Pushing local changes..."
         git push
         print_success "Push completed successfully"
@@ -623,11 +625,10 @@ health_check() {
         ((warnings++))
     fi
 
-    # Check if Oh My Zsh is installed
+    # Check if Oh My Zsh is installed (optional)
     if [[ -d "$HOME/.oh-my-zsh" ]]; then
         print_success "✅ Oh My Zsh is installed"
 
-        # Check if Oh My Zsh is up to date
         cd "$HOME/.oh-my-zsh"
         if git status >/dev/null 2>&1; then
             local omz_local
@@ -645,19 +646,17 @@ health_check() {
         fi
         cd "$DOTFILES_DIR"
     else
-        print_error "❌ Oh My Zsh is not installed"
-        ((issues++))
+        print_status "ℹ️  Oh My Zsh not detected (optional)"
     fi
 
     # 4. Check package managers
     echo ""
     print_status "4. Checking package managers..."
 
-    # Homebrew health check
+    # Homebrew health check (required on macOS, optional on Linux)
     if command -v brew >/dev/null 2>&1; then
         print_success "✅ Homebrew is installed"
 
-        # Check if Homebrew is healthy
         if brew doctor >/dev/null 2>&1; then
             print_success "✅ Homebrew configuration is healthy"
         else
@@ -665,7 +664,6 @@ health_check() {
             ((warnings++))
         fi
 
-        # Check for outdated packages
         local outdated_count
         outdated_count=$(brew outdated | wc -l | tr -d ' ')
         if [[ $outdated_count -eq 0 ]]; then
@@ -674,9 +672,12 @@ health_check() {
             print_warning "⚠️  $outdated_count Homebrew packages need updates"
             ((warnings++))
         fi
-    else
+    elif [[ "$DISTRO" == "macos" ]]; then
         print_error "❌ Homebrew is not installed"
         ((issues++))
+    else
+        print_warning "⚠️  Homebrew not found on PATH (run install script to set up)"
+        ((warnings++))
     fi
 
     # npm health check
@@ -733,7 +734,8 @@ health_check() {
     fi
 
     # Essential tools
-    local essential_tools=("zsh" "curl" "git" "brew")
+    local essential_tools=("zsh" "curl" "git")
+    [[ "$DISTRO" == "macos" ]] && essential_tools+=("brew")
     for tool in "${essential_tools[@]}"; do
         if command -v "$tool" >/dev/null 2>&1; then
             print_success "✅ $tool is available"

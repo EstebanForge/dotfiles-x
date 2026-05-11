@@ -47,24 +47,26 @@ backup_crontab() {
 install_crontab() {
     local temp_crontab
     temp_crontab=$(mktemp)
-    
-    # Get existing crontab if it exists
+    trap 'rm -f "$temp_crontab"' EXIT
+
     if crontab -l >/dev/null 2>&1; then
         crontab -l >"$temp_crontab"
     fi
-    
-    # Add new cron entries
+
+    # Skip if entry already exists
+    if grep -qF 'topgrade' "$temp_crontab" 2>/dev/null; then
+        print_status "Crontab entries already installed"
+        return 0
+    fi
+
     cat >>"$temp_crontab" <<'EOF'
 
 # Run topgrade for system updates - Daily at 10 AM
 0 10 * * * topgrade -y 2>/dev/null || true
 
 EOF
-    
-    # Install the new crontab
+
     crontab "$temp_crontab"
-    rm "$temp_crontab"
-    
     print_status "Crontab entries installed successfully"
 }
 

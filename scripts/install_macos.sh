@@ -230,17 +230,19 @@ brew install --cask antigravity
 
 # Install npm packages
 echo "Installing npm packages..."
-# Ensure volta's managed node/npm is on PATH for this script session
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
-volta install node 2>/dev/null || true
-npm install -g claude-code-wakatime
+if volta install node; then
+    npm install -g claude-code-wakatime
+    npm install -g postcss
+    npm install -g postcss-cli
+    npm install -g @github/copilot
+else
+    echo "WARNING: volta failed to install node; skipping npm packages" >&2
+fi
 
 # Install wakatime-cli
 echo "Installing wakatime-cli..."
 brew install wakatime-cli
-npm install -g postcss
-npm install -g postcss-cli
-npm install -g @github/copilot
 
 echo "macOS package installation complete!"

@@ -160,7 +160,7 @@ gsettings set org.gnome.desktop.interface temperature-unit 'celsius'
 echo "Restarting GNOME Shell to apply changes..."
 if command -v gnome-shell &> /dev/null; then
     # Only restart if we're in a GNOME session
-    if [ "$XDG_CURRENT_DESKTOP" = "GNOME" ]; then
+    if [[ "${XDG_CURRENT_DESKTOP:-}" == "GNOME" ]]; then
         killall -SIGUSR2 gnome-shell 2>/dev/null || true
     fi
 fi

@@ -43,7 +43,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
 *   `README.md`: End-user documentation and usage instructions.
 *   `TODO.md`: Planned improvements and issue tracking.
 *   `CLAUDE.md`: Claude Code agent instructions (mirrors this file with additional project context).
-*   `GEMINI.md`: Gemini agent instructions.
+*   `GEMINI.md`: Antigravity CLI agent instructions (read by Antigravity CLI, Google's replacement for Gemini CLI).
 
 ## Building and Running
 

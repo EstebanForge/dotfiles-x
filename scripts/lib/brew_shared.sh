@@ -21,7 +21,6 @@ SHARED_BREW_FORMULAE=(
     "eza"
     "fastfetch"
     "fzf"
-    "gemini-cli"
     "git"
     "git-delta"
     "go"

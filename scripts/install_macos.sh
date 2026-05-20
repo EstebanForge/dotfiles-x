@@ -17,6 +17,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/brew_shared.sh
 source "$SCRIPT_DIR/lib/brew_shared.sh"
+# shellcheck source=lib/antigravity_cli.sh
+source "$SCRIPT_DIR/lib/antigravity_cli.sh"
 
 ensure_xcode_clt() {
     if xcode-select -p >/dev/null 2>&1 && [[ -d "/Library/Developer/CommandLineTools" ]]; then
@@ -245,5 +247,8 @@ fi
 # Install wakatime-cli
 echo "Installing wakatime-cli..."
 brew install wakatime-cli
+
+# Install Antigravity CLI (Google's replacement for Gemini CLI)
+install_antigravity_cli
 
 echo "macOS package installation complete!"

@@ -19,6 +19,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/brew_shared.sh"
 # shellcheck source=lib/flatpak_shared.sh
 source "$SCRIPT_DIR/lib/flatpak_shared.sh"
+# shellcheck source=lib/antigravity_cli.sh
+source "$SCRIPT_DIR/lib/antigravity_cli.sh"
 
 # Update system
 echo "Updating system packages..."
@@ -143,5 +145,8 @@ if [[ "$SHELL" != "$ZSH_PATH" ]]; then
 else
     echo "zsh is already the default shell."
 fi
+
+# Install Antigravity CLI (Google's replacement for Gemini CLI)
+install_antigravity_cli
 
 echo "Fedora package installation complete!"

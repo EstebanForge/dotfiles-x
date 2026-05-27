@@ -1,17 +1,27 @@
+[user]
+	name = EstebanForge
+	email = 1696145+EstebanForge@users.noreply.github.com
+
+[core]
+	excludesFile = ~/.gitignore_global
+	fileMode = false
+	pager = delta
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
-[user]
-	name = Esteban
-	email = esteban@attitude.cl
-[core]
-	excludesFile = ~/.gitignore_global
-	fileMode = false
+
 [init]
 	defaultBranch = main
 
-# OS-specific credential helper
-[credential]
-	helper = manager
+[interactive]
+	diffFilter = delta --color-only
+
+[merge]
+	conflictStyle = zdiff3
+
+[delta]
+	navigate = true
+	dark = true

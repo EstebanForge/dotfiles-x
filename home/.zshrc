@@ -1,49 +1,35 @@
-# Load .zshrc.local if it exists
-if [[ -f ~/.zshrc.local ]]; then
-    source ~/.zshrc.local
+# OPENSPEC:START
+# OpenSpec shell completions configuration
+fpath=("$HOME/.oh-my-zsh/custom/completions" $fpath)
+autoload -Uz compinit
+compinit
+# OPENSPEC:END
+
+# Load secrets file if it exists
+if [[ -f ~/.secrets ]]; then
+    source ~/.secrets
 fi
 
 # Speed up shell startup
-#DISABLE_AUTO_UPDATE="true"
+DISABLE_AUTO_UPDATE="true"
 DISABLE_MAGIC_FUNCTIONS="true"
 #DISABLE_COMPFIX="true"
 
-# Path to your Oh My Zsh installation.
+# Path to your Oh My Zsh installation
 export ZSH="$HOME/.oh-my-zsh"
 
 # OS-specific Homebrew setup
 if [[ "$(uname)" == "Darwin" ]]; then
-    # macOS
-    eval "$(/opt/homebrew/bin/brew shellenv)" # Correct path for Apple Silicon (M-series)
+    eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [[ "$(uname)" == "Linux" ]]; then
-    # Linux
     if command -v brew >/dev/null 2>&1; then
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
 fi
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="TCattd"
 
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-
-# Uncomment the following line to change how often to auto-update (in days).
 zstyle ':omz:update' frequency 30
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
 
 plugins=(
     git
@@ -59,156 +45,185 @@ if [[ "$(uname)" == "Darwin" ]]; then
     source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
     #source $HOMEBREW_PREFIX/share/zsh-completions/zsh-completions.zsh
 elif [[ "$(uname)" == "Linux" ]]; then
-    if [[ -d /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions ]]; then
-        source /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    if [[ -d $HOMEBREW_PREFIX/share/zsh-autosuggestions ]]; then
+        source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     fi
-    if [[ -d /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting ]]; then
-        source /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    if [[ -d $HOMEBREW_PREFIX/share/zsh-syntax-highlighting ]]; then
+        source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
     fi
 fi
 
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE="20"
 ZSH_AUTOSUGGEST_USE_ASYNC=1
 
+# https://github.com/ajeetdsouza/zoxide
+eval "$(zoxide init zsh)"
+
 ######################
 # User configuration #
 ######################
 
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-export EDITOR='nano'
-
-# Updaters
+# Bitwarden SSH-Agent (macOS)
 if [[ "$(uname)" == "Darwin" ]]; then
-    brewup() {
-        echo "Updating and upgrading Homebrew packages..."
-        brew update && brew upgrade && brew cleanup
-        echo "Homebrew packages updated and cleaned up."
-    }
+    export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+    launchctl setenv SSH_AUTH_SOCK "$SSH_AUTH_SOCK"
 fi
 
-# Enhanced system update function with dotfile integration
+# Preferred editor
+export EDITOR='nano'
+
+# Brewup updater
+brewup() {
+    echo "Updating Homebrew packages..."
+    brew update && brew upgrade --greedy && brew cleanup
+}
+
+# Topgrade Updater
 sysup() {
-    echo "🔄 Starting system update with topgrade..."
     topgrade
-    echo "✅ System update complete!"
-    echo ""
-    echo "🔍 Checking dotfile status..."
-    if [[ -d ~/.dotfiles ]]; then
-        cd ~/.dotfiles
-        if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
-            echo "⚠️  Dotfiles have changes. Run 'dots status' to check."
-        else
-            echo "✅ Dotfiles are up to date!"
-        fi
-    else
-        echo "⚠️  ~/.dotfiles directory not found"
-    fi
 }
 
-# Full system and dotfile update
-sysup-full() {
-    echo "🚀 Full system and dotfiles update..."
-    echo ""
-
-    # 1. Update system packages
-    echo "1️⃣ Updating system packages..."
-    sysup
-
-    echo ""
-    # 2. Update dotfiles
-    echo "2️⃣ Updating dotfiles..."
-    dots sync
-
-    echo ""
-    # 3. Complete status
-    echo "🎉 Full update complete!"
-    echo "💡 Run 'exec zsh' to reload shell with latest changes"
-}
-
-# Quick dotfile check (now uses dots.sh)
-dots-check() {
-    echo "🔍 Quick dotfile health check..."
-    cd ~/.dotfiles
-    ./dots.sh health
-}
-
-# Use gls (GNU ls) for enhanced functionality, including coloring and directory grouping.
+# OS-specific ls aliases
 if [[ "$(uname)" == "Darwin" ]]; then
-    # The 'g' prefix is required when using coreutils installed via Homebrew.
+    # gls (GNU ls) via Homebrew coreutils
     alias ls='gls -GFh --color -h --group-directories-first'
     alias ll='gls --color -alF --group-directories-first'
     alias la='gls --color -A'
     alias l='gls --color -CF'
+    alias qs='open -a "QSpace Pro"'
 elif [[ "$(uname)" == "Linux" ]]; then
     alias ls='ls -GFh --color -h --group-directories-first'
     alias ll='ls --color -alF --group-directories-first'
     alias la='ls --color -A'
     alias l='ls --color -CF'
 fi
+
 alias artisan='php artisan'
-
-# macOS-only aliases
-if [[ "$(uname)" == "Darwin" ]]; then
-    alias qs='open -a "QSpace Pro"'
-fi
-
 alias cat='bat'
+
+# --- Sandbox Control (UTM, macOS only) ---
+if [[ "$(uname)" == "Darwin" ]]; then
+    alias sbdown='utmctl stop "Fedora Server"'
+    alias sbssh='ssh sandbox'
+    alias sbstatus='utmctl list | grep "Fedora Server"'
+
+    sbup() {
+        echo "🚀 Starting Sandbox..."
+        utmctl start "Fedora Server"
+
+        echo -n "⏳ Waiting for SSH..."
+        while ! nc -z -G 1 192.168.64.10 22 > /dev/null 2>&1; do
+            sleep 1
+            echo -n "."
+        done
+        echo "\n✅ Sandbox is online!"
+    }
+fi
 
 ######################################
 # PATH AND ENVIRONMENT CONFIGURATION #
 ######################################
 
-# PHP (from Homebrew) & Composer
-# Add brew-installed PHP to the PATH
-# Add Composer's vendor binaries to the PATH
+# PHP & Composer
 export PATH="$HOME/.config/composer/vendor/bin:$PATH"
-export COMPOSER_PROCESS_TIMEOUT=600
+export COMPOSER_PROCESS_TIMEOUT=1800
 
 # User-specific binary paths
-# This includes ~/.local/bin, which is a common place for user-installed scripts.
 export PATH="$HOME/.local/bin:$PATH"
 
 # HOMEBREW
 export HOMEBREW_NO_ENV_HINTS=1
 
-# Load secrets file if it exists
-if [[ -f ~/.secrets ]]; then
-    source ~/.secrets
+# Bun (macOS)
+if [[ "$(uname)" == "Darwin" ]]; then
+    export PATH="$HOME/.bun/bin:$PATH"
 fi
-
-zai() {
-    (
-        #export ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic
-        #export ANTHROPIC_AUTH_TOKEN=$Z_API_KEY
-        claude "$@"
-    )
-}
 
 # opencode
 export PATH="$HOME/.opencode/bin:$PATH"
 
-# Added by LM Studio CLI (lms)
+# LM Studio CLI
 export PATH="$PATH:$HOME/.lmstudio/bin"
-# End of LM Studio CLI section
 
-# Load custom plugins
-if [[ -n "$ZSH_VERSION" ]]; then
-  # Zsh: use null_glob to avoid errors
-  setopt NULL_GLOB 2>/dev/null || true
-  for plugin in ~/.zsh/plugins/*.plugin.sh; do
-    [[ -r "$plugin" ]] && source "$plugin"
-  done
-  unsetopt NULL_GLOB 2>/dev/null || true
-else
-  # Bash: check if files exist before looping
-  for plugin in ~/.zsh/plugins/*.plugin.sh; do
-    [[ -f "$plugin" && -r "$plugin" ]] && source "$plugin"
-  done
+# Go (Golang)
+export GOPATH="$HOME/.local/share/go"
+export PATH="$GOPATH/bin:$PATH"
+
+# LLVM & OpenJDK (macOS, via Homebrew)
+if [[ "$(uname)" == "Darwin" ]]; then
+    export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+    export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
 fi
 
-eval "$(mise activate zsh)"
-eval "$(zoxide init zsh)"
+# Antigravity (macOS)
+if [[ "$(uname)" == "Darwin" ]]; then
+    export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
+    export PATH="$HOME/.antigravity-ide/antigravity-ide/bin:$PATH"
+fi
+
+# Load custom plugins from ~/.zsh/plugins/
+if [[ -n "$ZSH_VERSION" ]]; then
+    setopt NULL_GLOB 2>/dev/null || true
+    for plugin in ~/.zsh/plugins/*.plugin.sh; do
+        [[ -r "$plugin" ]] && source "$plugin"
+    done
+    unsetopt NULL_GLOB 2>/dev/null || true
+else
+    for plugin in ~/.zsh/plugins/*.plugin.sh; do
+        [[ -f "$plugin" && -r "$plugin" ]] && source "$plugin"
+    done
+fi
+
 eval "$(atuin init zsh)"
+
+# Wicket completions (macOS)
+if [[ "$(uname)" == "Darwin" ]] && [[ -f "$HOME/.zshrc.wicket" ]]; then
+    source "$HOME/.zshrc.wicket"
+fi
+
+# ZAI API wrapper (requires Z_API_KEY in ~/.secrets)
+ns-cc-zai() {
+    export ANTHROPIC_AUTH_TOKEN="$ZAI_API_KEY"
+    export ANTHROPIC_BASE_URL="https://api.z.ai/api/anthropic"
+    export API_TIMEOUT_MS="3000000"
+
+    export ANTHROPIC_DEFAULT_HAIKU_MODEL="glm-5-turbo"
+    export ANTHROPIC_DEFAULT_SONNET_MODEL="glm-5.1"
+    export ANTHROPIC_DEFAULT_OPUS_MODEL="glm-5.1"
+
+    claude "$@"
+}
+
+# Construct-cli agent aliases (requires construct-cli installed)
+if command -v ct >/dev/null 2>&1; then
+    alias agy='ct agy'
+    alias claude='ct claude'
+    alias amp='ct amp'
+    alias qwen='ct qwen'
+    alias copilot='ct copilot'
+    alias opencode='ct opencode'
+    alias cline='ct cline'
+    alias crush='ct crush'
+    alias codex='ct codex'
+    alias droid='ct droid'
+    alias goose='ct goose'
+    alias kilocode='ct kilocode'
+    alias pi='ct pi'
+    alias cc-kimi='ct cc kimi'
+    alias cc-mimo='ct cc mimo'
+    alias cc-minimax='ct cc minimax'
+    alias cc-qwen='ct cc qwen'
+    alias cc-zai='ct cc zai'
+
+    # Non-sandboxed aliases - run agents directly
+    ns-agy() { command agy "$@"; }
+    ns-claude() { command claude "$@"; }
+    ns-qwen() { command qwen "$@"; }
+    ns-copilot() { command copilot "$@"; }
+    ns-opencode() { command opencode "$@"; }
+    ns-cline() { command cline "$@"; }
+    ns-codex() { command codex "$@"; }
+    ns-droid() { command droid "$@"; }
+    ns-kilocode() { command kilocode "$@"; }
+    ns-pi() { command pi "$@"; }
+fi

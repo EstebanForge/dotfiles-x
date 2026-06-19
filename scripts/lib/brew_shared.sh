@@ -4,8 +4,6 @@
 
 SHARED_BREW_TAPS=(
     "EstebanForge/tap"
-    "max-sixty/worktrunk"
-    "shivammathur/tap"
 )
 
 SHARED_BREW_FORMULAE=(
@@ -37,6 +35,10 @@ SHARED_BREW_FORMULAE=(
     "mole"
     "nmap"
     "opencode"
+    "php"
+    "php@8.2"
+    "php@8.3"
+    "php@8.4"
     "rclone"
     "ripgrep"
     "rtk"
@@ -52,8 +54,6 @@ SHARED_BREW_FORMULAE=(
     "EstebanForge/tap/construct-cli"
     "EstebanForge/tap/mcp-cli-ent"
     "EstebanForge/tap/md-over-here"
-    "max-sixty/worktrunk/wt"
-    "shivammathur/tap/pcov@8.5"
 )
 
 brew_tap_list() {

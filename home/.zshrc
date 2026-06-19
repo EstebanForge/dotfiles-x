@@ -73,9 +73,17 @@ fi
 export EDITOR='nano'
 
 # Brewup updater
+# Upgrades formulae and casks separately: a single OS-incompatible cask
+# (e.g. one requiring a newer macOS) must not abort the whole run or skip cleanup.
 brewup() {
     echo "Updating Homebrew packages..."
-    brew update && brew upgrade --greedy && brew cleanup
+    brew update
+    brew upgrade --formula
+    for cask in $(brew outdated --cask --greedy -q); do
+        brew upgrade --cask "$cask" || echo "  -> skipped: $cask"
+    done
+    brew cleanup
+    echo "Homebrew packages updated and cleaned up."
 }
 
 # PHP version switcher. Default = 8.3 (set once via `brew link --force php@8.3`, persistent).
@@ -146,6 +154,7 @@ export COMPOSER_PROCESS_TIMEOUT=1800
 
 # User-specific binary paths
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 
 # HOMEBREW
 export HOMEBREW_NO_ENV_HINTS=1
@@ -242,4 +251,16 @@ if command -v ct >/dev/null 2>&1; then
     ns-droid() { command droid "$@"; }
     ns-kilocode() { command kilocode "$@"; }
     ns-pi() { command pi "$@"; }
+fi
+
+# Load Fuse Agents plugin
+if [[ -f "$HOME/.zsh/plugins/fuse-agents/fuse-agents.plugin.sh" ]]; then
+    source "$HOME/.zsh/plugins/fuse-agents/fuse-agents.plugin.sh"
+fi
+
+# Route puppeteer (mermaid-cli, etc.) to system Chrome; auto-skips bundled download.
+# Setting PUPPETEER_EXECUTABLE_PATH flips puppeteer's skipDownload=true, so global
+# npm installs (topgrade) stop fetching chrome-headless-shell and use this binary instead.
+if [[ "$(uname)" == "Darwin" ]]; then
+    export PUPPETEER_EXECUTABLE_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 fi

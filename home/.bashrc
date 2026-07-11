@@ -172,10 +172,6 @@ alias artisan='php artisan'
 # PATH AND ENVIRONMENT               #
 ######################################
 
-# Volta (JavaScript Tool Manager)
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
-
 # PHP & Composer
 export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 export COMPOSER_PROCESS_TIMEOUT=600

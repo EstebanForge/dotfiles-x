@@ -231,7 +231,7 @@ echo "Installing Homebrew packages..."
 install_shared_brew_packages
 
 # deb-specific Homebrew packages
-brew install volta
+brew install node
 brew install webpack
 
 # Install Bun
@@ -241,15 +241,14 @@ curl -fsSL https://bun.sh/install | bash
 echo "Installing wakatime-cli..."
 brew install wakatime-cli
 
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
-if volta install node; then
+# Global npm packages (Node is provided by Homebrew)
+if command -v npm >/dev/null 2>&1; then
     npm install -g claude-code-wakatime
     npm install -g postcss
     npm install -g postcss-cli
     npm install -g @github/copilot
 else
-    echo "WARNING: volta failed to install node; skipping npm packages" >&2
+    echo "WARNING: npm not found; skipping npm packages." >&2
 fi
 
 # Set zsh as default shell

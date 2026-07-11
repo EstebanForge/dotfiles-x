@@ -230,18 +230,16 @@ brew install --cask keepingyouawake
 brew install --cask claude
 brew install --cask antigravity
 
-# Install npm packages
-echo "Installing npm packages..."
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
-if volta install node; then
+# Install npm packages (Node is provided by Homebrew earlier in this script)
+if command -v npm >/dev/null 2>&1; then
+    echo "Installing npm packages..."
     npm install -g claude-code-wakatime
     npm install -g postcss
     npm install -g postcss-cli
     npm install -g @github/copilot
     corepack enable yarn
 else
-    echo "WARNING: volta failed to install node; skipping npm packages" >&2
+    echo "WARNING: npm not found; skipping npm packages." >&2
 fi
 
 # Install wakatime-cli

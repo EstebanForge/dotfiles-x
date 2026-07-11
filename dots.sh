@@ -210,7 +210,6 @@ setup_dotfiles() {
 
     # List of dotfiles to symlink (relative to home/ directory)
     local dotfiles=(
-        ".zshrc:.zshrc"
         ".gitconfig:.gitconfig"
         ".gitignore_global:.gitignore_global"
         ".secrets.example:.secrets.example"
@@ -218,8 +217,10 @@ setup_dotfiles() {
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
     )
 
-    # Add .bashrc on deb-based distros
-    if [[ "$DISTRO" != "macos" ]]; then
+    # Shell config: zsh on macOS, bash on Linux
+    if [[ "$DISTRO" == "macos" ]]; then
+        dotfiles+=(".zshrc:.zshrc")
+    else
         dotfiles+=(".bashrc:.bashrc")
     fi
 
@@ -244,7 +245,11 @@ setup_dotfiles() {
     setup_dots_command
 
     print_success "Dotfiles setup complete!"
-    print_status "Run 'exec zsh' to reload shell configuration"
+    if [[ "$DISTRO" == "macos" ]]; then
+        print_status "Run 'exec zsh' to reload shell configuration"
+    else
+        print_status "Run 'source ~/.bashrc' (or 'exec bash') to reload shell configuration"
+    fi
 }
 
 # Function to setup secrets file
@@ -272,8 +277,10 @@ cleanup_symlinks() {
     print_header "Cleaning Up Symlinks"
     print_status "Cleaning up existing symlinks"
 
+    # Remove both shell configs if symlinked (handles platform switches cleanly)
     local dotfiles=(
         ".zshrc"
+        ".bashrc"
         ".gitconfig"
         ".gitignore_global"
         ".secrets.example"
@@ -282,11 +289,6 @@ cleanup_symlinks() {
         ".config/topgrade/topgrade.toml"
         ".local/bin/dots"
     )
-
-    # Add .bashrc on deb-based distros
-    if [[ "$DISTRO" != "macos" ]]; then
-        dotfiles+=(".bashrc")
-    fi
 
     for dotfile in "${dotfiles[@]}"; do
         local target_path="$HOME_DIR/$dotfile"
@@ -305,7 +307,6 @@ show_status() {
     print_status "Checking dotfile status"
 
     local dotfiles=(
-        ".zshrc:.zshrc"
         ".gitconfig:.gitconfig"
         ".gitignore_global:.gitignore_global"
         ".secrets.example:.secrets.example"
@@ -314,8 +315,10 @@ show_status() {
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
     )
 
-    # Add .bashrc on deb-based distros
-    if [[ "$DISTRO" != "macos" ]]; then
+    # Shell config: zsh on macOS, bash on Linux
+    if [[ "$DISTRO" == "macos" ]]; then
+        dotfiles+=(".zshrc:.zshrc")
+    else
         dotfiles+=(".bashrc:.bashrc")
     fi
 
@@ -610,23 +613,34 @@ health_check() {
     echo ""
     print_status "3. Checking shell configuration..."
 
-    # Check if ZSH config is symlinked properly
-    if [[ -L "$HOME/.zshrc" ]]; then
-        local zsh_target
-        zsh_target="$(readlink "$HOME/.zshrc")"
-        if [[ -f "$zsh_target" ]] && [[ "$zsh_target" == "$DOTFILES_DIR/home/.zshrc" ]]; then
-            print_success "✅ ZSH configuration is properly symlinked"
+    # Check shell configuration symlink (zsh on macOS, bash on Linux)
+    local shell_rc shell_name shell_src
+    if [[ "$DISTRO" == "macos" ]]; then
+        shell_rc="$HOME/.zshrc"
+        shell_name="ZSH"
+        shell_src="$DOTFILES_DIR/home/.zshrc"
+    else
+        shell_rc="$HOME/.bashrc"
+        shell_name="Bash"
+        shell_src="$DOTFILES_DIR/home/.bashrc"
+    fi
+
+    if [[ -L "$shell_rc" ]]; then
+        local shell_target
+        shell_target="$(readlink "$shell_rc")"
+        if [[ -f "$shell_target" ]] && [[ "$shell_target" == "$shell_src" ]]; then
+            print_success "✅ $shell_name configuration is properly symlinked"
         else
-            print_error "❌ ZSH symlink is broken or incorrect"
+            print_error "❌ $shell_name symlink is broken or incorrect"
             ((issues++))
         fi
     else
-        print_warning "⚠️  ZSH configuration is not symlinked"
+        print_warning "⚠️  $shell_name configuration is not symlinked"
         ((warnings++))
     fi
 
-    # Check if Oh My Zsh is installed (optional)
-    if [[ -d "$HOME/.oh-my-zsh" ]]; then
+    # Check if Oh My Zsh is installed (optional, macOS only)
+    if [[ "$DISTRO" == "macos" ]] && [[ -d "$HOME/.oh-my-zsh" ]]; then
         print_success "✅ Oh My Zsh is installed"
 
         cd "$HOME/.oh-my-zsh"
@@ -645,7 +659,7 @@ health_check() {
             fi
         fi
         cd "$DOTFILES_DIR"
-    else
+    elif [[ "$DISTRO" == "macos" ]]; then
         print_status "ℹ️  Oh My Zsh not detected (optional)"
     fi
 
@@ -731,7 +745,11 @@ health_check() {
     fi
 
     # Essential tools
-    local essential_tools=("zsh" "curl" "git" "brew")
+    if [[ "$DISTRO" == "macos" ]]; then
+        local essential_tools=("zsh" "curl" "git" "brew")
+    else
+        local essential_tools=("bash" "curl" "git" "brew")
+    fi
     for tool in "${essential_tools[@]}"; do
         if command -v "$tool" >/dev/null 2>&1; then
             print_success "✅ $tool is available"
@@ -928,8 +946,8 @@ EXAMPLES:
     dots crontab show                   # Show scheduled jobs
 
 FILES MANAGED:
-    ~/.zshrc                            ZSH configuration
-    ~/.bashrc                           Bash configuration (deb only)
+    ~/.zshrc                            ZSH configuration (macOS only)
+    ~/.bashrc                           Bash configuration (Linux only)
     ~/.gitconfig                        Git configuration
     ~/.ssh/config                       SSH client configuration
     ~/.editorconfig                     Editor configuration

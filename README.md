@@ -14,8 +14,9 @@ cd ~/.dotfiles
 # Run the setup script to create symlinks
 ./dots.sh install
 
-# Reload shell configuration
-source ~/.zshrc  # or source ~/.bashrc on deb distros
+# Reload shell configuration (macOS: zsh, Linux: bash)
+source ~/.zshrc    # macOS
+source ~/.bashrc   # Linux
 ```
 
 ### On existing machine:
@@ -28,8 +29,9 @@ cd ~/.dotfiles
 # Run the setup script (automatically backs up existing files)
 ./dots.sh install
 
-# Reload shell configuration
-source ~/.zshrc  # or source ~/.bashrc on deb distros
+# Reload shell configuration (macOS: zsh, Linux: bash)
+source ~/.zshrc    # macOS
+source ~/.bashrc   # Linux
 ```
 
 ### Setup Script Commands
@@ -77,20 +79,20 @@ curl -H "Authorization: Bearer $ANTHROPIC_API_KEY" https://api.anthropic.com/v1/
 ```
 dotfiles-x/
 ├── home/                           # Your dotfiles
-│   ├── .zshrc                   # Zsh configuration with OS detection
-│   ├── .bashrc                  # Bash configuration (deb distros)
+│   ├── .zshrc                   # Zsh configuration (macOS)
+│   ├── .bashrc                  # Bash configuration (Linux)
 │   ├── .gitconfig               # Git configuration
 │   ├── .gitignore_global        # Global gitignore
 │   └── .secrets.example         # Secrets template (copy to ~/.secrets)
 ├── scripts/                        # Optional setup scripts
 │   ├── install_macos.sh            # macOS package installation
-│   ├── install_fedora.sh           # Fedora package installation
+│   ├── install_rpm.sh              # Fedora package installation
 │   ├── install_deb.sh              # Deb-based package installation
 │   ├── configure_macos.sh          # macOS system settings
-│   ├── configure_fedora.sh         # Fedora GNOME settings
+│   ├── configure_rpm.sh            # Fedora GNOME settings
 │   ├── configure_deb.sh            # Deb-based GNOME settings
 │   ├── crontab_macos.sh            # macOS crontab management
-│   ├── crontab_fedora.sh           # Fedora crontab management
+│   ├── crontab_rpm.sh              # Fedora crontab management
 │   ├── crontab_deb.sh              # Deb-based crontab management
 │   └── lib/                        # Shared libraries
 │       ├── brew_shared.sh          # Shared Homebrew packages
@@ -116,7 +118,7 @@ dotfiles-x/
 
 Edit the dotfiles after copying to customize:
 - `~/.gitconfig`: Update your name and email
-- `~/.zshrc`: Customize shell settings and aliases
+- `~/.zshrc` (macOS) / `~/.bashrc` (Linux): Customize shell settings and aliases
 
 ### Security
 
@@ -132,17 +134,19 @@ API keys and secrets should be stored securely using your preferred method:
 - System defaults and preferences
 - Finder, Dock, and desktop settings
 - Native app configurations
+- Zsh as the default shell
 
 ### Linux (Fedora-based)
 - DNF package installation
 - Flatpak application management
 - GNOME desktop configuration
 - Development environment setup
+- Bash as the default shell
 
 ### Linux (Deb-based)
 - apt package installation
 - GNOME desktop configuration
-- Bash shell configuration (.bashrc) auto-linked on deb distros
+- Bash as the default shell (.bashrc auto-linked)
 - Development environment setup via Homebrew + apt
 
 ## Optional Package Installation
@@ -155,8 +159,8 @@ After setting up dotfiles, you can optionally install packages:
 ./scripts/configure_macos.sh
 
 # Fedora
-./scripts/install_fedora.sh  
-./scripts/configure_fedora.sh
+./scripts/install_rpm.sh  
+./scripts/configure_rpm.sh
 ```
 
 ## Adding New Dotfiles
@@ -184,7 +188,9 @@ echo "export MY_VAR=value" > home/.myconfig
 
 - **macOS**: macOS 10.15+ with optional Homebrew
 - **Linux**: Tested on Fedora 40+, should work on other distributions
-- **All**: Git, Zsh, curl
+- **All**: Git, curl
+- **macOS**: Zsh (default shell)
+- **Linux**: Bash (default shell)
 - **Optional**: Package managers (Homebrew for macOS, DNF/Flatpak for Fedora)
 
 ## License

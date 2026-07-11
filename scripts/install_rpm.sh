@@ -118,7 +118,6 @@ sudo dnf install -y \
     nautilus-python \
     xsel \
     xclip \
-    zsh \
     libavcodec-freeworld \
     bleachbit \
     btrfs-progs \
@@ -185,19 +184,6 @@ if command -v npm >/dev/null 2>&1; then
     npm install -g @github/copilot
 else
     echo "WARNING: npm not found; skipping global npm packages." >&2
-fi
-
-# Set zsh as default shell
-echo "Setting zsh as default shell..."
-ZSH_PATH="$(command -v zsh)"
-if ! grep -qF "$ZSH_PATH" /etc/shells; then
-    echo "$ZSH_PATH" | sudo tee -a /etc/shells
-fi
-if [[ "$SHELL" != "$ZSH_PATH" ]]; then
-    sudo chsh -s "$ZSH_PATH" "$USER"
-    echo "Default shell changed to zsh. Re-login to apply."
-else
-    echo "zsh is already the default shell."
 fi
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)

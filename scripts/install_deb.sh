@@ -28,7 +28,7 @@ source "$SCRIPT_DIR/lib/detect_distro.sh"
 distro="$(detect_distro)"
 if [[ "$distro" != "deb" ]]; then
     echo "This script is for Deb-based distros. Detected: $distro" >&2
-    echo "Use install_fedora.sh or install_macos.sh instead." >&2
+    echo "Use install_rpm.sh or install_macos.sh instead." >&2
     exit 1
 fi
 
@@ -142,7 +142,6 @@ sudo apt install -y \
     wl-clipboard \
     xsel \
     xclip \
-    zsh \
     bleachbit \
     btrfs-progs \
     filezilla \
@@ -249,19 +248,6 @@ if command -v npm >/dev/null 2>&1; then
     npm install -g @github/copilot
 else
     echo "WARNING: npm not found; skipping npm packages." >&2
-fi
-
-# Set zsh as default shell
-echo "Setting zsh as default shell..."
-ZSH_PATH="$(command -v zsh)"
-if ! grep -qF "$ZSH_PATH" /etc/shells; then
-    echo "$ZSH_PATH" | sudo tee -a /etc/shells
-fi
-if [[ "$SHELL" != "$ZSH_PATH" ]]; then
-    sudo chsh -s "$ZSH_PATH" "$USER"
-    echo "Default shell changed to zsh. Re-login to apply."
-else
-    echo "zsh is already the default shell."
 fi
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)

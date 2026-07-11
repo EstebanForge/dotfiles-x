@@ -8,15 +8,15 @@ The project uses a symlink-based approach with automation scripts to achieve thi
 *   **Homebrew (all platforms):** Primary package manager for dev tools on macOS and Linux. Required on all platforms.
 *   **DNF/Flatpak (RPM):** For system packages and GUI apps on RPM-based Linux (Fedora, etc.).
 *   **apt (Deb-based):** For system packages and GUI apps on Deb-based distros.
-*   **Zsh (Z Shell):** As the default shell, configured with plugins for improved productivity. Updated Bash also available.
+*   **Shell:** Zsh is the default shell on macOS (with plugins); Bash is the default shell on Linux.
 *   **Git:** For version control, with a global gitignore and user configuration.
 *   **Cross-platform Support:** OS-specific configurations with automatic platform detection via `scripts/lib/detect_distro.sh`.
 
 ## Key Files
 
 *   `home/`: This directory mirrors the actual home folder structure. Files here are symlinked directly into `$HOME`:
-    *   `.zshrc`: Zsh configuration with OS-specific logic and secure API key management.
-    *   `.bashrc`: Bash configuration (symlinked on Linux distros; not macOS).
+    *   `.zshrc`: Zsh configuration (symlinked on macOS only).
+    *   `.bashrc`: Bash configuration (symlinked on Linux only).
     *   `.gitconfig`: Git configuration with user details.
     *   `.gitignore_global`: Global gitignore rules for all projects.
     *   `.secrets.example`: Secrets management template for API keys and sensitive data.
@@ -60,8 +60,9 @@ cd ~/.dotfiles
 # Full machine setup (symlinks + packages + crontab)
 ./dots.sh install --packages --crontab
 
-# Reload shell configuration
-exec zsh
+# Reload shell configuration (macOS: zsh, Linux: bash)
+exec zsh        # macOS
+exec bash       # Linux
 
 # Edit secrets with your actual API keys
 vim ~/.secrets
@@ -133,8 +134,8 @@ dots help                                # Show help message
 
 | Symlink in `$HOME`                  | Source in `home/`                        | Notes                      |
 |-------------------------------------|------------------------------------------|----------------------------|
-| `~/.zshrc`                          | `.zshrc`                                 | All platforms               |
-| `~/.bashrc`                         | `.bashrc`                                | Linux only (not macOS)      |
+| `~/.zshrc`                          | `.zshrc`                                 | macOS only                  |
+| `~/.bashrc`                         | `.bashrc`                                | Linux only                  |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |
 | `~/.gitignore_global`               | `.gitignore_global`                      | All platforms               |
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |

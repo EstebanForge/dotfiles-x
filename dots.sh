@@ -171,42 +171,10 @@ setup_dots_command() {
     create_symlink "$command_source" "$command_target"
 }
 
-# Function to setup SSH configuration
-setup_ssh_config() {
-    local ssh_source="$DOTFILES_DIR/home/.ssh/config"
-    local ssh_target="$HOME_DIR/.ssh/config"
-
-    if [[ -f "$ssh_source" ]]; then
-        # Create SSH directory if it doesn't exist
-        local ssh_dir
-        ssh_dir="$(dirname "$ssh_target")"
-        if [[ ! -d "$ssh_dir" ]]; then
-            print_status "Creating SSH directory: $ssh_dir"
-            mkdir -p "$ssh_dir"
-            chmod 700 "$ssh_dir"
-        fi
-
-        # Backup existing SSH config
-        backup_file "$ssh_target"
-
-        # Create symlink
-        create_symlink "$ssh_source" "$ssh_target"
-
-        # Set proper permissions
-        chmod 600 "$ssh_target"
-        print_success "SSH config setup complete with proper permissions"
-    else
-        print_warning "SSH config template not found: $ssh_source"
-    fi
-}
-
 # Function to setup dotfiles
 setup_dotfiles() {
     print_header "Setting Up Dotfiles"
     print_status "Setting up dotfiles from $DOTFILES_DIR to $HOME_DIR"
-
-    # Setup SSH config
-    setup_ssh_config
 
     # List of dotfiles to symlink (relative to home/ directory)
     local dotfiles=(
@@ -285,7 +253,6 @@ cleanup_symlinks() {
         ".gitignore_global"
         ".secrets.example"
         ".editorconfig"
-        ".ssh/config"
         ".config/topgrade/topgrade.toml"
         ".local/bin/dots"
     )
@@ -311,7 +278,6 @@ show_status() {
         ".gitignore_global:.gitignore_global"
         ".secrets.example:.secrets.example"
         ".editorconfig:.editorconfig"
-        ".ssh/config:.ssh/config"
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
     )
 
@@ -763,35 +729,6 @@ health_check() {
     echo ""
     print_status "6. Checking security configurations..."
 
-    # SSH configuration
-    if [[ -f "$HOME/.ssh/config" ]]; then
-        print_success "✅ SSH configuration exists"
-
-        # Check SSH permissions — stat flag differs between macOS (-f) and Linux (-c)
-        local ssh_dir_perms
-        ssh_dir_perms="$(stat -f '%A' "$HOME/.ssh" 2>/dev/null || stat -c '%A' "$HOME/.ssh" 2>/dev/null)"
-        if [[ "$ssh_dir_perms" == "drwx------" ]]; then
-            print_success "✅ SSH directory has correct permissions (700)"
-        else
-            print_warning "⚠️  SSH directory permissions may be insecure"
-            ((warnings++))
-        fi
-
-        if [[ -f "$HOME/.ssh/config" ]]; then
-            local ssh_cfg_perms
-            ssh_cfg_perms="$(stat -f '%A' "$HOME/.ssh/config" 2>/dev/null || stat -c '%A' "$HOME/.ssh/config" 2>/dev/null)"
-            if [[ "$ssh_cfg_perms" == "-rw-------" ]]; then
-                print_success "✅ SSH config file has correct permissions (600)"
-            else
-                print_warning "⚠️  SSH config file permissions may be insecure"
-                ((warnings++))
-            fi
-        fi
-    else
-        print_warning "⚠️  SSH configuration does not exist"
-        ((warnings++))
-    fi
-
     # Secrets file security
     if [[ -f "$HOME/.secrets" ]]; then
         local secrets_perms
@@ -949,7 +886,6 @@ FILES MANAGED:
     ~/.zshrc                            ZSH configuration (macOS only)
     ~/.bashrc                           Bash configuration (Linux only)
     ~/.gitconfig                        Git configuration
-    ~/.ssh/config                       SSH client configuration
     ~/.editorconfig                     Editor configuration
     ~/.secrets.example                  Secrets template
     ~/.gitignore_global                 Global git ignore

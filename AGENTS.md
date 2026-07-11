@@ -21,7 +21,6 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `.gitignore_global`: Global gitignore rules for all projects.
     *   `.secrets.example`: Secrets management template for API keys and sensitive data.
     *   `.editorconfig`: Editor configuration for consistent coding style across tools.
-    *   `.ssh/config`: SSH client configuration template with modern security practices.
     *   `.config/topgrade/topgrade.toml`: Topgrade update manager configuration.
 
 *   `scripts/`: Setup scripts for package installation and system configuration:
@@ -140,7 +139,6 @@ dots help                                # Show help message
 | `~/.gitignore_global`               | `.gitignore_global`                      | All platforms               |
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |
 | `~/.editorconfig`                   | `.editorconfig`                          | All platforms               |
-| `~/.ssh/config`                     | `.ssh/config`                            | All platforms               |
 | `~/.config/topgrade/topgrade.toml`  | `.config/topgrade/topgrade.toml`         | All platforms               |
 | `~/.local/bin/dots`                 | `dots.sh`                                | Global `dots` command       |
 

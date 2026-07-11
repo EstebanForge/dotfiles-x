@@ -1,3 +1,20 @@
+######################################
+# System integration                 #
+######################################
+
+# Source system-wide bashrc (Fedora/RHEL) if present
+if [[ -f /etc/bashrc ]]; then
+    source /etc/bashrc
+fi
+
+# Source drop-in snippets (Fedora's ~/.bashrc.d mechanism) if present
+if [[ -d ~/.bashrc.d ]]; then
+    for _rc in ~/.bashrc.d/*; do
+        [[ -f "$_rc" ]] && source "$_rc"
+    done
+    unset _rc
+fi
+
 # Load .bashrc.local if it exists
 if [[ -f ~/.bashrc.local ]]; then
     source ~/.bashrc.local
@@ -40,6 +57,20 @@ elif [[ "$(uname)" == "Linux" ]]; then
     if command -v brew >/dev/null 2>&1; then
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
+fi
+
+######################################
+# SSH Agent (Bitwarden Flatpak)      #
+######################################
+
+# Use the Bitwarden Flatpak SSH agent on Linux when its socket is present.
+# Flatpak stores the socket under ~/.var/app/... (not ~/.bitwarden-ssh-agent.sock).
+if [[ "$(uname)" == "Linux" ]]; then
+    _BW_SSH_SOCK="$HOME/.var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock"
+    if [[ -S "$_BW_SSH_SOCK" ]]; then
+        export SSH_AUTH_SOCK="$_BW_SSH_SOCK"
+    fi
+    unset _BW_SSH_SOCK
 fi
 
 ######################################
@@ -177,7 +208,7 @@ export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 export COMPOSER_PROCESS_TIMEOUT=600
 
 # User-specific binary paths
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 # HOMEBREW
 export HOMEBREW_NO_ENV_HINTS=1

@@ -99,8 +99,10 @@ sudo dnf group install -y --skip-unavailable development-tools
 # Install DNF packages
 # NOTE: git is listed for completeness; on Fedora 44+ it is preinstalled and
 # this line is a harmless no-op.
+# --allowerasing: Fedora ships ffmpeg-free/libavcodec-free; RPM Fusion's full
+# ffmpeg + libavcodec-freeworld replace them (removes the -free variants).
 echo "Installing DNF packages..."
-sudo dnf install -y --skip-unavailable \
+sudo dnf install -y --skip-unavailable --allowerasing \
     xdotool \
     pulseaudio-utils \
     ibus-speech-to-text \

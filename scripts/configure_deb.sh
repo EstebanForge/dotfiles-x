@@ -22,6 +22,28 @@ gset() {
     gsettings set "$@" 2>/dev/null || true
 }
 
+# Enable a GNOME Shell extension by UUID, merging into enabled-extensions.
+# More reliable than `gnome-extensions enable`, which needs the shell's D-Bus
+# responsive and fails silently during scripted runs. Persists across reboots.
+enable_gnome_extension() {
+    local uuid="$1" current new
+    # Master switch: allow user extensions to load at all.
+    gset org.gnome.shell disable-user-extensions false
+    # Merge UUID into enabled-extensions if not already present.
+    if ! gsettings get org.gnome.shell enabled-extensions 2>/dev/null | grep -qF -- "$uuid"; then
+        current="$(gsettings get org.gnome.shell enabled-extensions 2>/dev/null)"
+        current="${current#@as }"   # strip GVariant empty-array type annotation
+        if [[ "$current" == "[]" ]]; then
+            new="['$uuid']"
+        else
+            new="${current%]}, '$uuid']"
+        fi
+        gset org.gnome.shell enabled-extensions "$new"
+    fi
+    # Best-effort live activation (no-op if the shell isn't running).
+    gnome-extensions enable "$uuid" 2>/dev/null || true
+}
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/detect_distro.sh
 source "$SCRIPT_DIR/lib/detect_distro.sh"
@@ -36,7 +58,7 @@ echo "Configuring GNOME desktop environment..."
 
 # GNOME Shell Extensions
 echo "Enabling GNOME Shell extensions..."
-gnome-extensions enable user-theme@gnome-shell-extensions.gcampax.github.com 2>/dev/null || true
+enable_gnome_extension "user-theme@gnome-shell-extensions.gcampax.github.com"
 
 # Desktop settings
 echo "Configuring desktop settings..."

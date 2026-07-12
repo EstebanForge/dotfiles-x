@@ -6,11 +6,12 @@
 ANTIGRAVITY_CLI_INSTALL_URL="https://antigravity.google/cli/install.sh"
 
 install_antigravity_cli() {
-    echo "Installing Antigravity CLI..."
-    if command -v antigravity &>/dev/null; then
-        echo "Antigravity CLI already installed ($(antigravity --version 2>/dev/null || echo "unknown version")). Updating..."
-        curl -fsSL "$ANTIGRAVITY_CLI_INSTALL_URL" | bash
+    # The CLI self-updates in the background during normal use, so a re-install
+    # only spams a "already installed" notice. Skip if the binary is present.
+    if [[ -x "$HOME/.local/bin/agy" ]] || command -v agy >/dev/null 2>&1; then
+        echo "Antigravity CLI already installed, skipping."
     else
+        echo "Installing Antigravity CLI..."
         curl -fsSL "$ANTIGRAVITY_CLI_INSTALL_URL" | bash
     fi
 

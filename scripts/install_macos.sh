@@ -217,6 +217,7 @@ brew install --cask typora
 brew install --cask uninstallpkg
 brew install --cask utm
 brew install --cask visual-studio-code
+brew install --cask zed
 brew install --cask zoom
 brew install --cask elmedia-player
 brew install --cask ente-auth

@@ -73,8 +73,18 @@ brew_install_list() {
 }
 
 install_shared_brew_packages() {
+    # Keep Homebrew non-interactive during scripted installs.
+    export HOMEBREW_NO_AUTO_UPDATE=1
+
     echo "Installing shared Homebrew taps..."
     brew_tap_list "${SHARED_BREW_TAPS[@]}"
+
+    # Trust the taps so their formulae install without an interactive
+    # "Do you want to proceed with the installation?" prompt.
+    local tap
+    for tap in "${SHARED_BREW_TAPS[@]}"; do
+        brew trust "$tap" 2>/dev/null || true
+    done
 
     echo "Installing shared Homebrew formulae..."
     brew_install_list "${SHARED_BREW_FORMULAE[@]}"

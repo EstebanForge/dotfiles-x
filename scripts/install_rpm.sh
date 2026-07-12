@@ -178,6 +178,10 @@ else
     echo "WARNING: npm not found; skipping global npm packages." >&2
 fi
 
+# Install phpvm (PHP version manager)
+echo "Installing phpvm..."
+curl -o- https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh | bash
+
 # Install Antigravity CLI (Google's replacement for Gemini CLI)
 install_antigravity_cli
 

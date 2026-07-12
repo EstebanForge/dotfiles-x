@@ -94,13 +94,13 @@ sudo dnf install -y "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-no
 
 # Install development tools group
 echo "Installing development tools group..."
-sudo dnf group install -y "Development Tools"
+sudo dnf group install -y --skip-unavailable development-tools
 
 # Install DNF packages
 # NOTE: git is listed for completeness; on Fedora 44+ it is preinstalled and
 # this line is a harmless no-op.
 echo "Installing DNF packages..."
-sudo dnf install -y \
+sudo dnf install -y --skip-unavailable \
     xdotool \
     pulseaudio-utils \
     ibus-speech-to-text \

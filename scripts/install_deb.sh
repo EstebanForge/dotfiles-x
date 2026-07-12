@@ -205,9 +205,7 @@ sudo apt install -y \
     transmission-gtk \
     vlc \
     gimp \
-    sqlitebrowser \
     remmina \
-    nextcloud-desktop \
     chromium \
     || true
 

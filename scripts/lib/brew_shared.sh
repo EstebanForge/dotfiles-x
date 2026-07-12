@@ -22,6 +22,7 @@ SHARED_BREW_FORMULAE=(
     "fzf"
     "git"
     "git-delta"
+    "gh"
     "go"
     "golangci-lint"
     "gulp-cli"

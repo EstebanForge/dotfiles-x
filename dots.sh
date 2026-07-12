@@ -83,8 +83,9 @@ set -euo pipefail
 # Comprehensive dotfiles management script
 # Usage: dots [COMMAND] [OPTIONS]
 
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get the directory where this script is located (resolve symlinks so the
+# globally-installed ~/.local/bin/dots alias finds the repo, not the bin dir).
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 DOTFILES_DIR="$SCRIPT_DIR"
 HOME_DIR="$HOME"
 
@@ -94,12 +95,12 @@ source "$SCRIPT_DIR/scripts/lib/detect_distro.sh"
 DISTRO="$(detect_distro)"
 
 # Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[1;33m'
+BLUE=$'\033[0;34m'
+CYAN=$'\033[0;36m'
+NC=$'\033[0m' # No Color
 
 # Version information
 VERSION="1.0.0"
@@ -861,6 +862,7 @@ COMMANDS:
     install                   Install dotfiles (create symlinks)
     install --packages        Also install system packages
     install --crontab         Also install crontab entries
+    install --configure       Also apply desktop settings (GNOME/macOS)
     cleanup                   Remove existing symlinks
     status                    Check current status of dotfiles
     sync                      Pull, push, and reinstall dotfiles
@@ -876,6 +878,7 @@ EXAMPLES:
     dots install                        # Symlinks only
     dots install --packages             # Symlinks + system packages
     dots install --packages --crontab   # Full new machine setup
+    dots install --configure             # Apply desktop settings
     dots status                         # Check everything is linked
     dots sync                           # Pull latest and reinstall
     dots restore HEAD~1                 # Roll back one commit
@@ -898,8 +901,58 @@ For more information, see: https://github.com/estebanforge/dotfiles-x
 EOF
 }
 
+# Interactive menu shown when dots is run with no arguments.
+# Falls back to help text on non-interactive stdin (piped/automated runs).
+show_menu() {
+    if [[ ! -t 0 ]]; then
+        show_help
+        return 0
+    fi
+
+    while true; do
+        echo ""
+        print_header "Dotfiles Management"
+        echo ""
+        printf '  %s1)%s   Install everything (symlinks + packages + crontab + configure)\n' "$CYAN" "$NC"
+        printf '  %s2)%s   Install dotfiles only (symlinks)\n' "$CYAN" "$NC"
+        printf '  %s3)%s   Install apps/packages\n' "$CYAN" "$NC"
+        printf '  %s4)%s   Configure desktop settings\n' "$CYAN" "$NC"
+        printf '  %s5)%s   Install crontab entries\n' "$CYAN" "$NC"
+        printf '  %s6)%s   Check status\n' "$CYAN" "$NC"
+        printf '  %s7)%s   Run health check\n' "$CYAN" "$NC"
+        printf '  %s8)%s   Sync (pull + push + reinstall)\n' "$CYAN" "$NC"
+        printf '  %s9)%s   Cleanup symlinks\n' "$CYAN" "$NC"
+        printf '  %s10)%s Show help\n' "$CYAN" "$NC"
+        printf '  %s0)%s   Exit\n' "$CYAN" "$NC"
+        echo ""
+        read -r -p "Select an option [0-10]: " choice
+
+        case "$choice" in
+            1)  main install --packages --crontab --configure; return 0 ;;
+            2)  main install; return 0 ;;
+            3)  main install --packages; return 0 ;;
+            4)  main install --configure; return 0 ;;
+            5)  main install --crontab; return 0 ;;
+            6)  main status; return 0 ;;
+            7)  main health; return 0 ;;
+            8)  main sync; return 0 ;;
+            9)  main cleanup; return 0 ;;
+            10) main help; return 0 ;;
+            0|"q"|"quit"|"exit") echo "Bye."; return 0 ;;
+            "")  echo "Bye."; return 0 ;;
+            *) print_error "Invalid option: $choice" ;;
+        esac
+    done
+}
+
 # Main script logic
 main() {
+    # No arguments + interactive TTY -> show menu. Non-interactive or any arg -> normal flow.
+    if [[ $# -eq 0 && -t 0 ]]; then
+        show_menu
+        return $?
+    fi
+
     local command="${1:-help}"
     local args=("${@:2}")
 
@@ -907,10 +960,12 @@ main() {
         "install"|"setup")
             local do_packages=false
             local do_crontab=false
+            local do_configure=false
             for _arg in "${args[@]+"${args[@]}"}"; do
                 case "$_arg" in
-                    --packages) do_packages=true ;;
-                    --crontab)  do_crontab=true ;;
+                    --packages)  do_packages=true ;;
+                    --crontab)   do_crontab=true ;;
+                    --configure) do_configure=true ;;
                     *) print_error "Unknown option: $_arg"; echo ""; show_help; exit 1 ;;
                 esac
             done
@@ -932,6 +987,15 @@ main() {
                     macos)  [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]] && "$DOTFILES_DIR/scripts/crontab_macos.sh" install ;;
                     rpm)    [[ -f "$DOTFILES_DIR/scripts/crontab_rpm.sh" ]]   && "$DOTFILES_DIR/scripts/crontab_rpm.sh" install ;;
                     deb)    [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]   && "$DOTFILES_DIR/scripts/crontab_deb.sh" install ;;
+                esac
+            fi
+
+            if [[ "$do_configure" == true ]]; then
+                print_status "Applying desktop configuration..."
+                case "$DISTRO" in
+                    macos)  [[ -f "$DOTFILES_DIR/scripts/configure_macos.sh" ]] && "$DOTFILES_DIR/scripts/configure_macos.sh" ;;
+                    rpm)    [[ -f "$DOTFILES_DIR/scripts/configure_rpm.sh" ]]   && "$DOTFILES_DIR/scripts/configure_rpm.sh" ;;
+                    deb)    [[ -f "$DOTFILES_DIR/scripts/configure_deb.sh" ]]   && "$DOTFILES_DIR/scripts/configure_deb.sh" ;;
                 esac
             fi
             ;;

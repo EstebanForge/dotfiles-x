@@ -26,6 +26,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/brew_shared.sh"
 # shellcheck source=lib/flatpak_shared.sh
 source "$SCRIPT_DIR/lib/flatpak_shared.sh"
+# shellcheck source=lib/fonts_shared.sh
+source "$SCRIPT_DIR/lib/fonts_shared.sh"
+# shellcheck source=lib/themes_shared.sh
+source "$SCRIPT_DIR/lib/themes_shared.sh"
 # shellcheck source=lib/antigravity_cli.sh
 source "$SCRIPT_DIR/lib/antigravity_cli.sh"
 
@@ -62,7 +66,7 @@ fi
 if [[ -d /home/linuxbrew/.linuxbrew ]]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 elif [[ -d "$HOME/.linuxbrew" ]]; then
-    eval "$($HOME/.linuxbrew/bin/brew shellenv)"
+    eval "$("$HOME/.linuxbrew/bin/brew" shellenv)"
 fi
 
 # 3. Add Homebrew to ~/.bashrc (the installer's "Next steps"), idempotently.
@@ -73,6 +77,9 @@ if ! grep -qF 'brew shellenv' "$HOME/.bashrc" 2>/dev/null; then
     {
         echo ""
         echo "# Homebrew"
+        # single quotes intentional: eval/$() is written literally into .bashrc
+        # and expanded at login, not here. SC2016 (no expansion in singles) expected.
+        # shellcheck disable=SC2016
         echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
     } >> "$HOME/.bashrc"
 fi
@@ -177,6 +184,14 @@ sudo dnf install -y ghostty
 # Install Flatpak apps (bulk)
 echo "Installing Flatpak apps..."
 install_shared_flatpak_apps
+
+# Install fonts (Iosevka + SF Pro) into ~/.local/share/fonts
+echo "Installing user fonts..."
+install_shared_fonts
+
+# Install Flat Remix GNOME Shell themes into ~/.themes
+echo "Installing GNOME themes..."
+install_flat_remix_theme
 
 # Install common development tools via Homebrew (bulk)
 echo "Installing Homebrew packages..."

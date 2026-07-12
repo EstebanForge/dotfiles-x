@@ -31,6 +31,15 @@ HISTFILESIZE=20000
 shopt -s histappend
 shopt -s checkwinsize
 
+# Navigate by typing a directory name (zsh-like autocd)
+shopt -s autocd
+
+# Quick parent-dir navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
 # If not running interactively, stop here
 case $- in
     *i*) ;;

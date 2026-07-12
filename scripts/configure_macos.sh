@@ -25,6 +25,10 @@ defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 echo "Enable subpixel font rendering on non-Apple LCDs"
 defaults write NSGlobalDomain AppleFontSmoothing -int 2
 
+echo "Set system theme to dark mode"
+defaults write NSGlobalDomain AppleInterfaceStyle -string "Dark"
+defaults write NSGlobalDomain AppleInterfaceStyleSwitches -bool true
+
 ###############################################################################
 # Finder                                                                      #
 ###############################################################################
@@ -126,6 +130,16 @@ echo "Enable tap to click (Trackpad)"
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
+echo "Enable drag lock (double-tap-and-hold to drag, tap again to release)"
+# DragLock is mutually exclusive with Dragging and TrackpadThreeFingerDrag;
+# disable the latter so drag lock takes effect.
+defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool false
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool false
+defaults write com.apple.AppleMultitouchTrackpad Dragging -bool false
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Dragging -bool false
+defaults write com.apple.AppleMultitouchTrackpad DragLock -bool true
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad DragLock -bool true
 
 echo 'Disable the "reopen windows when logging back in" option'
 defaults write com.apple.loginwindow TALLogoutSavesState -bool false

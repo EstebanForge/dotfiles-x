@@ -1,0 +1,4 @@
+# ShellCheck project-wide configuration.
+# Sources use runtime $SCRIPT_DIR paths that can't be statically resolved,
+# so disable the "not following" info rather than chase false positives.
+disable=SC1091

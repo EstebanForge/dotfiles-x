@@ -129,7 +129,6 @@ brew install python
 brew install sass/sass/sass
 brew install tailscale
 brew install mole
-brew install gh
 brew install prettier
 brew install fastmod
 brew install tree

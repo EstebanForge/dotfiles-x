@@ -25,6 +25,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/brew_shared.sh"
 # shellcheck source=lib/flatpak_shared.sh
 source "$SCRIPT_DIR/lib/flatpak_shared.sh"
+# shellcheck source=lib/fonts_shared.sh
+source "$SCRIPT_DIR/lib/fonts_shared.sh"
+# shellcheck source=lib/themes_shared.sh
+source "$SCRIPT_DIR/lib/themes_shared.sh"
 # shellcheck source=lib/antigravity_cli.sh
 source "$SCRIPT_DIR/lib/antigravity_cli.sh"
 # shellcheck source=lib/detect_distro.sh
@@ -144,7 +148,7 @@ sudo apt install -y \
     android-tools-fastboot \
     fd-find \
     ffmpeg \
-    nautilus-python \
+    python3-nautilus \
     wl-clipboard \
     xsel \
     xclip \
@@ -208,6 +212,14 @@ sudo apt install -y \
 # Install Flatpak apps
 echo "Installing Flatpak apps..."
 install_shared_flatpak_apps
+
+# Install fonts (Iosevka + SF Pro) into ~/.local/share/fonts
+echo "Installing user fonts..."
+install_shared_fonts
+
+# Install Flat Remix GNOME Shell themes into ~/.themes
+echo "Installing GNOME themes..."
+install_flat_remix_theme
 
 # Install Homebrew for Linux (if not already installed)
 if ! command -v brew &> /dev/null; then

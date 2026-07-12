@@ -171,25 +171,9 @@ sudo apt install -y \
     unzip \
     curl \
     wget \
-    bat \
-    ripgrep \
-    fzf \
-    shellcheck \
     tree \
     tmux \
-    jq \
-    httpie \
-    golang-go \
-    composer \
-    php-cli \
-    php-xml \
-    php-mbstring \
-    php-curl \
-    php-zip \
-    php-intl \
-    php-bcmath \
-    nodejs \
-    npm
+    jq
 
 # Install tailscale via official script (not in standard apt repos)
 if ! command -v tailscale >/dev/null 2>&1; then

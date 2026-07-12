@@ -166,6 +166,10 @@ sudo dnf install -y --skip-unavailable --allowerasing \
     podman-docker \
     podman-compose
 
+# Install full-codec Mesa VA/VDPAU drivers from RPM Fusion freeworld
+# (replace stripped mesa-va-drivers/mesa-vdpau-drivers for HW video decode)
+sudo dnf install -y --skip-unavailable --allowerasing mesa-va-drivers-freeworld mesa-vdpau-drivers-freeworld
+
 # Install Ghostty terminal from COPR (scottames/ghostty)
 sudo dnf copr enable -y scottames/ghostty
 sudo dnf install -y ghostty

@@ -16,7 +16,6 @@ SHARED_FLATPAK_APPS=(
     com.github.tchx84.Flatseal
     com.jgraph.drawio.desktop
     com.transmissionbt.Transmission
-    com.felixnkate.Permute
     dev.bragefuglseth.Keypunch
     dev.deedles.Trayscale
     dev.geopjr.Collision
@@ -60,6 +59,8 @@ SHARED_FLATPAK_APPS=(
 install_shared_flatpak_apps() {
     local app
     for app in "${SHARED_FLATPAK_APPS[@]}"; do
-        flatpak install -y flathub "$app"
+        # flatpak has no native --skip-unavailable; tolerate failures so one
+        # missing/filtered app doesn't abort the whole install.
+        flatpak install -y flathub "$app" || echo "  warning: could not install $app, skipping" >&2
     done
 }

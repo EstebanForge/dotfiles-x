@@ -4,6 +4,7 @@
 
 SHARED_BREW_TAPS=(
     "EstebanForge/tap"
+    "rtk-ai/tap"
 )
 
 SHARED_BREW_FORMULAE=(
@@ -41,7 +42,7 @@ SHARED_BREW_FORMULAE=(
     "php@8.4"
     "rclone"
     "ripgrep"
-    "rtk"
+    "rtk-ai/tap/rtk"
     "rust"
     "shellcheck"
     "sshpass"

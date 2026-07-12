@@ -13,13 +13,10 @@ SHARED_FLATPAK_APPS=(
     com.github.maoschanz.drawing
     com.github.marktext.marktext
     com.github.muriloventuroso.pdftricks
-    com.github.sdv43.whaler
     com.github.tchx84.Flatseal
-    com.github.xournalpp.xournalpp
     com.jgraph.drawio.desktop
     com.transmissionbt.Transmission
     com.felixnkate.Permute
-    com.amazonaws.SessionManagerPlugin
     dev.bragefuglseth.Keypunch
     dev.deedles.Trayscale
     dev.geopjr.Collision
@@ -33,12 +30,13 @@ SHARED_FLATPAK_APPS=(
     io.github.thetumultuousunicornofdarkness.cpu-x
     io.github.vikdevelop.SaveDesktop
     io.gitlab.adhami3310.Converter
+    io.typora.Typora
     it.mijorus.gearlever
-    me.iepure.devtoolbox
     net.filebot.FileBot
     net.mediaarea.MediaInfo
     net.nokyan.Resources
     org.bunkus.mkvtoolnix-gui
+    org.ferdium.Ferdium
     org.gimp.GIMP
     org.gnome.Extensions
     org.gnome.gitlab.YaLTeR.VideoTrimmer
@@ -51,15 +49,11 @@ SHARED_FLATPAK_APPS=(
     org.nickvision.tubeconverter
     org.openshot.OpenShot
     org.pitivi.Pitivi
-    org.raspberrypi.rpi-imager
     org.remmina.Remmina
     org.shotcut.Shotcut
     org.signal.Signal
-    org.sqlitebrowser.sqlitebrowser
     org.videolan.VLC
-    tv.plex.PlexDesktop
     us.zoom.Zoom
-    org.nextcloud.Nextcloud
     io.github.pol_rivero.github-desktop-plus
 )
 

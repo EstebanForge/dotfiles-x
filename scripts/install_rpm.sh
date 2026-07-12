@@ -129,6 +129,7 @@ sudo dnf install -y --skip-unavailable --allowerasing \
     libxcrypt-compat \
     ffmpeg \
     nautilus-python \
+    gnome-shell-extension-user-theme \
     xsel \
     xclip \
     libavcodec-freeworld \

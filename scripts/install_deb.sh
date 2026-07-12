@@ -149,6 +149,7 @@ sudo apt install -y \
     fd-find \
     ffmpeg \
     python3-nautilus \
+    gnome-shell-extension-user-theme \
     wl-clipboard \
     xsel \
     xclip \

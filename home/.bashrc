@@ -254,3 +254,7 @@ fi
 for plugin in ~/.bash/plugins/*.plugin.sh; do
     [[ -f "$plugin" && -r "$plugin" ]] && source "$plugin"
 done
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/esteban/.local/bin:$PATH"

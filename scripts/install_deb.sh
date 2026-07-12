@@ -181,6 +181,9 @@ if ! command -v tailscale >/dev/null 2>&1; then
     curl -fsSL https://tailscale.com/install.sh | sh
 fi
 
+# Install Ghostty terminal (mkasberg/ghostty-ubuntu)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
+
 # Install additional GUI apps via apt
 # (where available; some apps may need Flatpak or manual install)
 echo "Installing GUI applications via apt..."

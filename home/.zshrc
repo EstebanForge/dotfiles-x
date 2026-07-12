@@ -203,6 +203,13 @@ fi
 export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 export COMPOSER_PROCESS_TIMEOUT=1800
 
+# phpvm (PHP version manager)
+export PHPVM_DIR="$HOME/.phpvm"
+export PATH="$PHPVM_DIR/bin:$PATH"
+if [[ -s "$PHPVM_DIR/phpvm.sh" ]]; then
+    source "$PHPVM_DIR/phpvm.sh"
+fi
+
 # User-specific binary paths
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"

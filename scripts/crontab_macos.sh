@@ -45,7 +45,6 @@ backup_crontab() {
 
 # Function to install crontab entries
 install_crontab() {
-    local temp_crontab
     temp_crontab=$(mktemp)
     trap 'rm -f "$temp_crontab"' EXIT
 

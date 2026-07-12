@@ -15,6 +15,13 @@ fi
 
 set -uo pipefail
 
+# Best-effort gsettings setter: silently skips schemas/keys that don't exist
+# on this GNOME version/distro (e.g. Ubuntu-only org.gnome.privacy on Fedora,
+# or keys removed in GNOME 48 like temperature-unit). One guard > many.
+gset() {
+    gsettings set "$@" 2>/dev/null || true
+}
+
 echo "Configuring GNOME desktop environment..."
 
 # GNOME Shell Extensions
@@ -25,50 +32,50 @@ gnome-extensions enable user-theme@gnome-shell-extensions.gcampax.github.com 2>/
 # Desktop settings
 echo "Configuring desktop settings..."
 # Show battery percentage
-gsettings set org.gnome.desktop.interface show-battery-percentage true
+gset org.gnome.desktop.interface show-battery-percentage true
 
 # Set dark theme (optional)
-gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-gsettings set org.gnome.desktop.interface icon-theme 'Adwaita'
-gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+gset org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+gset org.gnome.desktop.interface icon-theme 'Adwaita'
+gset org.gnome.desktop.interface color-scheme 'prefer-dark'
 
 # Set Flat Remix Dark as the GNOME Shell theme (requires user-theme extension, enabled above)
-gsettings set org.gnome.shell.extensions.user-theme name 'Flat-Remix-Dark'
+gset org.gnome.shell.extensions.user-theme name 'Flat-Remix-Dark'
 
 # Clock settings
-gsettings set org.gnome.desktop.interface clock-show-date true
-gsettings set org.gnome.desktop.interface clock-show-weekday true
+gset org.gnome.desktop.interface clock-show-date true
+gset org.gnome.desktop.interface clock-show-weekday true
 
 # Workspace settings
-gsettings set org.gnome.mutter dynamic-workspaces false
-gsettings set org.gnome.desktop.wm.preferences num-workspaces 2
-gsettings set org.gnome.mutter workspaces-only-on-primary false
+gset org.gnome.mutter dynamic-workspaces false
+gset org.gnome.desktop.wm.preferences num-workspaces 2
+gset org.gnome.mutter workspaces-only-on-primary false
 
 # Touchpad settings
-gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
+gset org.gnome.desktop.peripherals.touchpad tap-to-click true
 # macOS-like drag lock: tap, drag, lift finger, reposition; tap again to release
-gsettings set org.gnome.desktop.peripherals.touchpad tap-and-drag true
-gsettings set org.gnome.desktop.peripherals.touchpad tap-and-drag-lock true
-gsettings set org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enabled true
-gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll true
+gset org.gnome.desktop.peripherals.touchpad tap-and-drag true
+gset org.gnome.desktop.peripherals.touchpad tap-and-drag-lock true
+gset org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enabled true
+gset org.gnome.desktop.peripherals.touchpad natural-scroll true
 
 # Mouse settings
-gsettings set org.gnome.desktop.peripherals.mouse natural-scroll false
+gset org.gnome.desktop.peripherals.mouse natural-scroll false
 
 # Keyboard settings
-gsettings set org.gnome.desktop.input-sources xkb-options "['caps:ctrl_modifier']"
+gset org.gnome.desktop.input-sources xkb-options "['caps:ctrl_modifier']"
 
 # Privacy settings
 echo "Configuring privacy settings..."
 # Disable location services
-gsettings set org.gnome.system.location enabled false
+gset org.gnome.system.location enabled false
 
 # Disable crash reporting
-gsettings set org.gnome.privacy report-technical-problems false
+gset org.gnome.privacy report-technical-problems false
 
 # Set screen lock settings
-gsettings set org.gnome.desktop.screensaver lock-enabled true
-gsettings set org.gnome.desktop.screensaver lock-delay 'uint32 300'
+gset org.gnome.desktop.screensaver lock-enabled true
+gset org.gnome.desktop.screensaver lock-delay 'uint32 300'
 
 # File Manager (Nautilus) settings
 echo "Configuring Nautilus..."
@@ -77,46 +84,46 @@ echo "Configuring Nautilus..."
 curl -fsSL https://raw.githubusercontent.com/EstebanForge/nautilus-backspace-nav/main/install.sh | bash 2>/dev/null || true
 
 # Show hidden files
-gsettings set org.gtk.Settings.FileChooser show-hidden true
+gset org.gtk.Settings.FileChooser show-hidden true
 
 # Set default view to list view
-gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
+gset org.gnome.nautilus.preferences default-folder-viewer 'list-view'
 
 # Show delete permanently option
-gsettings set org.gnome.nautilus.preferences show-delete-permanently true
+gset org.gnome.nautilus.preferences show-delete-permanently true
 
 # Terminal settings
 echo "Configuring GNOME Terminal..."
 # Set default profile to use dark theme
-gsettings set org.gnome.Terminal.Legacy.Settings default-show-menubar false
-gsettings set org.gnome.Terminal.Legacy.Settings theme-variant 'dark'
+gset org.gnome.Terminal.Legacy.Settings default-show-menubar false
+gset org.gnome.Terminal.Legacy.Settings theme-variant 'dark'
 
 # Set Iosevka Nerd Font Mono as the terminal font on the default profile (best-effort)
 _default_profile="$(gsettings get org.gnome.Terminal.Legacy.Settings default 2>/dev/null)"
 _default_profile="${_default_profile//\'/}"
 if [[ -n "$_default_profile" ]]; then
-    gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:"$_default_profile"/ use-system-font false 2>/dev/null || true
-    gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:"$_default_profile"/ font 'Iosevka Nerd Font Mono 11' 2>/dev/null || true
+    gset org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:"$_default_profile"/ use-system-font false
+    gset org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:"$_default_profile"/ font 'Iosevka Nerd Font Mono 11'
 fi
 unset _default_profile
 
 # Power settings
 echo "Configuring power settings..."
 # Set power button action to suspend
-gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'suspend'
+gset org.gnome.settings-daemon.plugins.power power-button-action 'suspend'
 
 # Disable automatic screen brightness (if applicable)
-gsettings set org.gnome.settings-daemon.plugins.power ambient-enabled false
+gset org.gnome.settings-daemon.plugins.power ambient-enabled false
 
 # Network settings
 echo "Configuring network settings..."
 # Enable auto-connect to known Wi-Fi networks
-gsettings set org.gnome.nm-applet disable-wifi-create false
+gset org.gnome.nm-applet disable-wifi-create false
 
 # Sound settings
 echo "Configuring sound settings..."
 # Enable event sounds
-gsettings set org.gnome.desktop.sound event-sounds true
+gset org.gnome.desktop.sound event-sounds true
 
 # Application settings
 echo "Configuring application defaults..."
@@ -133,52 +140,52 @@ fi
 # GNOME Shell preferences
 echo "Configuring GNOME Shell..."
 # Enable hot corners (top-left to show overview)
-gsettings set org.gnome.desktop.interface enable-hot-corners false
+gset org.gnome.desktop.interface enable-hot-corners false
 
 # Set favorite apps in dock
-gsettings set org.gnome.shell favorite-apps "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.gedit.desktop', 'org.gnome.Calendar.desktop']"
+gset org.gnome.shell favorite-apps "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.gedit.desktop', 'org.gnome.Calendar.desktop']"
 
 # Font settings
 echo "Configuring font settings..."
 # Set font scaling
-gsettings set org.gnome.desktop.interface text-scaling-factor 1.0
+gset org.gnome.desktop.interface text-scaling-factor 1.0
 
 # Set document font
-gsettings set org.gnome.desktop.interface document-font-name 'Sans 11'
+gset org.gnome.desktop.interface document-font-name 'Sans 11'
 
 # Set monospace font
-gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font Mono 11'
+gset org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font Mono 11'
 
 # Window behavior
 echo "Configuring window behavior..."
 # Enable minimize, maximize, close window buttons
-gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+gset org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 
 # Enable focus follows mouse
-gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
+gset org.gnome.desktop.wm.preferences focus-mode 'sloppy'
 
 # Set window titlebar actions
-gsettings set org.gnome.desktop.wm.preferences action-middle-click-titlebar 'lower'
-gsettings set org.gnome.desktop.wm.preferences action-right-click-titlebar 'menu'
+gset org.gnome.desktop.wm.preferences action-middle-click-titlebar 'lower'
+gset org.gnome.desktop.wm.preferences action-right-click-titlebar 'menu'
 
 # Accessibility settings
 echo "Configuring accessibility..."
 # Enable screen reader if needed (commented out by default)
-# gsettings set org.gnome.desktop.a11y.applications screen-reader-enabled true
+# gset org.gnome.desktop.a11y.applications screen-reader-enabled true
 
 # Enable high contrast if needed (commented out by default)
-# gsettings set org.gnome.desktop.interface gtk-theme 'HighContrast'
+# gset org.gnome.desktop.interface gtk-theme 'HighContrast'
 
 # Regional settings
 echo "Configuring regional settings..."
 # Set 24-hour clock
-gsettings set org.gnome.desktop.interface clock-format '24h'
+gset org.gnome.desktop.interface clock-format '24h'
 
 # Set temperature unit to Celsius
-gsettings set org.gnome.desktop.interface temperature-unit 'celsius'
+gset org.gnome.desktop.interface temperature-unit 'celsius'
 
 # Background settings (optional - set a custom wallpaper)
-# gsettings set org.gnome.desktop.background picture-uri 'file:///path/to/your/wallpaper.jpg'
+# gset org.gnome.desktop.background picture-uri 'file:///path/to/your/wallpaper.jpg'
 
 # Settings apply on next session; prompt user to relogin
 echo "Fedora GNOME configuration complete!"

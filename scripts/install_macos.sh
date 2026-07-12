@@ -233,7 +233,6 @@ brew install --cask antigravity
 # Install npm packages (Node is provided by Homebrew earlier in this script)
 if command -v npm >/dev/null 2>&1; then
     echo "Installing npm packages..."
-    npm install -g claude-code-wakatime
     npm install -g postcss
     npm install -g postcss-cli
     npm install -g @github/copilot
@@ -241,10 +240,6 @@ if command -v npm >/dev/null 2>&1; then
 else
     echo "WARNING: npm not found; skipping npm packages." >&2
 fi
-
-# Install wakatime-cli
-echo "Installing wakatime-cli..."
-brew install wakatime-cli
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)
 install_antigravity_cli

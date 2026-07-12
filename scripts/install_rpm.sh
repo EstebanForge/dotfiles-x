@@ -25,20 +25,18 @@ source "$SCRIPT_DIR/lib/antigravity_cli.sh"
 
 # ===========================================================================
 # PHASE 1: Foundational setup (run FIRST, in this exact order)
-#   1. dnf update
-#   2. Bitwarden Flatpak            (its own step, before the bulk Flatpaks)
-#   3. Homebrew
-#   4. Homebrew -> ~/.bashrc        (the installer's "Next steps")
-#   5. Node.js via Homebrew
-#   6. pi.dev agent                 (requires Node)
+# Prerequisite: update the system once before running this script:
+#   sudo dnf update -y
+# Then this phase installs the foundational toolchain (idempotent):
+#   1. Bitwarden Flatpak            (its own step, before the bulk Flatpaks)
+#   2. Homebrew
+#   3. Homebrew -> ~/.bashrc        (the installer's "Next steps")
+#   4. Node.js via Homebrew
+#   5. pi.dev agent                 (requires Node)
 # These are prerequisites for everything that follows.
 # ===========================================================================
 
-# 1. Update system
-echo "Updating system packages..."
-sudo dnf update -y
-
-# 2. Bitwarden Flatpak (installed on its own, not as part of the bulk Flatpak run)
+# 1. Bitwarden Flatpak (installed on its own, not as part of the bulk Flatpak run)
 echo "Ensuring Flathub remote is available..."
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
 if flatpak list --columns=application 2>/dev/null | grep -qx com.bitwarden.desktop; then
@@ -48,7 +46,7 @@ else
     flatpak install -y flathub com.bitwarden.desktop
 fi
 
-# 3. Install Homebrew for Linux (if not already installed)
+# 2. Install Homebrew for Linux (if not already installed)
 if ! command -v brew >/dev/null 2>&1; then
     echo "Installing Homebrew for Linux..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -61,7 +59,7 @@ elif [[ -d "$HOME/.linuxbrew" ]]; then
     eval "$($HOME/.linuxbrew/bin/brew shellenv)"
 fi
 
-# 4. Add Homebrew to ~/.bashrc (the installer's "Next steps"), idempotently.
+# 3. Add Homebrew to ~/.bashrc (the installer's "Next steps"), idempotently.
 #    The dotfiles' own .bashrc also evals brew shellenv, but this guarantees
 #    Homebrew is available even when this script runs standalone.
 if ! grep -qF 'brew shellenv' "$HOME/.bashrc" 2>/dev/null; then
@@ -73,11 +71,11 @@ if ! grep -qF 'brew shellenv' "$HOME/.bashrc" 2>/dev/null; then
     } >> "$HOME/.bashrc"
 fi
 
-# 5. Install Node.js via Homebrew
+# 4. Install Node.js via Homebrew
 echo "Installing Node.js via Homebrew..."
 brew install node
 
-# 6. Install the pi.dev agent (requires Node/npm)
+# 5. Install the pi.dev agent (requires Node/npm)
 echo "Installing pi.dev agent..."
 if command -v pi >/dev/null 2>&1; then
     echo "pi.dev agent already installed ($(pi --version 2>/dev/null || echo "unknown version"))."
@@ -165,20 +163,12 @@ install_shared_flatpak_apps
 echo "Installing Homebrew packages..."
 install_shared_brew_packages
 
-# Fedora-specific Homebrew packages
-brew install webpack
-
 # Install Bun
 curl -fsSL https://bun.sh/install | bash
-
-# Install wakatime-cli
-echo "Installing wakatime-cli..."
-brew install wakatime-cli
 
 # Global npm packages (Node is provided by Homebrew in Phase 1)
 if command -v npm >/dev/null 2>&1; then
     echo "Installing global npm packages..."
-    npm install -g claude-code-wakatime
     npm install -g postcss
     npm install -g postcss-cli
     npm install -g @github/copilot

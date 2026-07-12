@@ -49,6 +49,7 @@ SHARED_BREW_FORMULAE=(
     "topgrade"
     "uv"
     "vite"
+    "webpack"
     "yamllint"
     "zoxide"
     "EstebanForge/tap/construct-cli"

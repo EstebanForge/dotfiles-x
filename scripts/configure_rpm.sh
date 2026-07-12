@@ -30,19 +30,27 @@ gsettings set org.gnome.desktop.interface show-battery-percentage true
 # Set dark theme (optional)
 gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 gsettings set org.gnome.desktop.interface icon-theme 'Adwaita'
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+
+# Set Flat Remix Dark as the GNOME Shell theme (requires user-theme extension, enabled above)
+gsettings set org.gnome.shell.extensions.user-theme name 'Flat-Remix-Dark'
 
 # Clock settings
 gsettings set org.gnome.desktop.interface clock-show-date true
 gsettings set org.gnome.desktop.interface clock-show-weekday true
 
 # Workspace settings
-gsettings set org.gnome.mutter dynamic-workspaces true
-gsettings set org.gnome.desktop.wm.preferences num-workspaces 4
+gsettings set org.gnome.mutter dynamic-workspaces false
+gsettings set org.gnome.desktop.wm.preferences num-workspaces 2
+gsettings set org.gnome.mutter workspaces-only-on-primary false
 
 # Touchpad settings
 gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
+# macOS-like drag lock: tap, drag, lift finger, reposition; tap again to release
+gsettings set org.gnome.desktop.peripherals.touchpad tap-and-drag true
+gsettings set org.gnome.desktop.peripherals.touchpad tap-and-drag-lock true
 gsettings set org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enabled true
-gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
+gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll true
 
 # Mouse settings
 gsettings set org.gnome.desktop.peripherals.mouse natural-scroll false
@@ -64,6 +72,10 @@ gsettings set org.gnome.desktop.screensaver lock-delay 'uint32 300'
 
 # File Manager (Nautilus) settings
 echo "Configuring Nautilus..."
+
+# Install backspace-to-go-up navigation extension (EstebanForge/nautilus-backspace-nav)
+curl -fsSL https://raw.githubusercontent.com/EstebanForge/nautilus-backspace-nav/main/install.sh | bash 2>/dev/null || true
+
 # Show hidden files
 gsettings set org.gtk.Settings.FileChooser show-hidden true
 
@@ -78,6 +90,15 @@ echo "Configuring GNOME Terminal..."
 # Set default profile to use dark theme
 gsettings set org.gnome.Terminal.Legacy.Settings default-show-menubar false
 gsettings set org.gnome.Terminal.Legacy.Settings theme-variant 'dark'
+
+# Set Iosevka Nerd Font Mono as the terminal font on the default profile (best-effort)
+_default_profile="$(gsettings get org.gnome.Terminal.Legacy.Settings default 2>/dev/null)"
+_default_profile="${_default_profile//\'/}"
+if [[ -n "$_default_profile" ]]; then
+    gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:"$_default_profile"/ use-system-font false 2>/dev/null || true
+    gsettings set org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:"$_default_profile"/ font 'Iosevka Nerd Font Mono 11' 2>/dev/null || true
+fi
+unset _default_profile
 
 # Power settings
 echo "Configuring power settings..."
@@ -112,7 +133,7 @@ fi
 # GNOME Shell preferences
 echo "Configuring GNOME Shell..."
 # Enable hot corners (top-left to show overview)
-gsettings set org.gnome.desktop.interface enable-hot-corners true
+gsettings set org.gnome.desktop.interface enable-hot-corners false
 
 # Set favorite apps in dock
 gsettings set org.gnome.shell favorite-apps "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.gedit.desktop', 'org.gnome.Calendar.desktop']"
@@ -126,10 +147,13 @@ gsettings set org.gnome.desktop.interface text-scaling-factor 1.0
 gsettings set org.gnome.desktop.interface document-font-name 'Sans 11'
 
 # Set monospace font
-gsettings set org.gnome.desktop.interface monospace-font-name 'Monospace 11'
+gsettings set org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font Mono 11'
 
 # Window behavior
 echo "Configuring window behavior..."
+# Enable minimize, maximize, close window buttons
+gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+
 # Enable focus follows mouse
 gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
 
@@ -156,14 +180,6 @@ gsettings set org.gnome.desktop.interface temperature-unit 'celsius'
 # Background settings (optional - set a custom wallpaper)
 # gsettings set org.gnome.desktop.background picture-uri 'file:///path/to/your/wallpaper.jpg'
 
-# Restart GNOME Shell to apply all changes
-echo "Restarting GNOME Shell to apply changes..."
-if command -v gnome-shell &> /dev/null; then
-    # Only restart if we're in a GNOME session
-    if [[ "${XDG_CURRENT_DESKTOP:-}" == "GNOME" ]]; then
-        killall -SIGUSR2 gnome-shell 2>/dev/null || true
-    fi
-fi
-
+# Settings apply on next session; prompt user to relogin
 echo "Fedora GNOME configuration complete!"
-echo "Some settings may require a logout/restart to take full effect."
+echo "Please log out and back in for all changes to take effect."

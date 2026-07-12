@@ -229,6 +229,7 @@ brew install --cask music-decoy
 brew install --cask keepingyouawake
 brew install --cask claude
 brew install --cask antigravity
+brew install --cask ghostty
 
 # Install npm packages (Node is provided by Homebrew earlier in this script)
 if command -v npm >/dev/null 2>&1; then

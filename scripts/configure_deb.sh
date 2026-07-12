@@ -140,6 +140,7 @@ gset org.gnome.shell favorite-apps "[${local_apps[*]}]"
 # Font settings
 echo "Configuring font settings..."
 gset org.gnome.desktop.interface text-scaling-factor 1.0
+gset org.gnome.desktop.interface font-name 'SF Pro Text 11'
 gset org.gnome.desktop.interface document-font-name 'Sans 11'
 gset org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font Mono 11'
 

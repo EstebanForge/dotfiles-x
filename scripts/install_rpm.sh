@@ -101,9 +101,14 @@ fi
 # ===========================================================================
 
 # Install RPM Fusion repositories (for proprietary codecs)
-echo "Installing RPM Fusion repositories..."
-sudo dnf install -y "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm"
-sudo dnf install -y "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+# Idempotent: skip the sudo dnf install if the release packages are present.
+if rpm -q rpmfusion-free-release rpmfusion-nonfree-release >/dev/null 2>&1; then
+    echo "RPM Fusion repositories already installed, skipping."
+else
+    echo "Installing RPM Fusion repositories..."
+    sudo dnf install -y "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm"
+    sudo dnf install -y "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+fi
 
 # Install development tools group
 echo "Installing development tools group..."

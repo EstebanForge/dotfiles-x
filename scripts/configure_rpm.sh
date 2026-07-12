@@ -150,6 +150,9 @@ echo "Configuring font settings..."
 # Set font scaling
 gset org.gnome.desktop.interface text-scaling-factor 1.0
 
+# Set interface text font to SF Pro Text (installed by fonts_shared.sh)
+gset org.gnome.desktop.interface font-name 'SF Pro Text 11'
+
 # Set document font
 gset org.gnome.desktop.interface document-font-name 'Sans 11'
 

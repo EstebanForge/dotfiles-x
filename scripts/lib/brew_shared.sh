@@ -66,8 +66,15 @@ brew_tap_list() {
 }
 
 brew_install_list() {
-    local package
+    local package short_name
     for package in "$@"; do
+        # Idempotent: skip packages already installed. Tapped formulae
+        # (e.g. "EstebanForge/tap/construct-cli") register under their short
+        # name, so strip everything before the last "/" for the lookup.
+        short_name="${package##*/}"
+        if brew list --formula "$short_name" >/dev/null 2>&1; then
+            continue
+        fi
         brew install "$package"
     done
 }

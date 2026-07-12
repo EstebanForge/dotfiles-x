@@ -44,7 +44,6 @@ backup_crontab() {
 }
 
 install_crontab() {
-    local temp_crontab
     temp_crontab=$(mktemp)
     trap 'rm -f "$temp_crontab"' EXIT
 

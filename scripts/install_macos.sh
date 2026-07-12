@@ -14,6 +14,12 @@ fi
 
 set -euo pipefail
 
+# Keep Homebrew non-interactive and quiet during this install.
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_ASK=1
+export HOMEBREW_NO_ENV_HINTS=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/brew_shared.sh
 source "$SCRIPT_DIR/lib/brew_shared.sh"
@@ -122,6 +128,7 @@ brew install procs
 brew install python
 brew install sass/sass/sass
 brew install tailscale
+brew install mole
 brew install gh
 brew install prettier
 brew install fastmod

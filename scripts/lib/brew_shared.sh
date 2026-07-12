@@ -33,7 +33,6 @@ SHARED_BREW_FORMULAE=(
     "lftp"
     "mise"
     "mkcert"
-    "mole"
     "nmap"
     "opencode"
     "php"

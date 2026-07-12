@@ -53,7 +53,7 @@ SHARED_FLATPAK_APPS=(
     org.signal.Signal
     org.videolan.VLC
     us.zoom.Zoom
-    io.github.pol_rivero.github-desktop-plus
+    org.desktop_plus.desktop-plus
 )
 
 install_shared_flatpak_apps() {

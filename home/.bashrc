@@ -51,20 +51,12 @@ _distroname() {
 # Homebrew setup                     #
 ######################################
 
-if [[ "$(uname)" == "Darwin" ]]; then
-    if [[ -x /opt/homebrew/bin/brew ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    elif [[ -x /usr/local/bin/brew ]]; then
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
-elif [[ "$(uname)" == "Linux" ]]; then
-    # Check the binary exists (not PATH) so this works in a fresh shell
-    # where Homebrew isn't on PATH yet — `command -v brew` would fail there.
-    if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    elif [[ -x "$HOME/.linuxbrew/bin/brew" ]]; then
-        eval "$($HOME/.linuxbrew/bin/brew shellenv)"
-    fi
+# Check the binary exists (not PATH) so this works in a fresh shell
+# where Homebrew isn't on PATH yet — `command -v brew` would fail there.
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif [[ -x "$HOME/.linuxbrew/bin/brew" ]]; then
+    eval "$($HOME/.linuxbrew/bin/brew shellenv)"
 fi
 
 ######################################
@@ -94,13 +86,8 @@ __git_branch() {
     fi
 }
 
-# Colored prompt
-if [[ "$(uname)" == "Darwin" ]]; then
-    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[33m\]$(__git_branch)\[\033[00m\]\$ '
-else
-    # Linux: show distro name
-    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[33m\]$(__git_branch)\[\033[00m\]\$ '
-fi
+# Colored prompt (Linux)
+PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[33m\]$(__git_branch)\[\033[00m\]\$ '
 
 ######################################
 # Completions                        #
@@ -142,14 +129,6 @@ export EDITOR='nano'
 # Updaters                           #
 ######################################
 
-if [[ "$(uname)" == "Darwin" ]]; then
-    brewup() {
-        echo "Updating and upgrading Homebrew packages..."
-        brew update && brew upgrade && brew cleanup
-        echo "Homebrew packages updated and cleaned up."
-    }
-fi
-
 sysup() {
     echo "Starting system update with topgrade..."
     topgrade
@@ -190,19 +169,11 @@ dots-check() {
 # Aliases                            #
 ######################################
 
-# ls aliases
-if [[ "$(uname)" == "Darwin" ]]; then
-    alias ls='gls -GFh --color -h --group-directories-first'
-    alias ll='gls --color -alF --group-directories-first'
-    alias la='gls --color -A'
-    alias l='gls --color -CF'
-    alias qs='open -a "QSpace Pro"'
-elif [[ "$(uname)" == "Linux" ]]; then
-    alias ls='ls -GFh --color -h --group-directories-first'
-    alias ll='ls --color -alF --group-directories-first'
-    alias la='ls --color -A'
-    alias l='ls --color -CF'
-fi
+# ls aliases (Linux)
+alias ls='ls -GFh --color -h --group-directories-first'
+alias ll='ls --color -alF --group-directories-first'
+alias la='ls --color -A'
+alias l='ls --color -CF'
 
 alias cat='bat'
 alias artisan='php artisan'
@@ -254,7 +225,3 @@ fi
 for plugin in ~/.bash/plugins/*.plugin.sh; do
     [[ -f "$plugin" && -r "$plugin" ]] && source "$plugin"
 done
-
-
-# Added by Antigravity CLI installer
-export PATH="/home/esteban/.local/bin:$PATH"

@@ -189,6 +189,64 @@ sudo apt install -y \
     podman-docker \
     podman-compose
 
+# --- Code editors: VS Code, Sublime Text, Zed ------------------------------
+# Each uses its own official repo/installer. Guarded so re-runs are no-ops.
+
+# Visual Studio Code (Microsoft apt repo, deb822 sources format)
+# https://code.visualstudio.com/docs/setup/linux
+if ! dpkg -l code >/dev/null 2>&1; then
+    echo "Installing Visual Studio Code..."
+    if [[ ! -f /etc/apt/sources.list.d/vscode.sources ]]; then
+        sudo apt install -y wget gpg
+        wget -qO- https://packages.microsoft.com/keys/microsoft.asc \
+            | sudo gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+        echo -e 'Types: deb\nURIs: https://packages.microsoft.com/repos/code\nSuites: stable\nComponents: main\nArchitectures: amd64,arm64,armhf\nSigned-By: /usr/share/keyrings/microsoft.gpg' \
+            | sudo tee /etc/apt/sources.list.d/vscode.sources >/dev/null
+    fi
+    sudo apt update
+    sudo apt install -y code
+else
+    echo "Visual Studio Code already installed."
+fi
+
+# Sublime Text (Sublime HQ apt repo, deb822 sources format)
+# https://www.sublimetext.com/docs/linux_repositories.html
+if ! dpkg -l sublime-text >/dev/null 2>&1; then
+    echo "Installing Sublime Text..."
+    sudo install -d -m 0755 /etc/apt/keyrings
+    if [[ ! -f /etc/apt/keyrings/sublimehq-pub.asc ]]; then
+        wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg \
+            | sudo tee /etc/apt/keyrings/sublimehq-pub.asc >/dev/null
+    fi
+    if [[ ! -f /etc/apt/sources.list.d/sublime-text.sources ]]; then
+        echo -e 'Types: deb\nURIs: https://download.sublimetext.com/\nSuites: apt/stable/\nSigned-By: /etc/apt/keyrings/sublimehq-pub.asc' \
+            | sudo tee /etc/apt/sources.list.d/sublime-text.sources >/dev/null
+    fi
+    sudo apt update
+    sudo apt install -y sublime-text
+else
+    echo "Sublime Text already installed."
+fi
+
+# Zed (official curl installer -> ~/.local, user-space, no repo)
+# https://zed.dev/docs/linux
+if command -v zed >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/zed" ]]; then
+    echo "Zed already installed."
+else
+    echo "Installing Zed..."
+    curl -f https://zed.dev/install.sh | sh
+fi
+
+# Brave Origin browser (official installer, distro-aware: adds repo + package)
+# https://github.com/brave/install.sh
+# FLAVOR=origin = privacy-first build (no crypto/rewards). Installs `brave-origin`.
+if ! dpkg -l brave-origin >/dev/null 2>&1; then
+    echo "Installing Brave Origin..."
+    curl -fsS https://dl.brave.com/install.sh | FLAVOR=origin sh
+else
+    echo "Brave Origin already installed."
+fi
+
 # Install tailscale via official script (not in standard apt repos)
 if ! command -v tailscale >/dev/null 2>&1; then
     echo "Installing tailscale..."

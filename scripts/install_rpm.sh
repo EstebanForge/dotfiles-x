@@ -183,6 +183,61 @@ sudo dnf install -y --skip-unavailable --allowerasing \
 # (replace stripped mesa-va-drivers/mesa-vdpau-drivers for HW video decode)
 sudo dnf install -y --skip-unavailable --allowerasing mesa-va-drivers-freeworld mesa-vdpau-drivers-freeworld
 
+# --- Code editors: VS Code, Sublime Text, Zed ------------------------------
+# Each uses its own official repo/installer. Guarded so re-runs are no-ops.
+
+# Visual Studio Code (Microsoft yum repo)
+# https://code.visualstudio.com/docs/setup/linux
+if ! rpm -q code >/dev/null 2>&1; then
+    echo "Installing Visual Studio Code..."
+    if [[ ! -f /etc/yum.repos.d/vscode.repo ]]; then
+        sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+        echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" \
+            | sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
+    fi
+    sudo dnf install -y code
+else
+    echo "Visual Studio Code already installed."
+fi
+
+# Sublime Text (Sublime HQ dnf repo, x86_64 only)
+# https://www.sublimetext.com/docs/linux_repositories.html
+# dnf5 (Fedora 41+) uses `config-manager addrepo --from-repofile=`;
+# dnf4 uses `config-manager --add-repo`. Detect by subcommand availability.
+if ! rpm -q sublime-text >/dev/null 2>&1; then
+    echo "Installing Sublime Text..."
+    sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
+    if sudo dnf config-manager addrepo --help >/dev/null 2>&1; then
+        sudo dnf config-manager addrepo \
+            --from-repofile=https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
+    else
+        sudo dnf config-manager \
+            --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
+    fi
+    sudo dnf install -y sublime-text
+else
+    echo "Sublime Text already installed."
+fi
+
+# Zed (official curl installer -> ~/.local, user-space, no repo)
+# https://zed.dev/docs/linux
+if command -v zed >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/zed" ]]; then
+    echo "Zed already installed."
+else
+    echo "Installing Zed..."
+    curl -f https://zed.dev/install.sh | sh
+fi
+
+# Brave Origin browser (official installer, distro-aware: adds repo + package)
+# https://github.com/brave/install.sh
+# FLAVOR=origin = privacy-first build (no crypto/rewards). Installs `brave-origin`.
+if ! rpm -q brave-origin >/dev/null 2>&1; then
+    echo "Installing Brave Origin..."
+    curl -fsS https://dl.brave.com/install.sh | FLAVOR=origin sh
+else
+    echo "Brave Origin already installed."
+fi
+
 # Install Ghostty terminal from COPR (scottames/ghostty)
 sudo dnf copr enable -y scottames/ghostty
 sudo dnf install -y ghostty

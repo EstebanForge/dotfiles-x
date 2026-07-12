@@ -161,7 +161,10 @@ sudo dnf install -y --skip-unavailable --allowerasing \
     libffi \
     nss \
     bubblewrap \
-    unzip
+    unzip \
+    podman \
+    podman-docker \
+    podman-compose
 
 # Install Ghostty terminal from COPR (scottames/ghostty)
 sudo dnf copr enable -y scottames/ghostty

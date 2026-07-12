@@ -203,6 +203,10 @@ fi
 export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 export COMPOSER_PROCESS_TIMEOUT=1800
 
+# PHP 8.3 first in PATH (Homebrew php@8.3 is keg-only)
+export PATH="$HOMEBREW_PREFIX/opt/php@8.3/bin:$PATH"
+export PATH="$HOMEBREW_PREFIX/opt/php@8.3/sbin:$PATH"
+
 # phpvm (PHP version manager)
 export PHPVM_DIR="$HOME/.phpvm"
 export PATH="$PHPVM_DIR/bin:$PATH"

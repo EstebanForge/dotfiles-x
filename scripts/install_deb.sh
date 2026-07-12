@@ -179,7 +179,10 @@ sudo apt install -y \
     wget \
     tree \
     tmux \
-    jq
+    jq \
+    podman \
+    podman-docker \
+    podman-compose
 
 # Install tailscale via official script (not in standard apt repos)
 if ! command -v tailscale >/dev/null 2>&1; then

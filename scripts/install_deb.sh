@@ -231,18 +231,12 @@ install_shared_brew_packages
 
 # deb-specific Homebrew packages
 brew install node
-brew install webpack
 
 # Install Bun
 curl -fsSL https://bun.sh/install | bash
 
-# Install wakatime-cli
-echo "Installing wakatime-cli..."
-brew install wakatime-cli
-
 # Global npm packages (Node is provided by Homebrew)
 if command -v npm >/dev/null 2>&1; then
-    npm install -g claude-code-wakatime
     npm install -g postcss
     npm install -g postcss-cli
     npm install -g @github/copilot

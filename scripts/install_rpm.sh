@@ -157,6 +157,10 @@ sudo dnf install -y --skip-unavailable --allowerasing \
     bubblewrap \
     unzip
 
+# Install Ghostty terminal from COPR (scottames/ghostty)
+sudo dnf copr enable -y scottames/ghostty
+sudo dnf install -y ghostty
+
 # Install Flatpak apps (bulk)
 echo "Installing Flatpak apps..."
 install_shared_flatpak_apps

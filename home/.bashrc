@@ -215,6 +215,11 @@ alias artisan='php artisan'
 export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 export COMPOSER_PROCESS_TIMEOUT=600
 
+# phpvm (PHP version manager)
+export PHPVM_DIR="$HOME/.phpvm"
+export PATH="$PHPVM_DIR/bin:$PATH"
+[ -s "$PHPVM_DIR/phpvm.sh" ] && . "$PHPVM_DIR/phpvm.sh"
+
 # User-specific binary paths
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 

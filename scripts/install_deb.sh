@@ -41,6 +41,8 @@ source "$SCRIPT_DIR/lib/phpvm_cli.sh"
 source "$SCRIPT_DIR/lib/npm_globals.sh"
 # shellcheck source=lib/bun_cli.sh
 source "$SCRIPT_DIR/lib/bun_cli.sh"
+# shellcheck source=lib/codex_cli.sh
+source "$SCRIPT_DIR/lib/codex_cli.sh"
 # shellcheck source=lib/detect_distro.sh
 source "$SCRIPT_DIR/lib/detect_distro.sh"
 
@@ -361,6 +363,9 @@ install_phpvm_cli
 
 # Install Claude Code (official installer, maintained by Anthropic)
 install_claude_code_cli
+
+# Install Codex CLI (official installer)
+install_codex_cli
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)
 install_antigravity_cli

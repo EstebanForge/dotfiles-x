@@ -31,9 +31,11 @@ Temporary Items
 # Temporary files
 *.tmp
 *.swp
+*~
 
 # Backup files
 *.backup
+*.bak
 
 # Local ZSH config
 .zshrc.local
@@ -41,4 +43,43 @@ Temporary Items
 # Secrets file (never commit!)
 .secrets
 TODO.md
+
+# Terminal session captures (script(1) etc.)
 typescript
+typescript.*
+*.typescript
+
+# Linux
+.directory
+.Trash-*
+
+# Editor / IDE
+.vscode/
+.idea/
+*.iml
+.fleet/
+.zed/
+*.code-workspace
+.history/
+
+# Agent tooling local state (pi, codegraph, etc.)
+.pi/
+.codegraph/
+
+# Tags / cscope databases
+tags
+cscope.*
+*.tags
+*.tags1
+
+# OS-level crash dumps & core files
+core
+core.*
+hs_err_pid*
+replay_pid*
+
+# Common build artifacts that could land in the repo root
+dist/
+build/
+*.o
+*.obj

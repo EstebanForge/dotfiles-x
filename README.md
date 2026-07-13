@@ -12,7 +12,7 @@ git clone https://github.com/estebanforge/dotfiles-x.git ~/.dotfiles
 cd ~/.dotfiles
 
 # Run the setup script to create symlinks
-./dots.sh install
+./dots.sh
 
 # Reload shell configuration (macOS: zsh, Linux: bash)
 source ~/.zshrc    # macOS
@@ -53,7 +53,7 @@ The dotfiles include a secrets management system:
 2. **Your secrets**: `~/.secrets` - Your actual secrets (never committed to git)
 3. **Auto-loading**: Secrets are automatically loaded when shell starts
 
-For non-secret machine-specific values (paths, IPs like `SANDBOX_IP`), use `home/.zshrc.local.example` instead. Copy it to `~/.zshrc.local` and override per machine. It is sourced by `~/.zshrc` after `~/.secrets`.
+`~/.secrets` also holds machine-local values (e.g. `SANDBOX_IP`) alongside secrets. Both shells (`~/.zshrc` and `~/.bashrc`) source it.
 
 **Setup your secrets:**
 
@@ -87,7 +87,6 @@ dotfiles-x/
 │   ├── .gitconfig               # Git configuration
 │   ├── .gitignore_global        # Global gitignore
 │   ├── .secrets.example         # Secrets template (copy to ~/.secrets)
-│   ├── .zshrc.local.example     # Machine-local config template (copy to ~/.zshrc.local)
 │   └── .hushlogin               # Silences "Last login" banner (empty file)
 ├── scripts/                        # Optional setup scripts
 │   ├── install_macos.sh            # macOS package installation

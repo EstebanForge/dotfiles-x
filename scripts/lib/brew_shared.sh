@@ -75,7 +75,22 @@ brew_install_list() {
         if brew list --formula "$short_name" >/dev/null 2>&1; then
             continue
         fi
-        brew install "$package"
+        # Fault-tolerant: a single formula failure (e.g. an unbuildable
+        # dependency on one platform) must not abort the whole run.
+        brew install "$package" || echo "  -> skipped formula: $package" >&2
+    done
+}
+
+brew_install_cask_list() {
+    local package
+    for package in "$@"; do
+        # Idempotent: skip casks already installed.
+        if brew list --cask "$package" >/dev/null 2>&1; then
+            continue
+        fi
+        # Fault-tolerant: a single cask failure (e.g. one requiring a newer
+        # macOS) must not abort the whole run under `set -e`.
+        brew install --cask "$package" || echo "  -> skipped cask: $package" >&2
     done
 }
 

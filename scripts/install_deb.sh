@@ -45,6 +45,8 @@ source "$SCRIPT_DIR/lib/bun_cli.sh"
 source "$SCRIPT_DIR/lib/codex_cli.sh"
 # shellcheck source=lib/detect_distro.sh
 source "$SCRIPT_DIR/lib/detect_distro.sh"
+# shellcheck source=lib/gogh_shared.sh
+source "$SCRIPT_DIR/lib/gogh_shared.sh"
 
 # Verify we're on a deb-based distro
 distro="$(detect_distro)"
@@ -328,6 +330,9 @@ install_shared_fonts
 # Install Flat Remix GNOME Shell themes into ~/.themes
 echo "Installing GNOME themes..."
 install_flat_remix_theme
+
+# Install Gogh terminal color schemes (Catppuccin Mocha)
+install_gogh_themes
 
 # Install Reversal icon theme into ~/.local/share/icons
 echo "Installing Reversal icon theme..."

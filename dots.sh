@@ -194,6 +194,7 @@ setup_dotfiles() {
         ".gitconfig:.gitconfig"
         ".gitignore_global:.gitignore_global"
         ".secrets.example:.secrets.example"
+        ".zshrc.local.example:.zshrc.local.example"
         ".editorconfig:.editorconfig"
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
     )
@@ -267,6 +268,7 @@ cleanup_symlinks() {
         ".gitconfig"
         ".gitignore_global"
         ".secrets.example"
+        ".zshrc.local.example"
         ".editorconfig"
         ".config/topgrade/topgrade.toml"
         ".local/bin/dots"
@@ -292,8 +294,9 @@ show_status() {
         ".gitconfig:.gitconfig"
         ".gitignore_global:.gitignore_global"
         ".secrets.example:.secrets.example"
+        ".zshrc.local.example:.zshrc.local.example"
         ".editorconfig:.editorconfig"
-        ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
+        ".config/topgrade/topgrade.toml:.config/topgrade.toml"
     )
 
     # Shell config: zsh on macOS, bash on Linux
@@ -894,6 +897,7 @@ FILES MANAGED:
     ~/.gitconfig                        Git configuration
     ~/.editorconfig                     Editor configuration
     ~/.secrets.example                  Secrets template
+    ~/.zshrc.local.example              Machine-local config template
     ~/.gitignore_global                 Global git ignore
     ~/.config/topgrade/topgrade.toml    Update manager configuration
 

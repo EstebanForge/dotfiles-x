@@ -9,6 +9,12 @@ if [[ -f ~/.secrets ]]; then
     source ~/.secrets
 fi
 
+# --- Machine-local config (non-secret): override paths, IPs, etc. ---
+# See ~/.zshrc.local.example for available variables.
+if [[ -f ~/.zshrc.local ]]; then
+    source ~/.zshrc.local
+fi
+
 # --- Homebrew ---
 if [[ "$(uname)" == "Darwin" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -248,6 +254,8 @@ alias artisan='php artisan'
 alias cat='bat'
 
 # --- Sandbox Control (UTM, macOS only) ---
+# Sandbox VM IP. Override in ~/.zshrc.local. Must match ~/.ssh/config Host sandbox.
+SANDBOX_IP="${SANDBOX_IP:-192.168.64.10}"
 if [[ "$(uname)" == "Darwin" ]]; then
     alias sbdown='utmctl stop "Fedora Server"'
     alias sbssh='ssh sandbox'
@@ -258,7 +266,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
         utmctl start "Fedora Server"
 
         echo -n "⏳ Waiting for SSH..."
-        while ! nc -z -G 1 192.168.64.10 22 > /dev/null 2>&1; do
+        while ! nc -z -G 1 "$SANDBOX_IP" 22 > /dev/null 2>&1; do
             sleep 1
             echo -n "."
         done

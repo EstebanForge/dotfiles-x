@@ -53,6 +53,8 @@ The dotfiles include a secrets management system:
 2. **Your secrets**: `~/.secrets` - Your actual secrets (never committed to git)
 3. **Auto-loading**: Secrets are automatically loaded when shell starts
 
+For non-secret machine-specific values (paths, IPs like `SANDBOX_IP`), use `home/.zshrc.local.example` instead. Copy it to `~/.zshrc.local` and override per machine. It is sourced by `~/.zshrc` after `~/.secrets`.
+
 **Setup your secrets:**
 
 ```bash
@@ -84,7 +86,8 @@ dotfiles-x/
 │   ├── .bashrc                  # Bash configuration (Linux)
 │   ├── .gitconfig               # Git configuration
 │   ├── .gitignore_global        # Global gitignore
-│   └── .secrets.example         # Secrets template (copy to ~/.secrets)
+│   ├── .secrets.example         # Secrets template (copy to ~/.secrets)
+│   └── .zshrc.local.example     # Machine-local config template (copy to ~/.zshrc.local)
 ├── scripts/                        # Optional setup scripts
 │   ├── install_macos.sh            # macOS package installation
 │   ├── install_rpm.sh              # Fedora package installation

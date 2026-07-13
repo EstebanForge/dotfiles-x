@@ -211,6 +211,8 @@ setup_dotfiles() {
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")
+        dotfiles+=(".config/environment.d/freetype.conf:.config/environment.d/freetype.conf")
+        dotfiles+=(".config/fontconfig/fonts.conf:.config/fontconfig/fonts.conf")
     fi
 
     for dotfile in "${dotfiles[@]}"; do
@@ -272,6 +274,8 @@ cleanup_symlinks() {
         ".zsh/prompt.zsh"
         ".bashrc"
         ".config/environment.d/gnome-wayland.conf"
+        ".config/environment.d/freetype.conf"
+        ".config/fontconfig/fonts.conf"
         ".gitconfig"
         ".config/git/ignore"
         ".secrets.example"
@@ -323,6 +327,8 @@ show_status() {
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")
+        dotfiles+=(".config/environment.d/freetype.conf:.config/environment.d/freetype.conf")
+        dotfiles+=(".config/fontconfig/fonts.conf:.config/fontconfig/fonts.conf")
     fi
 
     local all_good=true

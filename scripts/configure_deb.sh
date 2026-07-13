@@ -188,6 +188,11 @@ gset org.gnome.desktop.interface font-name 'SF Pro Text 11'
 gset org.gnome.desktop.interface document-font-name 'Sans 11'
 gset org.gnome.desktop.interface monospace-font-name 'Iosevka Nerd Font Mono 11'
 
+# Font rendering: macOS-like (no hinting, grayscale anti-aliasing).
+# GNOME reads these gsettings keys directly for GTK apps (not fontconfig).
+gset org.gnome.desktop.interface font-hinting none
+gset org.gnome.desktop.interface font-antialiasing grayscale
+
 # Window behavior
 echo "Configuring window behavior..."
 # Enable minimize, maximize, close window buttons

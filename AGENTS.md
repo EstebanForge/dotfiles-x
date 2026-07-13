@@ -149,6 +149,8 @@ dots help                                # Show help message
 | `~/.zsh/prompt.zsh`                 | `.zsh/prompt.zsh`                        | macOS only (EstebanForgePrompt) |
 | `~/.bashrc`                         | `.bashrc`                                | Linux only                  |
 | `~/.config/environment.d/gnome-wayland.conf` | `.config/environment.d/gnome-wayland.conf` | Linux only (GNOME/Wayland session env) |
+| `~/.config/environment.d/freetype.conf` | `.config/environment.d/freetype.conf` | Linux only (FreeType stem darkening) |
+| `~/.config/fontconfig/fonts.conf`      | `.config/fontconfig/fonts.conf`           | Linux only (fontconfig for non-GNOME apps) |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |
 | `~/.config/git/ignore`              | `.config/git/ignore`                     | All platforms               |
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |

@@ -282,6 +282,10 @@ bash "$SCRIPT_DIR/hyperkey_keyd.sh"
 # Conservative list (safe wins only); see script header for rationale.
 bash "$SCRIPT_DIR/debloat_services.sh"
 
+# Middle-mouse-hold autoscroll for Wayland (Wayland-Wheeltani daemon).
+# Replaces the deprecated libinput-config ld.so.preload hack.
+bash "$SCRIPT_DIR/wheeltani_autoscroll.sh"
+
 # Insync (Google Drive sync, official yum repo)
 # https://www.insynchq.com/downloads/linux
 # Repo baseurl uses $releasever so it tracks the running Fedora release.

@@ -75,16 +75,17 @@ fi
 ensure_xcode_clt
 ensure_homebrew_permissions
 
-# Update Homebrew
-echo "Updating Homebrew..."
-brew update
-
-# Install latest bash
-echo "Installing latest bash..."
-brew install bash
-
-# Restart script with new bash if we just installed it
+# Update Homebrew + install latest bash, but only on the first pass.
+# The script re-execs itself with Homebrew bash (BASH_RESTART=1) below; skip
+# the update and bash install on that second pass to avoid duplicate work.
 if [[ "${BASH_RESTART:-0}" != "1" ]]; then
+    echo "Updating Homebrew..."
+    brew update
+
+    echo "Installing latest bash..."
+    brew install bash
+
+    # Restart script with new bash if we just installed it
     echo "Restarting script with updated bash..."
     for _new_bash in /opt/homebrew/bin/bash /usr/local/bin/bash; do
         if [[ -x "$_new_bash" ]]; then
@@ -101,140 +102,148 @@ install_shared_brew_packages
 
 # Install formulae (command-line tools)
 echo "Installing formulae..."
-brew install alienator88-sentinel
-brew install codex
-brew install progress
-brew install ffmpeg
-brew install subversion
-brew install jq
-brew install yq
-brew install zola
-brew install mas
-brew install mkvtoolnix
-brew install mpv
-brew install node
-brew install openssl
-brew install php
-brew install php-cs-fixer
-brew install qwen-code
-brew install specify
-brew install tailspin
-brew install wp-cli
-brew install yt-dlp
-brew install tlrc
-brew install coreutils
-brew install gnu-sed
-brew install procs
-brew install python
-brew install sass/sass/sass
-brew install tailscale
-brew install mole
-brew install prettier
-brew install fastmod
-brew install tree
-brew install git-cliff
-brew install fd
-brew install sd
-brew install tmux
-brew install nss
-brew install oven-sh/bun/bun
-brew install unzip
+brew_install_list \
+    alienator88-sentinel \
+    codex \
+    progress \
+    ffmpeg \
+    subversion \
+    jq \
+    yq \
+    zola \
+    mas \
+    mkvtoolnix \
+    mpv \
+    node \
+    openssl \
+    php \
+    php-cs-fixer \
+    qwen-code \
+    specify \
+    tailspin \
+    wp-cli \
+    yt-dlp \
+    tlrc \
+    coreutils \
+    gnu-sed \
+    procs \
+    python \
+    sass/sass/sass \
+    tailscale \
+    mole \
+    prettier \
+    fastmod \
+    tree \
+    git-cliff \
+    fd \
+    sd \
+    tmux \
+    nss \
+    oven-sh/bun/bun \
+    unzip
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
-brew install --cask suspicious-package
-brew install --cask apparency
-brew install --cask quicklookase
-brew install --cask qlvideo
-brew install --cask quickjson
-brew install --cask keka
+brew_install_cask_list \
+    suspicious-package \
+    apparency \
+    quicklookase \
+    qlvideo \
+    quickjson \
+    keka
 
 # Install casks (GUI applications)
 echo "Installing casks..."
-brew install --cask 1password
-brew install --cask alfred
-brew install --cask bettermouse
-brew install --cask bettertouchtool
-brew install --cask beyond-compare
-brew install --cask bitwarden
-brew install --cask brave-origin
-brew install --cask bruno
-brew install --cask balenaetcher
-brew install --cask calendr
-brew install --cask calibre
-brew install --cask cameracontroller
-brew install --cask claude-code
-brew install --cask command-tab-plus
-brew install --cask coteditor
-brew install --cask cryptomator
-brew install --cask daisydisk
-brew install --cask ferdium
-brew install --cask filebot
-brew install --cask find-any-file
-brew install --cask firefox
-brew install --cask font-hack-nerd-font
-brew install --cask font-iosevka-nerd-font
-brew install --cask font-iosevka-term-nerd-font
-brew install --cask font-meslo-lg-nerd-font
-brew install --cask font-open-sans
-brew install --cask font-oswald
-brew install --cask ghostty
-brew install --cask github
-brew install --cask google-chrome
-brew install --cask google-drive
-brew install --cask iconchamp
-brew install --cask iina
-brew install --cask imageoptim
-brew install --cask jump-desktop
-brew install --cask jordanbaird-ice
-brew install --cask kextviewr
-brew install --cask knockknock
-brew install --cask lm-studio
-brew install --cask mediainfo
-brew install --cask middleclick
-brew install --cask nordvpn
-brew install --cask obsidian
-brew install --cask orbstack
-brew install --cask path-finder
-brew install --cask pearcleaner
-brew install --cask pictogram
-brew install --cask qspace-pro
-brew install --cask rectangle-pro
-brew install --cask shotcut
-brew install --cask shottr
-brew install --cask signal
-brew install --cask stay
-brew install --cask sublime-merge
-brew install --cask sublime-text
-brew install --cask superkey
-brew install --cask taskexplorer
-brew install --cask handbrake-app
-brew install --cask permute
+brew_install_cask_list \
+    1password \
+    alfred \
+    bettermouse \
+    bettertouchtool \
+    beyond-compare \
+    bitwarden \
+    brave-origin \
+    bruno \
+    balenaetcher \
+    calendr \
+    calibre \
+    cameracontroller \
+    claude-code \
+    command-tab-plus \
+    coteditor \
+    cryptomator \
+    daisydisk \
+    ferdium \
+    filebot \
+    find-any-file \
+    firefox \
+    font-hack-nerd-font \
+    font-iosevka-nerd-font \
+    font-iosevka-term-nerd-font \
+    font-meslo-lg-nerd-font \
+    font-open-sans \
+    font-oswald \
+    ghostty \
+    github \
+    google-chrome \
+    google-drive \
+    iconchamp \
+    iina \
+    imageoptim \
+    jump-desktop \
+    jordanbaird-ice \
+    kextviewr \
+    knockknock \
+    lm-studio \
+    mediainfo \
+    middleclick \
+    nordvpn \
+    obsidian \
+    orbstack \
+    path-finder \
+    pearcleaner \
+    pictogram \
+    qspace-pro \
+    rectangle-pro \
+    shotcut \
+    shottr \
+    signal \
+    stay \
+    sublime-merge \
+    sublime-text \
+    superkey \
+    taskexplorer \
+    handbrake-app \
+    permute \
+    transmission \
+    tuxera-ntfs \
+    typora \
+    uninstallpkg \
+    utm \
+    visual-studio-code \
+    zed \
+    zoom \
+    elmedia-player \
+    ente-auth
 
-brew install --cask transmission
-brew install --cask tuxera-ntfs
-brew install --cask typora
-brew install --cask uninstallpkg
-brew install --cask utm
-brew install --cask visual-studio-code
-brew install --cask zed
-brew install --cask zoom
-brew install --cask elmedia-player
-brew install --cask ente-auth
-brew install zsh-autosuggestions
-brew install zsh-completions
-brew install zsh-syntax-highlighting
-brew install --cask font-inconsolata-nerd-font
-brew install --cask font-arial
-brew install --cask font-cantarell
-brew install --cask font-roboto
-brew install --cask font-iosevka
-brew install --cask font-esteban
-brew install --cask mission-control-plus
-brew install --cask music-decoy
-brew install --cask keepingyouawake
-brew install --cask claude
-brew install --cask antigravity
+# zsh plugins (formulae, not casks)
+brew_install_list \
+    zsh-autosuggestions \
+    zsh-completions \
+    zsh-syntax-highlighting
+
+# Fonts and remaining casks
+brew_install_cask_list \
+    font-inconsolata-nerd-font \
+    font-arial \
+    font-cantarell \
+    font-roboto \
+    font-iosevka \
+    font-esteban \
+    mission-control-plus \
+    music-decoy \
+    keepingyouawake \
+    claude \
+    antigravity
 
 # Install npm packages (Node is provided by Homebrew earlier in this script)
 if command -v npm >/dev/null 2>&1; then

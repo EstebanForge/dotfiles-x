@@ -34,6 +34,14 @@ source "$SCRIPT_DIR/lib/themes_shared.sh"
 source "$SCRIPT_DIR/lib/icons_reversal_shared.sh"
 # shellcheck source=lib/antigravity_cli.sh
 source "$SCRIPT_DIR/lib/antigravity_cli.sh"
+# shellcheck source=lib/claude_code_cli.sh
+source "$SCRIPT_DIR/lib/claude_code_cli.sh"
+# shellcheck source=lib/phpvm_cli.sh
+source "$SCRIPT_DIR/lib/phpvm_cli.sh"
+# shellcheck source=lib/npm_globals.sh
+source "$SCRIPT_DIR/lib/npm_globals.sh"
+# shellcheck source=lib/bun_cli.sh
+source "$SCRIPT_DIR/lib/bun_cli.sh"
 
 # ===========================================================================
 # PHASE 1: Foundational setup (run FIRST, in this exact order)
@@ -298,30 +306,17 @@ install_reversal_icon_theme
 echo "Installing Homebrew packages..."
 install_shared_brew_packages
 
-# Install Bun (idempotent: skip if already on PATH)
-if command -v bun >/dev/null 2>&1; then
-    echo "Bun already installed."
-else
-    curl -fsSL https://bun.sh/install | bash
-fi
+# Install Bun (official installer)
+install_bun_cli
 
-# Global npm packages (Node is provided by Homebrew in Phase 1)
-if command -v npm >/dev/null 2>&1; then
-    echo "Installing global npm packages..."
-    npm install -g postcss
-    npm install -g postcss-cli
-    npm install -g @github/copilot
-else
-    echo "WARNING: npm not found; skipping global npm packages." >&2
-fi
+# Install global npm packages (Node is provided by Homebrew)
+install_npm_globals
 
-# Install phpvm (PHP version manager, idempotent)
-if command -v phpvm >/dev/null 2>&1; then
-    echo "phpvm already installed."
-else
-    echo "Installing phpvm..."
-    curl -o- https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh | bash
-fi
+# Install phpvm (PHP version manager)
+install_phpvm_cli
+
+# Install Claude Code (official installer, maintained by Anthropic)
+install_claude_code_cli
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)
 install_antigravity_cli

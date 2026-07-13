@@ -36,6 +36,9 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `lib/detect_distro.sh`: Distro detection helper (returns `macos`, `rpm`, or `deb`).
     *   `lib/brew_shared.sh`: Shared Homebrew taps and formulae used by all platform install scripts.
     *   `lib/flatpak_shared.sh`: Shared Flatpak app list installed on all Linux platforms (RPM and deb).
+    *   `lib/profile_picture.sh`: Shared Linux helper that sets the user profile picture (AccountsService icon + `~/.face`). Sourced by `configure_rpm.sh` and `configure_deb.sh`.
+
+*   `assets/`: Static binary assets committed to the repo. Currently holds `profile-picture.jpg` (Esteban's GitHub avatar), applied as the login/user picture by the configure scripts.
 
 *   `dots.sh`: Main dotfile management script. After `install`, also symlinked to `~/.local/bin/dots` for global use as `dots <command>`.
 
@@ -153,5 +156,6 @@ dots help                                # Show help message
 *   **Distro detection:** Import `scripts/lib/detect_distro.sh` and call `detect_distro` to get `macos`, `rpm`, or `deb`. Do not replicate detection logic elsewhere.
 *   **Shared Homebrew logic:** Shared taps and formulae live in `scripts/lib/brew_shared.sh`. Extend it instead of duplicating across platform scripts.
 *   **Shared Flatpak apps:** The full Linux Flatpak app list lives in `scripts/lib/flatpak_shared.sh`. Both `install_rpm.sh` and `install_deb.sh` source it. Add new Flatpak apps there, not in the individual install scripts.
+*   **Profile picture:** `scripts/lib/profile_picture.sh` (`set_profile_picture_linux`) handles Linux (GNOME AccountsService + `~/.face`); `configure_macos.sh` embeds the image via `dsimport` (the only reliable macOS method). Both read `assets/profile-picture.jpg`. Replace that file to change the picture; keep it square JPEG for best results.
 *   **Backup Management:** `dots.sh` automatically creates timestamped backups (`.backup.YYYYMMDD_HHMMSS`) of existing files before creating symlinks.
 *   **Bash requirement:** `dots.sh` requires Bash 5.x. On macOS with the system Bash (3.x), it auto-detects and re-execs with Homebrew Bash, installing it if needed.

@@ -262,6 +262,37 @@ fi
 # Install Ghostty terminal (mkasberg/ghostty-ubuntu)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
 
+# Insync (Google Drive sync, official apt repo)
+# https://www.insynchq.com/downloads/linux
+# Insync requires distro + codename (lowercase) in the repo line. We map our
+# distro family to Insync's supported apt distribution; codename comes from
+# os-release (preferring UBUNTU_CODENAME, which Ubuntu-derivatives export).
+if ! dpkg -l insync >/dev/null 2>&1; then
+    echo "Installing Insync..."
+    . /etc/os-release
+    _insync_codename="${UBUNTU_CODENAME:-$VERSION_CODENAME}"
+    _insync_codename="${_insync_codename,,}"
+    case "$ID" in
+        linuxmint)                      _insync_dist="mint"   ;;
+        debian)                         _insync_dist="debian" ;;
+        ubuntu|pop|zorin*|elementary*)  _insync_dist="ubuntu" ;;
+        *)                              _insync_dist="debian" ;;
+    esac
+    if [[ ! -f /etc/apt/trusted.gpg.d/insynchq.gpg ]]; then
+        curl -fsSL https://apt.insync.io/insynchq.gpg \
+            | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/insynchq.gpg
+    fi
+    if [[ ! -f /etc/apt/sources.list.d/insync.list ]]; then
+        echo "deb [signed-by=/etc/apt/trusted.gpg.d/insynchq.gpg] http://apt.insync.io/$_insync_dist $_insync_codename non-free contrib" \
+            | sudo tee /etc/apt/sources.list.d/insync.list >/dev/null
+    fi
+    sudo apt update
+    sudo apt install -y insync
+    unset _insync_dist _insync_codename
+else
+    echo "Insync already installed."
+fi
+
 # Install additional GUI apps via apt
 # (where available; some apps may need Flatpak or manual install)
 echo "Installing GUI applications via apt..."

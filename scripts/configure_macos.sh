@@ -9,6 +9,8 @@ if [[ -z "${BASH_VERSION:-}" ]]; then
     exit 1
 fi
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # macOS system configuration script
 # This script applies macOS defaults and system settings
 
@@ -264,6 +266,34 @@ defaults write org.m0k.transmission WarningLegal -bool false
 # Captive Portal
 # https://github.com/drduh/OS-X-Security-and-Privacy-Guide
 sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.captive.control Active -bool false
+
+###############################################################################
+# User profile picture                                                        #
+###############################################################################
+# macOS has no clean CLI for this. `dscl . create ... Picture <path>` leaves a
+# silhouette on 10.14+ because JPEGPhoto takes precedence; clearing it via dscl
+# then recreating Picture still shows the silhouette in System Settings. The
+# reliable, GUI-equivalent method is dsimport, which embeds JPEGPhoto the same
+# way System Settings does. Existing image attrs must be deleted first or the
+# image is not replaced.
+_PIC="$SCRIPT_DIR/../assets/profile-picture.jpg"
+if [[ -f "$_PIC" ]]; then
+    _user="${USER:-$(id -un)}"
+    _tmp="$(mktemp -t userpic_dsimport)"
+    sudo dscl . delete "/Users/$_user" JPEGPhoto >/dev/null 2>&1 || true
+    sudo dscl . delete "/Users/$_user" Picture    >/dev/null 2>&1 || true
+    printf '0x0A 0x5C 0x3A 0x2C dsRecTypeStandard:Users 2 dsAttrTypeStandard:RecordName externalbinary:dsAttrTypeStandard:JPEGPhoto\n%s:%s\n' "$_user" "$_PIC" > "$_tmp"
+    if sudo dsimport "$_tmp" /Local/Default M >/dev/null 2>&1; then
+        echo "User profile picture set for $_user."
+    else
+        echo "warning: could not set profile picture via dsimport." >&2
+    fi
+    rm -f "$_tmp"
+    unset _user _tmp
+else
+    echo "warning: profile-picture.jpg not found at $_PIC, skipping." >&2
+fi
+unset _PIC
 
 # Disable Remote Desktop daemon
 # To revert: launchctl load -w /System/Library/LaunchAgents/com.apple.rcd.plist

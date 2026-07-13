@@ -212,6 +212,10 @@ gset org.gnome.desktop.interface temperature-unit 'celsius'
 # Background settings (optional - set a custom wallpaper)
 # gset org.gnome.desktop.background picture-uri 'file:///path/to/your/wallpaper.jpg'
 
+# User profile picture (AccountsService + ~/.face)
+echo "Setting user profile picture..."
+set_profile_picture_linux "$SCRIPT_DIR/../assets/profile-picture.jpg"
+
 # Settings apply on next session; prompt user to relogin
 echo "Fedora GNOME configuration complete!"
 echo "Please log out and back in for all changes to take effect."

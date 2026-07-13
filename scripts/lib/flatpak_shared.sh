@@ -31,6 +31,7 @@ SHARED_FLATPAK_APPS=(
     io.gitlab.adhami3310.Converter
     io.typora.Typora
     it.mijorus.gearlever
+    md.obsidian.Obsidian
     net.filebot.FileBot
     net.mediaarea.MediaInfo
     net.nokyan.Resources

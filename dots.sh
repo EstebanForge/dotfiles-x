@@ -196,6 +196,7 @@ setup_dotfiles() {
         ".secrets.example:.secrets.example"
         ".zshrc.local.example:.zshrc.local.example"
         ".editorconfig:.editorconfig"
+        ".hushlogin:.hushlogin"
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
     )
 
@@ -270,6 +271,7 @@ cleanup_symlinks() {
         ".secrets.example"
         ".zshrc.local.example"
         ".editorconfig"
+        ".hushlogin"
         ".config/topgrade/topgrade.toml"
         ".local/bin/dots"
     )
@@ -296,6 +298,7 @@ show_status() {
         ".secrets.example:.secrets.example"
         ".zshrc.local.example:.zshrc.local.example"
         ".editorconfig:.editorconfig"
+        ".hushlogin:.hushlogin"
         ".config/topgrade/topgrade.toml:.config/topgrade.toml"
     )
 
@@ -896,6 +899,7 @@ FILES MANAGED:
     ~/.bashrc                           Bash configuration (Linux only)
     ~/.gitconfig                        Git configuration
     ~/.editorconfig                     Editor configuration
+    ~/.hushlogin                       Silence login banner (all platforms)
     ~/.secrets.example                  Secrets template
     ~/.zshrc.local.example              Machine-local config template
     ~/.gitignore_global                 Global git ignore

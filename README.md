@@ -87,7 +87,8 @@ dotfiles-x/
 │   ├── .gitconfig               # Git configuration
 │   ├── .gitignore_global        # Global gitignore
 │   ├── .secrets.example         # Secrets template (copy to ~/.secrets)
-│   └── .zshrc.local.example     # Machine-local config template (copy to ~/.zshrc.local)
+│   ├── .zshrc.local.example     # Machine-local config template (copy to ~/.zshrc.local)
+│   └── .hushlogin               # Silences "Last login" banner (empty file)
 ├── scripts/                        # Optional setup scripts
 │   ├── install_macos.sh            # macOS package installation
 │   ├── install_rpm.sh              # Fedora package installation

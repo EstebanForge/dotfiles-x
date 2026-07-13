@@ -15,6 +15,10 @@ fi
 
 set -uo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/profile_picture.sh
+source "$SCRIPT_DIR/lib/profile_picture.sh"
+
 # Best-effort gsettings setter: silently skips schemas/keys that don't exist
 # on this GNOME version/distro (e.g. Ubuntu-only org.gnome.privacy on Fedora,
 # or keys removed in GNOME 48 like temperature-unit). One guard > many.
@@ -164,8 +168,10 @@ echo "Configuring GNOME Shell..."
 # Enable hot corners (top-left to show overview)
 gset org.gnome.desktop.interface enable-hot-corners false
 
-# Set favorite apps in dock
-gset org.gnome.shell favorite-apps "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.gedit.desktop', 'org.gnome.Calendar.desktop']"
+# Set favorite apps in dock (only on first run; don't clobber user customizations)
+if [[ -z "$(gsettings get org.gnome.shell favorite-apps 2>/dev/null | tr -d "[]@as '")" ]]; then
+    gset org.gnome.shell favorite-apps "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.gedit.desktop', 'org.gnome.Calendar.desktop']"
+fi
 
 # Font settings
 echo "Configuring font settings..."

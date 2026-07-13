@@ -144,7 +144,10 @@ fi
 # NOTE: git is listed for completeness; on Fedora 44+ it is preinstalled and
 # this line is a harmless no-op.
 # --allowerasing: Fedora ships ffmpeg-free/libavcodec-free; RPM Fusion's full
-# ffmpeg + libavcodec-freeworld replace them (removes the -free variants).
+# ffmpeg replaces them (removes the -free variants). libavcodec-freeworld is
+# NOT included: it only complements ffmpeg-free, and mixing it with full ffmpeg
+# causes dependency conflicts on dnf upgrade. See:
+# https://rpmfusion.org/Howto/Multimedia
 echo "Installing DNF packages..."
 sudo dnf install -y --skip-unavailable --allowerasing \
     xdotool \
@@ -163,7 +166,6 @@ sudo dnf install -y --skip-unavailable --allowerasing \
     gnome-shell-extension-user-theme \
     xsel \
     xclip \
-    libavcodec-freeworld \
     bleachbit \
     btrfs-progs \
     chromium \

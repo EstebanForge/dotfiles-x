@@ -6,6 +6,7 @@
 	excludesFile = ~/.gitignore_global
 	fileMode = false
 	pager = delta
+	ignorecase = true
 
 [filter "lfs"]
 	clean = git-lfs clean -- %f
@@ -25,3 +26,8 @@
 [delta]
 	navigate = true
 	dark = true
+
+# https://stackoverflow.com/questions/79583325/how-to-make-github-desktop-use-ssh-by-default
+[url "git@github.com:"]
+	pushInsteadOf = https://github.com/
+	pushInsteadOf = git://github.com/

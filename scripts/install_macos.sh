@@ -117,19 +117,15 @@ brew_install_list \
     subversion \
     jq \
     yq \
-    zola \
     mas \
     mkvtoolnix \
     mpv \
     node \
     openssl \
     php \
-    php-cs-fixer \
     qwen-code \
     specify \
     tailspin \
-    wp-cli \
-    yt-dlp \
     tlrc \
     coreutils \
     gnu-sed \

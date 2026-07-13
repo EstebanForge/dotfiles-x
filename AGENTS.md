@@ -20,7 +20,6 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `.gitconfig`: Git configuration with user details.
     *   `.gitignore_global`: Global gitignore rules for all projects.
     *   `.secrets.example`: Secrets management template for API keys and sensitive data.
-    *   `.zshrc.local.example`: Machine-local config template (non-secret values like `SANDBOX_IP`).
     *   `.editorconfig`: Editor configuration for consistent coding style across tools.
     *   `.hushlogin`: Empty flag file that silences the "Last login" banner on terminal launch.
     *   `.config/topgrade/topgrade.toml`: Topgrade update manager configuration.
@@ -144,15 +143,12 @@ dots help                                # Show help message
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |
 | `~/.gitignore_global`               | `.gitignore_global`                      | All platforms               |
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |
-| `~/.zshrc.local.example`            | `.zshrc.local.example`                  | All platforms (machine-local config) |
 | `~/.editorconfig`                   | `.editorconfig`                          | All platforms               |
 | `~/.hushlogin`                      | `.hushlogin`                             | All platforms (silences login banner) |
 | `~/.config/topgrade/topgrade.toml`  | `.config/topgrade/topgrade.toml`         | All platforms               |
 | `~/.local/bin/dots`                 | `dots.sh`                                | Global `dots` command       |
 
-`~/.secrets` is created automatically from `.secrets.example` on first install (not a symlink; stays local).
-
-`~/.zshrc.local` (machine-specific non-secret overrides, e.g. `SANDBOX_IP`) is created from `.zshrc.local.example` on first install. Not a symlink; stays local. Real secrets belong in `~/.secrets`.
+`~/.secrets` is created automatically from `.secrets.example` on first install (not a symlink; stays local). It holds both secrets and machine-local values (e.g. `SANDBOX_IP`).
 
 ## Development Conventions
 

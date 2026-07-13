@@ -47,6 +47,8 @@ enable_gnome_extension() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/detect_distro.sh
 source "$SCRIPT_DIR/lib/detect_distro.sh"
+# shellcheck source=lib/profile_picture.sh
+source "$SCRIPT_DIR/lib/profile_picture.sh"
 
 distro="$(detect_distro)"
 if [[ "$distro" != "deb" ]]; then
@@ -178,6 +180,10 @@ gset org.gnome.desktop.wm.preferences action-right-click-titlebar 'menu'
 echo "Configuring regional settings..."
 gset org.gnome.desktop.interface clock-format '24h'
 gset org.gnome.desktop.interface temperature-unit 'celsius'
+
+# User profile picture (AccountsService + ~/.face)
+echo "Setting user profile picture..."
+set_profile_picture_linux "$SCRIPT_DIR/../assets/profile-picture.jpg"
 
 # Settings apply on next session; prompt user to relogin
 echo "Deb-based GNOME configuration complete!"

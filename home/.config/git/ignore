@@ -113,3 +113,4 @@ config.codekit
 **/.pi/
 **/.dunk/
 **/autoresearch.jsonl
+**/.claude/settings.local.json

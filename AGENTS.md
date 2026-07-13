@@ -18,12 +18,16 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `.zshrc`: Zsh configuration (symlinked on macOS only).
     *   `.bashrc`: Bash configuration (symlinked on Linux only).
     *   `.gitconfig`: Git configuration with user details.
-    *   `.gitignore_global`: Global gitignore rules for all projects.
+    *   `.config/git/ignore`: Global gitignore rules for all projects (canonical XDG path).
     *   `.secrets.example`: Secrets management template for API keys and sensitive data.
     *   `.editorconfig`: Editor configuration for consistent coding style across tools.
     *   `.hushlogin`: Empty flag file that silences the "Last login" banner on terminal launch.
     *   `.config/topgrade/topgrade.toml`: Topgrade update manager configuration.
     *   `.config/ghostty/config`: Ghostty terminal configuration.
+    *   `.config/zed/settings.json`: Zed editor configuration (theme, fonts, agent servers).
+    *   `.config/mcp-cli-ent/mcp_servers.json`: MCP server registry (secrets kept as `${ENV_VAR}` refs resolved from `~/.secrets`).
+    *   `.config/gh/config.yml`: GitHub CLI configuration.
+    *   `.config/gh/hosts.yml`: GitHub CLI hosts.
 
 *   `scripts/`: Setup scripts for package installation and system configuration:
     *   `install_macos.sh`: macOS package installation using Homebrew.
@@ -142,12 +146,16 @@ dots help                                # Show help message
 | `~/.zsh/prompt.zsh`                 | `.zsh/prompt.zsh`                        | macOS only (EstebanForgePrompt) |
 | `~/.bashrc`                         | `.bashrc`                                | Linux only                  |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |
-| `~/.gitignore_global`               | `.gitignore_global`                      | All platforms               |
+| `~/.config/git/ignore`              | `.config/git/ignore`                     | All platforms               |
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |
 | `~/.editorconfig`                   | `.editorconfig`                          | All platforms               |
 | `~/.hushlogin`                      | `.hushlogin`                             | All platforms (silences login banner) |
 | `~/.config/topgrade/topgrade.toml`  | `.config/topgrade/topgrade.toml`         | All platforms               |
 | `~/.config/ghostty/config`          | `.config/ghostty/config`                 | All platforms               |
+| `~/.config/zed/settings.json`       | `.config/zed/settings.json`              | All platforms               |
+| `~/.config/mcp-cli-ent/mcp_servers.json` | `.config/mcp-cli-ent/mcp_servers.json` | All platforms          |
+| `~/.config/gh/config.yml`           | `.config/gh/config.yml`                  | All platforms               |
+| `~/.config/gh/hosts.yml`            | `.config/gh/hosts.yml`                   | All platforms               |
 | `~/.local/bin/dots`                 | `dots.sh`                                | Global `dots` command       |
 
 `~/.secrets` is created automatically from `.secrets.example` on first install (not a symlink; stays local). It holds both secrets and machine-local values (e.g. `SANDBOX_IP`).

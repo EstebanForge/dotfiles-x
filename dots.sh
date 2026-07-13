@@ -192,12 +192,16 @@ setup_dotfiles() {
     # List of dotfiles to symlink (relative to home/ directory)
     local dotfiles=(
         ".gitconfig:.gitconfig"
-        ".gitignore_global:.gitignore_global"
+        ".config/git/ignore:.config/git/ignore"
         ".secrets.example:.secrets.example"
         ".editorconfig:.editorconfig"
         ".hushlogin:.hushlogin"
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
         ".config/ghostty/config:.config/ghostty/config"
+        ".config/zed/settings.json:.config/zed/settings.json"
+        ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
+        ".config/gh/config.yml:.config/gh/config.yml"
+        ".config/gh/hosts.yml:.config/gh/hosts.yml"
     )
 
     # Shell config: zsh on macOS, bash on Linux
@@ -267,12 +271,16 @@ cleanup_symlinks() {
         ".zsh/prompt.zsh"
         ".bashrc"
         ".gitconfig"
-        ".gitignore_global"
+        ".config/git/ignore"
         ".secrets.example"
         ".editorconfig"
         ".hushlogin"
         ".config/topgrade/topgrade.toml"
         ".config/ghostty/config"
+        ".config/zed/settings.json"
+        ".config/mcp-cli-ent/mcp_servers.json"
+        ".config/gh/config.yml"
+        ".config/gh/hosts.yml"
         ".local/bin/dots"
     )
 
@@ -294,12 +302,16 @@ show_status() {
 
     local dotfiles=(
         ".gitconfig:.gitconfig"
-        ".gitignore_global:.gitignore_global"
+        ".config/git/ignore:.config/git/ignore"
         ".secrets.example:.secrets.example"
         ".editorconfig:.editorconfig"
         ".hushlogin:.hushlogin"
         ".config/topgrade/topgrade.toml:.config/topgrade.toml"
         ".config/ghostty/config:.config/ghostty/config"
+        ".config/zed/settings.json:.config/zed/settings.json"
+        ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
+        ".config/gh/config.yml:.config/gh/config.yml"
+        ".config/gh/hosts.yml:.config/gh/hosts.yml"
     )
 
     # Shell config: zsh on macOS, bash on Linux
@@ -901,9 +913,13 @@ FILES MANAGED:
     ~/.editorconfig                     Editor configuration
     ~/.hushlogin                       Silence login banner (all platforms)
     ~/.secrets.example                  Secrets template
-    ~/.gitignore_global                 Global git ignore
+    ~/.config/git/ignore                Global git ignore
     ~/.config/topgrade/topgrade.toml    Update manager configuration
     ~/.config/ghostty/config            Ghostty terminal configuration
+    ~/.config/zed/settings.json         Zed editor configuration
+    ~/.config/mcp-cli-ent/mcp_servers.json  MCP server registry
+    ~/.config/gh/config.yml             GitHub CLI configuration
+    ~/.config/gh/hosts.yml              GitHub CLI hosts
 
 SUPPORTED PLATFORMS:
     macOS (Homebrew) · Fedora Linux (DNF/Flatpak) · Deb-based (apt)

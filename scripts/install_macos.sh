@@ -25,6 +25,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/brew_shared.sh"
 # shellcheck source=lib/antigravity_cli.sh
 source "$SCRIPT_DIR/lib/antigravity_cli.sh"
+# shellcheck source=lib/claude_code_cli.sh
+source "$SCRIPT_DIR/lib/claude_code_cli.sh"
+# shellcheck source=lib/phpvm_cli.sh
+source "$SCRIPT_DIR/lib/phpvm_cli.sh"
+# shellcheck source=lib/npm_globals.sh
+source "$SCRIPT_DIR/lib/npm_globals.sh"
+# shellcheck source=lib/bun_cli.sh
+source "$SCRIPT_DIR/lib/bun_cli.sh"
 
 ensure_xcode_clt() {
     if xcode-select -p >/dev/null 2>&1 && [[ -d "/Library/Developer/CommandLineTools" ]]; then
@@ -97,7 +105,6 @@ fi
 # Install taps
 echo "Installing taps..."
 brew tap pakerwreah/calendr
-brew tap oven-sh/bun
 install_shared_brew_packages
 
 # Install formulae (command-line tools)
@@ -139,7 +146,6 @@ brew_install_list \
     sd \
     tmux \
     nss \
-    oven-sh/bun/bun \
     unzip
 
 # Install QuickLook plugins
@@ -167,7 +173,6 @@ brew_install_cask_list \
     calendr \
     calibre \
     cameracontroller \
-    claude-code \
     command-tab-plus \
     coteditor \
     cryptomator \
@@ -242,27 +247,19 @@ brew_install_cask_list \
     mission-control-plus \
     music-decoy \
     keepingyouawake \
-    claude \
     antigravity
 
-# Install npm packages (Node is provided by Homebrew earlier in this script)
-if command -v npm >/dev/null 2>&1; then
-    echo "Installing npm packages..."
-    npm install -g postcss
-    npm install -g postcss-cli
-    npm install -g @github/copilot
-    corepack enable yarn
-else
-    echo "WARNING: npm not found; skipping npm packages." >&2
-fi
+# Install Bun (official installer)
+install_bun_cli
 
-# Install phpvm (PHP version manager, idempotent)
-if command -v phpvm >/dev/null 2>&1; then
-    echo "phpvm already installed."
-else
-    echo "Installing phpvm..."
-    curl -o- https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh | bash
-fi
+# Install global npm packages (Node is provided by Homebrew)
+install_npm_globals
+
+# Install phpvm (PHP version manager)
+install_phpvm_cli
+
+# Install Claude Code (official installer, maintained by Anthropic)
+install_claude_code_cli
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)
 install_antigravity_cli

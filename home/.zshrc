@@ -249,7 +249,7 @@ alias cat='bat'
 
 # --- Sandbox Control (UTM, macOS only) ---
 # Sandbox VM IP. Override in ~/.secrets. Must match ~/.ssh/config Host sandbox.
-SANDBOX_IP="${SANDBOX_IP:-192.168.64.10}"
+SANDBOX_IP="${SANDBOX_IP:-192.168.0.0}"
 if [[ "$(uname)" == "Darwin" ]]; then
     alias sbdown='utmctl stop "Fedora Server"'
     alias sbssh='ssh sandbox'

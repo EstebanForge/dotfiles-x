@@ -29,6 +29,8 @@ source "$SCRIPT_DIR/lib/flatpak_shared.sh"
 source "$SCRIPT_DIR/lib/fonts_shared.sh"
 # shellcheck source=lib/themes_shared.sh
 source "$SCRIPT_DIR/lib/themes_shared.sh"
+# shellcheck source=lib/icons_reversal_shared.sh
+source "$SCRIPT_DIR/lib/icons_reversal_shared.sh"
 # shellcheck source=lib/antigravity_cli.sh
 source "$SCRIPT_DIR/lib/antigravity_cli.sh"
 # shellcheck source=lib/detect_distro.sh
@@ -284,6 +286,10 @@ install_shared_fonts
 echo "Installing GNOME themes..."
 install_flat_remix_theme
 
+# Install Reversal icon theme into ~/.local/share/icons
+echo "Installing Reversal icon theme..."
+install_reversal_icon_theme
+
 # Install Homebrew for Linux (if not already installed)
 if ! command -v brew &> /dev/null; then
     echo "Installing Homebrew for Linux..."
@@ -305,8 +311,12 @@ else
     brew install node
 fi
 
-# Install Bun
-curl -fsSL https://bun.sh/install | bash
+# Install Bun (idempotent: skip if already on PATH)
+if command -v bun >/dev/null 2>&1; then
+    echo "Bun already installed."
+else
+    curl -fsSL https://bun.sh/install | bash
+fi
 
 # Global npm packages (Node is provided by Homebrew)
 if command -v npm >/dev/null 2>&1; then
@@ -317,9 +327,13 @@ else
     echo "WARNING: npm not found; skipping npm packages." >&2
 fi
 
-# Install phpvm (PHP version manager)
-echo "Installing phpvm..."
-curl -o- https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh | bash
+# Install phpvm (PHP version manager, idempotent)
+if command -v phpvm >/dev/null 2>&1; then
+    echo "phpvm already installed."
+else
+    echo "Installing phpvm..."
+    curl -o- https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh | bash
+fi
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)
 install_antigravity_cli

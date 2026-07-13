@@ -30,6 +30,8 @@ source "$SCRIPT_DIR/lib/flatpak_shared.sh"
 source "$SCRIPT_DIR/lib/fonts_shared.sh"
 # shellcheck source=lib/themes_shared.sh
 source "$SCRIPT_DIR/lib/themes_shared.sh"
+# shellcheck source=lib/icons_reversal_shared.sh
+source "$SCRIPT_DIR/lib/icons_reversal_shared.sh"
 # shellcheck source=lib/antigravity_cli.sh
 source "$SCRIPT_DIR/lib/antigravity_cli.sh"
 
@@ -248,7 +250,10 @@ else
 fi
 
 # Install Ghostty terminal from COPR (scottames/ghostty)
-sudo dnf copr enable -y scottames/ghostty
+# Idempotent: skip `copr enable` (and its warning reprint) if repo already enabled.
+if ! ls /etc/yum.repos.d/_copr*scottames*ghostty*.repo >/dev/null 2>&1; then
+    sudo dnf copr enable -y scottames/ghostty
+fi
 sudo dnf install -y ghostty
 
 # Install Flatpak apps (bulk)
@@ -263,12 +268,20 @@ install_shared_fonts
 echo "Installing GNOME themes..."
 install_flat_remix_theme
 
+# Install Reversal icon theme into ~/.local/share/icons
+echo "Installing Reversal icon theme..."
+install_reversal_icon_theme
+
 # Install common development tools via Homebrew (bulk)
 echo "Installing Homebrew packages..."
 install_shared_brew_packages
 
-# Install Bun
-curl -fsSL https://bun.sh/install | bash
+# Install Bun (idempotent: skip if already on PATH)
+if command -v bun >/dev/null 2>&1; then
+    echo "Bun already installed."
+else
+    curl -fsSL https://bun.sh/install | bash
+fi
 
 # Global npm packages (Node is provided by Homebrew in Phase 1)
 if command -v npm >/dev/null 2>&1; then
@@ -280,9 +293,13 @@ else
     echo "WARNING: npm not found; skipping global npm packages." >&2
 fi
 
-# Install phpvm (PHP version manager)
-echo "Installing phpvm..."
-curl -o- https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh | bash
+# Install phpvm (PHP version manager, idempotent)
+if command -v phpvm >/dev/null 2>&1; then
+    echo "phpvm already installed."
+else
+    echo "Installing phpvm..."
+    curl -o- https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh | bash
+fi
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)
 install_antigravity_cli

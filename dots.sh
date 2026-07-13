@@ -142,6 +142,18 @@ create_symlink() {
     local source="$1"
     local target="$2"
 
+    # Idempotent: if the target is already a symlink pointing to the exact
+    # source, it's correct - skip (no backup, no recreate). This prevents a
+    # growing pile of .backup.<timestamp> files on every re-run.
+    if [[ -L "$target" ]]; then
+        local existing_target
+        existing_target="$(readlink "$target")"
+        if [[ "$existing_target" == "$source" ]]; then
+            print_status "Symlink already correct: $target -> $source"
+            return 0
+        fi
+    fi
+
     # Create parent directory if it doesn't exist
     local target_dir
     target_dir="$(dirname "$target")"

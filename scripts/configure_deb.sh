@@ -64,7 +64,7 @@ enable_gnome_extension "user-theme@gnome-shell-extensions.gcampax.github.com"
 echo "Configuring desktop settings..."
 gset org.gnome.desktop.interface show-battery-percentage true
 gset org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-gset org.gnome.desktop.interface icon-theme 'Adwaita'
+gset org.gnome.desktop.interface icon-theme 'Reversal-blue-dark'
 gset org.gnome.desktop.interface color-scheme 'prefer-dark'
 
 # Set Flat Remix Dark fullPanel as the GNOME Shell theme (requires user-theme extension, enabled above)

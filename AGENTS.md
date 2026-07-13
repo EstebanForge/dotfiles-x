@@ -22,6 +22,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `.secrets.example`: Secrets management template for API keys and sensitive data.
     *   `.zshrc.local.example`: Machine-local config template (non-secret values like `SANDBOX_IP`).
     *   `.editorconfig`: Editor configuration for consistent coding style across tools.
+    *   `.hushlogin`: Empty flag file that silences the "Last login" banner on terminal launch.
     *   `.config/topgrade/topgrade.toml`: Topgrade update manager configuration.
 
 *   `scripts/`: Setup scripts for package installation and system configuration:
@@ -145,6 +146,7 @@ dots help                                # Show help message
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |
 | `~/.zshrc.local.example`            | `.zshrc.local.example`                  | All platforms (machine-local config) |
 | `~/.editorconfig`                   | `.editorconfig`                          | All platforms               |
+| `~/.hushlogin`                      | `.hushlogin`                             | All platforms (silences login banner) |
 | `~/.config/topgrade/topgrade.toml`  | `.config/topgrade/topgrade.toml`         | All platforms               |
 | `~/.local/bin/dots`                 | `dots.sh`                                | Global `dots` command       |
 

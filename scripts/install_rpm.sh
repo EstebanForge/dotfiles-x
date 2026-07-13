@@ -70,6 +70,9 @@ else
     flatpak install -y flathub com.bitwarden.desktop
 fi
 
+# Run Bitwarden natively on Wayland (avoid XWayland fallback). User-scope, no sudo.
+flatpak override --user --socket=wayland com.bitwarden.desktop 2>/dev/null || true
+
 # 2. Install Homebrew for Linux (if not already installed)
 if ! command -v brew >/dev/null 2>&1; then
     echo "Installing Homebrew for Linux..."

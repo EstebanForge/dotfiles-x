@@ -85,8 +85,12 @@ if ! grep -qF 'brew shellenv' "$HOME/.bashrc" 2>/dev/null; then
 fi
 
 # 4. Install Node.js via Homebrew
-echo "Installing Node.js via Homebrew..."
-brew install node
+if brew list --formula node >/dev/null 2>&1; then
+    echo "Node.js already installed ($(brew list --versions node 2>/dev/null | awk '{print $2}'))."
+else
+    echo "Installing Node.js via Homebrew..."
+    brew install node
+fi
 
 # 5. Install the pi.dev agent (requires Node/npm)
 echo "Installing pi.dev agent..."
@@ -110,9 +114,14 @@ else
     sudo dnf install -y "https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
 fi
 
-# Install development tools group
-echo "Installing development tools group..."
-sudo dnf group install -y --skip-unavailable development-tools
+# Install development tools group (idempotent: skip if group already installed,
+# avoiding an unnecessary sudo prompt on re-runs)
+if dnf group list --installed 2>/dev/null | grep -qi "development tools"; then
+    echo "Development tools group already installed."
+else
+    echo "Installing development tools group..."
+    sudo dnf group install -y --skip-unavailable development-tools
+fi
 
 # Install DNF packages
 # NOTE: git is listed for completeness; on Fedora 44+ it is preinstalled and

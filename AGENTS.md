@@ -147,6 +147,7 @@ dots help                                # Show help message
 |-------------------------------------|------------------------------------------|----------------------------|
 | `~/.zshrc`                          | `.zshrc`                                 | macOS only                  |
 | `~/.zsh/prompt.zsh`                 | `.zsh/prompt.zsh`                        | macOS only (EstebanForgePrompt) |
+| `~/.config/linearmouse/linearmouse.json` | `.config/linearmouse/linearmouse.json` | macOS only (mouse autoscroll) |
 | `~/.bashrc`                         | `.bashrc`                                | Linux only                  |
 | `~/.config/environment.d/gnome-wayland.conf` | `.config/environment.d/gnome-wayland.conf` | Linux only (GNOME/Wayland session env) |
 | `~/.config/environment.d/freetype.conf` | `.config/environment.d/freetype.conf` | Linux only (FreeType stem darkening) |

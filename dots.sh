@@ -208,6 +208,7 @@ setup_dotfiles() {
     if [[ "$DISTRO" == "macos" ]]; then
         dotfiles+=(".zshrc:.zshrc")
         dotfiles+=(".zsh/prompt.zsh:.zsh/prompt.zsh")
+        dotfiles+=(".config/linearmouse/linearmouse.json:.config/linearmouse/linearmouse.json")
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")
@@ -272,6 +273,7 @@ cleanup_symlinks() {
     local dotfiles=(
         ".zshrc"
         ".zsh/prompt.zsh"
+        ".config/linearmouse/linearmouse.json"
         ".bashrc"
         ".config/environment.d/gnome-wayland.conf"
         ".config/environment.d/freetype.conf"
@@ -324,6 +326,7 @@ show_status() {
     if [[ "$DISTRO" == "macos" ]]; then
         dotfiles+=(".zshrc:.zshrc")
         dotfiles+=(".zsh/prompt.zsh:.zsh/prompt.zsh")
+        dotfiles+=(".config/linearmouse/linearmouse.json:.config/linearmouse/linearmouse.json")
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")

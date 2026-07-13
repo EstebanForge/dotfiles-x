@@ -256,6 +256,28 @@ if ! ls /etc/yum.repos.d/_copr*scottames*ghostty*.repo >/dev/null 2>&1; then
 fi
 sudo dnf install -y ghostty
 
+# Insync (Google Drive sync, official yum repo)
+# https://www.insynchq.com/downloads/linux
+# Repo baseurl uses $releasever so it tracks the running Fedora release.
+if ! rpm -q insync >/dev/null 2>&1; then
+    echo "Installing Insync..."
+    sudo rpm --import https://d2t3ff60b2tol4.cloudfront.net/repomd.xml.key
+    if [[ ! -f /etc/yum.repos.d/insync.repo ]]; then
+        sudo tee /etc/yum.repos.d/insync.repo >/dev/null <<'REPO'
+[insync]
+name=insync repo
+baseurl=http://yum.insync.io/fedora/$releasever/
+gpgcheck=1
+gpgkey=https://d2t3ff60b2tol4.cloudfront.net/repomd.xml.key
+enabled=1
+metadata_expire=120m
+REPO
+    fi
+    sudo dnf install -y insync
+else
+    echo "Insync already installed."
+fi
+
 # Install Flatpak apps (bulk)
 echo "Installing Flatpak apps..."
 install_shared_flatpak_apps

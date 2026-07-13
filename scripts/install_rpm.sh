@@ -278,6 +278,10 @@ sudo dnf install -y ghostty
 # Standalone script owns all keyd setup (COPR, install, config, service).
 bash "$SCRIPT_DIR/hyperkey_keyd.sh"
 
+# Debloat: disable dead-weight services + remove deprecated ABRT stack.
+# Conservative list (safe wins only); see script header for rationale.
+bash "$SCRIPT_DIR/debloat_services.sh"
+
 # Insync (Google Drive sync, official yum repo)
 # https://www.insynchq.com/downloads/linux
 # Repo baseurl uses $releasever so it tracks the running Fedora release.

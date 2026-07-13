@@ -67,8 +67,8 @@ gset org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 gset org.gnome.desktop.interface icon-theme 'Adwaita'
 gset org.gnome.desktop.interface color-scheme 'prefer-dark'
 
-# Set Flat Remix Dark as the GNOME Shell theme (requires user-theme extension, enabled above)
-gset org.gnome.shell.extensions.user-theme name 'Flat-Remix-Dark'
+# Set Flat Remix Dark fullPanel as the GNOME Shell theme (requires user-theme extension, enabled above)
+gset org.gnome.shell.extensions.user-theme name 'Flat-Remix-Dark-fullPanel'
 
 # Clock settings
 gset org.gnome.desktop.interface clock-show-date true

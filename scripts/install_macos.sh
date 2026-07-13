@@ -165,7 +165,6 @@ brew_install_cask_list \
     alfred \
     alienator88-sentinel \
     apparency \
-    bettermouse \
     bettertouchtool \
     beyond-compare \
     bitwarden \
@@ -202,6 +201,7 @@ brew_install_cask_list \
     kextviewr \
     knockknock \
     lm-studio \
+    linearmouse \
     mediainfo \
     middleclick \
     nordvpn \

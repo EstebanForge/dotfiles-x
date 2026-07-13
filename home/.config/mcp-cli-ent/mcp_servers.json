@@ -1,0 +1,134 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "enabled": false,
+      "description": "Browser automation: console, navigation, screenshots",
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--isolated"
+      ],
+      "persistent": true,
+      "timeout": 60
+    },
+    "playwright": {
+      "enabled": false,
+      "description": "Browser automation: elements, snapshots, interactions",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest"
+      ],
+      "persistent": true,
+      "timeout": 60
+    },
+    "sequential-thinking": {
+      "enabled": false,
+      "description": "Problem-solving and planning",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "persistent": false,
+      "timeout": 30
+    },
+    "context7": {
+      "enabled": true,
+      "description": "Code library docs and snippets",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp",
+        "--api-key",
+        "${CONTEXT7_API_KEY}"
+      ],
+      "persistent": false,
+      "timeout": 30
+    },
+    "deepwiki": {
+      "enabled": true,
+      "description": "Repository documentation from public Git repos",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.deepwiki.com/mcp"
+      ],
+      "persistent": false,
+      "timeout": 30
+    },
+    "brave-search": {
+      "enabled": true,
+      "description": "Search the web, images, videos, news + AI summaries",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@brave/brave-search-mcp-server"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "persistent": false,
+      "timeout": 30
+    },
+    "time": {
+      "enabled": false,
+      "description": "Current time and timezone conversions",
+      "command": "uvx",
+      "args": [
+        "mcp-server-time"
+      ],
+      "persistent": false,
+      "timeout": 30
+    },
+    "cipher": {
+      "enabled": false,
+      "description": "Memory layer for coding agents: auto-generate AI memories, IDE switching, team sharing",
+      "type": "stdio",
+      "command": "cipher",
+      "args": [
+        "--mode",
+        "mcp"
+      ],
+      "env": {
+        "MCP_SERVER_MODE": "aggregator",
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}"
+      },
+      "persistent": false,
+      "timeout": 30
+    },
+    "agentmemory": {
+      "enabled": true,
+      "description": "Cross-session memory (recall, save, search). Requires local agentmemory service",
+      "command": "npx",
+      "args": ["-y", "@agentmemory/mcp"],
+      "directTools": true,
+      "persistent": false,
+      "timeout": 30
+    },
+    "codegraph": {
+      "enabled": true,
+      "description": "Local code knowledge graph. Symbol search, call graphs, impact analysis. 100% local",
+      "command": "codegraph",
+      "args": ["serve", "--mcp"],
+      "persistent": false,
+      "timeout": 30
+    },
+    "ai-vision": {
+      "enabled": true,
+      "description": "Image and video analysis via AI vision models (Gemini)",
+      "command": "npx",
+      "args": ["-y", "ai-vision-mcp"],
+      "env": {
+        "IMAGE_PROVIDER": "google",
+        "VIDEO_PROVIDER": "google",
+        "GEMINI_API_KEY": "${GEMINI_API_KEY}"
+      },
+      "persistent": false,
+      "timeout": 300
+    }
+  }
+}

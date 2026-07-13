@@ -3,7 +3,7 @@
 	email = 1696145+EstebanForge@users.noreply.github.com
 
 [core]
-	excludesFile = ~/.gitignore_global
+	excludesFile = ~/.config/git/ignore
 	fileMode = false
 	pager = delta
 	ignorecase = true

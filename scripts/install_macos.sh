@@ -150,14 +150,15 @@ brew_install_list \
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
-brew_install_cask_list \
-    quicklookase \
+brew_ql_plugins=(
+    quicklookase
     quickjson
-
+)
 # qlvideo requires macOS 26 (Tahoe) or newer; skip silently on older systems.
 if [[ "$(sw_vers -productVersion | cut -d. -f1)" -ge 26 ]]; then
-    brew_install_cask_list qlvideo
+    brew_ql_plugins+=(qlvideo)
 fi
+brew_install_cask_list "${brew_ql_plugins[@]}"
 
 # Install casks (GUI applications)
 echo "Installing casks..."

@@ -274,15 +274,9 @@ if ! ls /etc/yum.repos.d/_copr*scottames*ghostty*.repo >/dev/null 2>&1; then
 fi
 sudo dnf install -y ghostty
 
-# Install keyd (key remapping daemon) from COPR (fmonteghetti/keyd)
-# Not in Fedora repos; fmonteghetti/keyd is the maintained Fedora build.
-# Idempotent: skip `copr enable` (and its warning reprint) if repo already enabled.
-if ! rpm -q keyd >/dev/null 2>&1; then
-    if ! ls /etc/yum.repos.d/_copr*fmonteghetti*keyd*.repo >/dev/null 2>&1; then
-        sudo dnf copr enable -y fmonteghetti/keyd
-    fi
-    sudo dnf install -y keyd
-fi
+# Hyperkey (keyd): Capslock -> hyper modifier + esc on tap + hjkl arrows.
+# Standalone script owns all keyd setup (COPR, install, config, service).
+bash "$SCRIPT_DIR/hyperkey_keyd.sh"
 
 # Insync (Google Drive sync, official yum repo)
 # https://www.insynchq.com/downloads/linux

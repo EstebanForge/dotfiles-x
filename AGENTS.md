@@ -23,6 +23,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `.editorconfig`: Editor configuration for consistent coding style across tools.
     *   `.hushlogin`: Empty flag file that silences the "Last login" banner on terminal launch.
     *   `.config/topgrade/topgrade.toml`: Topgrade update manager configuration.
+    *   `.config/ghostty/config`: Ghostty terminal configuration.
 
 *   `scripts/`: Setup scripts for package installation and system configuration:
     *   `install_macos.sh`: macOS package installation using Homebrew.
@@ -146,6 +147,7 @@ dots help                                # Show help message
 | `~/.editorconfig`                   | `.editorconfig`                          | All platforms               |
 | `~/.hushlogin`                      | `.hushlogin`                             | All platforms (silences login banner) |
 | `~/.config/topgrade/topgrade.toml`  | `.config/topgrade/topgrade.toml`         | All platforms               |
+| `~/.config/ghostty/config`          | `.config/ghostty/config`                 | All platforms               |
 | `~/.local/bin/dots`                 | `dots.sh`                                | Global `dots` command       |
 
 `~/.secrets` is created automatically from `.secrets.example` on first install (not a symlink; stays local). It holds both secrets and machine-local values (e.g. `SANDBOX_IP`).

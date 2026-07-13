@@ -17,6 +17,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
 *   `home/`: This directory mirrors the actual home folder structure. Files here are symlinked directly into `$HOME`:
     *   `.zshrc`: Zsh configuration (symlinked on macOS only).
     *   `.bashrc`: Bash configuration (symlinked on Linux only).
+    *   `.config/environment.d/gnome-wayland.conf`: Per-user session environment for GNOME/Wayland (animation speed, Electron ozone hint; symlinked on Linux only).
     *   `.gitconfig`: Git configuration with user details.
     *   `.config/git/ignore`: Global gitignore rules for all projects (canonical XDG path).
     *   `.secrets.example`: Secrets management template for API keys and sensitive data.
@@ -145,6 +146,7 @@ dots help                                # Show help message
 | `~/.zshrc`                          | `.zshrc`                                 | macOS only                  |
 | `~/.zsh/prompt.zsh`                 | `.zsh/prompt.zsh`                        | macOS only (EstebanForgePrompt) |
 | `~/.bashrc`                         | `.bashrc`                                | Linux only                  |
+| `~/.config/environment.d/gnome-wayland.conf` | `.config/environment.d/gnome-wayland.conf` | Linux only (GNOME/Wayland session env) |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |
 | `~/.config/git/ignore`              | `.config/git/ignore`                     | All platforms               |
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |

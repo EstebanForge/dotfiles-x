@@ -44,6 +44,8 @@ source "$SCRIPT_DIR/lib/npm_globals.sh"
 source "$SCRIPT_DIR/lib/bun_cli.sh"
 # shellcheck source=lib/codex_cli.sh
 source "$SCRIPT_DIR/lib/codex_cli.sh"
+# shellcheck source=lib/gogh_shared.sh
+source "$SCRIPT_DIR/lib/gogh_shared.sh"
 
 # ===========================================================================
 # PHASE 1: Foundational setup (run FIRST, in this exact order)
@@ -310,6 +312,9 @@ install_shared_fonts
 # Install Flat Remix GNOME Shell themes into ~/.themes
 echo "Installing GNOME themes..."
 install_flat_remix_theme
+
+# Install Gogh terminal color schemes (Catppuccin Mocha)
+install_gogh_themes
 
 # Install Reversal icon theme into ~/.local/share/icons
 echo "Installing Reversal icon theme..."

@@ -929,7 +929,7 @@ show_menu() {
         printf '  %s7)%s   Run health check\n' "$CYAN" "$NC"
         printf '  %s8)%s   Sync (pull + push + reinstall)\n' "$CYAN" "$NC"
         printf '  %s9)%s   Cleanup symlinks\n' "$CYAN" "$NC"
-        printf '  %s10)%s Show help\n' "$CYAN" "$NC"
+        printf '  %s10)%s  Show help\n' "$CYAN" "$NC"
         printf '  %s0)%s   Exit\n' "$CYAN" "$NC"
         echo ""
         read -r -p "Select an option [0-10]: " choice

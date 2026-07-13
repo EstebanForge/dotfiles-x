@@ -1,0 +1,79 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "project_panel": {
+    "dock": "right",
+  },
+  "outline_panel": {
+    "dock": "right",
+  },
+  "collaboration_panel": {
+    "dock": "right",
+  },
+  "agent": {
+    "sidebar_side": "left",
+    "dock": "left",
+    "favorite_models": [],
+    "model_parameters": [],
+  },
+  "git_panel": {
+    "dock": "right",
+  },
+  "icon_theme": {
+    "mode": "dark",
+    "light": "Zed (Default)",
+    "dark": "Colored Zed Icons Theme Dark",
+  },
+  "agent_buffer_font_size": 17.0,
+  "agent_ui_font_size": 17.0,
+  "ui_font_family": ".ZedSans",
+  "buffer_font_family": "IosevkaTerm Nerd Font Mono",
+  "terminal": {
+    "font_family": "IosevkaTerm Nerd Font Mono",
+    "font_size": 17.0,
+  },
+  "agent_servers": {
+    "pi-acp": {
+      "default_config_options": {
+        "model": "zai/glm-5.2",
+      },
+      "type": "registry",
+    },
+    "opencode": {
+      "type": "registry",
+    },
+    "github-copilot-cli": {
+      "type": "registry",
+    },
+    "gemini": {
+      "default_mode": "autoEdit",
+      "type": "registry",
+    },
+    "codex-acp": {
+      "type": "registry",
+    },
+    "claude-acp": {
+      "type": "registry",
+    },
+  },
+  "edit_predictions": {
+    "provider": "zed",
+  },
+  "session": {
+    "trust_all_worktrees": true,
+  },
+  "base_keymap": "SublimeText",
+  "ui_font_size": 17.0,
+  "buffer_font_size": 17.0,
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "GitHub Dark Dimmed",
+  },
+}

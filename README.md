@@ -85,7 +85,14 @@ dotfiles-x/
 │   ├── .zsh/prompt.zsh          # EstebanForgePrompt theme (macOS)
 │   ├── .bashrc                  # Bash configuration (Linux)
 │   ├── .gitconfig               # Git configuration
-│   ├── .gitignore_global        # Global gitignore
+│   ├── .config/                 # XDG configs (all platforms)
+│   │   ├── git/ignore           # Global gitignore (canonical path)
+│   │   ├── topgrade/topgrade.toml  # Update manager
+│   │   ├── ghostty/config       # Ghostty terminal
+│   │   ├── zed/settings.json    # Zed editor
+│   │   ├── mcp-cli-ent/mcp_servers.json  # MCP server registry
+│   │   ├── gh/config.yml        # GitHub CLI config
+│   │   └── gh/hosts.yml         # GitHub CLI hosts
 │   ├── .secrets.example         # Secrets template (copy to ~/.secrets)
 │   └── .hushlogin               # Silences "Last login" banner (empty file)
 ├── scripts/                        # Optional setup scripts

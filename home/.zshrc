@@ -326,11 +326,6 @@ unsetopt NULL_GLOB 2>/dev/null || true
 
 eval "$(atuin init zsh)"
 
-# Stack completions (macOS)
-if [[ "$(uname)" == "Darwin" ]] && [[ -f "$HOME/.zshrc.stack" ]]; then
-    source "$HOME/.zshrc.stack"
-fi
-
 # ZAI API wrapper (requires Z_API_KEY in ~/.secrets)
 ns-cc-zai() {
     export ANTHROPIC_AUTH_TOKEN="$ZAI_API_KEY"

@@ -210,6 +210,7 @@ setup_dotfiles() {
         dotfiles+=(".zsh/prompt.zsh:.zsh/prompt.zsh")
     else
         dotfiles+=(".bashrc:.bashrc")
+        dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")
     fi
 
     for dotfile in "${dotfiles[@]}"; do
@@ -270,6 +271,7 @@ cleanup_symlinks() {
         ".zshrc"
         ".zsh/prompt.zsh"
         ".bashrc"
+        ".config/environment.d/gnome-wayland.conf"
         ".gitconfig"
         ".config/git/ignore"
         ".secrets.example"
@@ -320,6 +322,7 @@ show_status() {
         dotfiles+=(".zsh/prompt.zsh:.zsh/prompt.zsh")
     else
         dotfiles+=(".bashrc:.bashrc")
+        dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")
     fi
 
     local all_good=true

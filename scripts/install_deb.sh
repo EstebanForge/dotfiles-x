@@ -182,6 +182,7 @@ sudo apt install -y \
     subversion \
     sshpass \
     yt-dlp \
+    dconf-cli \
     dconf-editor \
     git \
     hdparm \
@@ -196,6 +197,7 @@ sudo apt install -y \
     libnss3-dev \
     bubblewrap \
     unzip \
+    uuid-runtime \
     curl \
     wget \
     tree \

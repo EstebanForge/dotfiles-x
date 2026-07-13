@@ -178,6 +178,7 @@ sudo dnf install -y --skip-unavailable --allowerasing \
     tailscale \
     ulauncher \
     yt-dlp \
+    dconf \
     dconf-editor \
     fastfetch \
     git \

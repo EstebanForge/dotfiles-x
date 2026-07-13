@@ -142,7 +142,10 @@ brew install unzip
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
-brew install qlimagesize suspicious-package apparency quicklookase qlvideo
+brew install --cask suspicious-package
+brew install --cask apparency
+brew install --cask quicklookase
+brew install --cask qlvideo
 brew install --cask quickjson
 brew install --cask keka
 
@@ -154,19 +157,17 @@ brew install --cask bettermouse
 brew install --cask bettertouchtool
 brew install --cask beyond-compare
 brew install --cask bitwarden
-brew install --cask brave-browser
+brew install --cask brave-origin
 brew install --cask bruno
 brew install --cask balenaetcher
 brew install --cask calendr
 brew install --cask calibre
 brew install --cask cameracontroller
 brew install --cask claude-code
-brew install --cask codexbar
 brew install --cask command-tab-plus
 brew install --cask coteditor
 brew install --cask cryptomator
 brew install --cask daisydisk
-brew install --cask dbeaver-community
 brew install --cask ferdium
 brew install --cask filebot
 brew install --cask find-any-file
@@ -189,7 +190,6 @@ brew install --cask jordanbaird-ice
 brew install --cask kextviewr
 brew install --cask knockknock
 brew install --cask lm-studio
-brew install --cask localsend
 brew install --cask mediainfo
 brew install --cask middleclick
 brew install --cask nordvpn
@@ -231,12 +231,10 @@ brew install --cask font-roboto
 brew install --cask font-iosevka
 brew install --cask font-esteban
 brew install --cask mission-control-plus
-brew install --cask muxy
 brew install --cask music-decoy
 brew install --cask keepingyouawake
 brew install --cask claude
 brew install --cask antigravity
-brew install --cask ghostty
 
 # Install npm packages (Node is provided by Homebrew earlier in this script)
 if command -v npm >/dev/null 2>&1; then

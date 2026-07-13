@@ -44,6 +44,22 @@ enable_gnome_extension() {
     gnome-extensions enable "$uuid" 2>/dev/null || true
 }
 
+# Enable a GNOME Mutter experimental feature (e.g. fractional scaling),
+# merging into experimental-features without clobbering existing entries.
+enable_mutter_experimental_feature() {
+    local feature="$1" current new
+    if ! gsettings get org.gnome.mutter experimental-features 2>/dev/null | grep -qF -- "$feature"; then
+        current="$(gsettings get org.gnome.mutter experimental-features 2>/dev/null)"
+        current="${current#@as }"   # strip GVariant empty-array type annotation
+        if [[ "$current" == "[]" ]]; then
+            new="['$feature']"
+        else
+            new="${current%]}, '$feature']"
+        fi
+        gset org.gnome.mutter experimental-features "$new"
+    fi
+}
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/detect_distro.sh
 source "$SCRIPT_DIR/lib/detect_distro.sh"
@@ -80,6 +96,8 @@ gset org.gnome.desktop.interface clock-show-weekday true
 gset org.gnome.mutter dynamic-workspaces false
 gset org.gnome.desktop.wm.preferences num-workspaces 2
 gset org.gnome.mutter workspaces-only-on-primary false
+# Fractional scaling (Wayland): allow non-integer display scaling.
+enable_mutter_experimental_feature scale-monitor-framebuffer
 
 # Touchpad settings
 gset org.gnome.desktop.peripherals.touchpad tap-to-click true

@@ -197,6 +197,7 @@ setup_dotfiles() {
         ".editorconfig:.editorconfig"
         ".hushlogin:.hushlogin"
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
+        ".config/ghostty/config:.config/ghostty/config"
     )
 
     # Shell config: zsh on macOS, bash on Linux
@@ -271,6 +272,7 @@ cleanup_symlinks() {
         ".editorconfig"
         ".hushlogin"
         ".config/topgrade/topgrade.toml"
+        ".config/ghostty/config"
         ".local/bin/dots"
     )
 
@@ -297,6 +299,7 @@ show_status() {
         ".editorconfig:.editorconfig"
         ".hushlogin:.hushlogin"
         ".config/topgrade/topgrade.toml:.config/topgrade.toml"
+        ".config/ghostty/config:.config/ghostty/config"
     )
 
     # Shell config: zsh on macOS, bash on Linux
@@ -900,6 +903,7 @@ FILES MANAGED:
     ~/.secrets.example                  Secrets template
     ~/.gitignore_global                 Global git ignore
     ~/.config/topgrade/topgrade.toml    Update manager configuration
+    ~/.config/ghostty/config            Ghostty terminal configuration
 
 SUPPORTED PLATFORMS:
     macOS (Homebrew) · Fedora Linux (DNF/Flatpak) · Deb-based (apt)

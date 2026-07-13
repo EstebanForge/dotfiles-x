@@ -1,0 +1,6 @@
+font-size = 16
+font-family = "Iosevka Term Nerd Font Mono"
+theme = "Catppuccin Mocha"
+keybind = shift+enter=text:\x1b\r
+#macos-option-as-alt = true
+term = xterm-256color

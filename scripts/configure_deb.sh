@@ -149,17 +149,19 @@ fi
 echo "Configuring GNOME Shell..."
 gset org.gnome.desktop.interface enable-hot-corners false
 
-# Detect available apps for favorites
+# Set favorite apps in dock (only on first run; don't clobber user customizations)
 local_apps=()
-for app in firefox.desktop google-chrome.desktop chromium-browser.desktop; do
-    if [[ -f "/usr/share/applications/$app" ]]; then
-        local_apps+=("'$app'")
-        break
-    fi
-done
-local_apps+=("'org.gnome.Nautilus.desktop'")
-local_apps+=("'org.gnome.Terminal.desktop'")
-gset org.gnome.shell favorite-apps "[${local_apps[*]}]"
+if [[ -z "$(gsettings get org.gnome.shell favorite-apps 2>/dev/null | tr -d "[]@as '")" ]]; then
+    for app in firefox.desktop google-chrome.desktop chromium-browser.desktop; do
+        if [[ -f "/usr/share/applications/$app" ]]; then
+            local_apps+=("'$app'")
+            break
+        fi
+    done
+    local_apps+=("'org.gnome.Nautilus.desktop'")
+    local_apps+=("'org.gnome.Terminal.desktop'")
+    gset org.gnome.shell favorite-apps "[${local_apps[*]}]"
+fi
 
 # Font settings
 echo "Configuring font settings..."

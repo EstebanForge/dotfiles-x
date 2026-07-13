@@ -151,12 +151,8 @@ brew_install_list \
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
 brew_install_cask_list \
-    alienator88-sentinel \
-    suspicious-package \
-    apparency \
     quicklookase \
-    quickjson \
-    keka
+    quickjson
 
 # qlvideo requires macOS 26 (Tahoe) or newer; skip silently on older systems.
 if [[ "$(sw_vers -productVersion | cut -d. -f1)" -ge 26 ]]; then
@@ -168,6 +164,8 @@ echo "Installing casks..."
 brew_install_cask_list \
     1password \
     alfred \
+    alienator88-sentinel \
+    apparency \
     bettermouse \
     bettertouchtool \
     beyond-compare \
@@ -201,6 +199,7 @@ brew_install_cask_list \
     imageoptim \
     jump-desktop \
     jordanbaird-ice \
+    keka \
     kextviewr \
     knockknock \
     lm-studio \
@@ -221,6 +220,7 @@ brew_install_cask_list \
     sublime-merge \
     sublime-text \
     superkey \
+    suspicious-package \
     taskexplorer \
     handbrake-app \
     permute \

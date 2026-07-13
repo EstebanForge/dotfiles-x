@@ -150,14 +150,19 @@ brew_install_list \
 
 # Install QuickLook plugins
 echo "Installing QuickLook plugins..."
-brew_install_cask_list \
-    alienator88-sentinel \
-    suspicious-package \
-    apparency \
-    quicklookase \
-    qlvideo \
-    quickjson \
+ql_casks=(
+    alienator88-sentinel
+    suspicious-package
+    apparency
+    quicklookase
+    quickjson
     keka
+)
+# qlvideo requires macOS 26 (Tahoe) or newer; skip silently on older systems.
+if [[ "$(sw_vers -productVersion | cut -d. -f1)" -ge 26 ]]; then
+    ql_casks+=(qlvideo)
+fi
+brew_install_cask_list "${ql_casks[@]}"
 
 # Install casks (GUI applications)
 echo "Installing casks..."

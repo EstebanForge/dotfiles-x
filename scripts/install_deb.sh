@@ -136,9 +136,13 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 echo "Updating system packages..."
 sudo apt update && sudo apt upgrade -y
 
-# Install build-essential (equivalent to Development Tools group)
-echo "Installing build-essential..."
-sudo apt install -y build-essential
+# Install build-essential (equivalent to Development Tools group, idempotent)
+if dpkg -l build-essential >/dev/null 2>&1; then
+    echo "build-essential already installed."
+else
+    echo "Installing build-essential..."
+    sudo apt install -y build-essential
+fi
 
 # Install apt packages
 echo "Installing apt packages..."
@@ -295,7 +299,11 @@ echo "Installing Homebrew packages..."
 install_shared_brew_packages
 
 # deb-specific Homebrew packages
-brew install node
+if brew list --formula node >/dev/null 2>&1; then
+    echo "Node.js already installed ($(brew list --versions node 2>/dev/null | awk '{print $2}'))."
+else
+    brew install node
+fi
 
 # Install Bun
 curl -fsSL https://bun.sh/install | bash

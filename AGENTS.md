@@ -137,6 +137,7 @@ dots help                                # Show help message
 | Symlink in `$HOME`                  | Source in `home/`                        | Notes                      |
 |-------------------------------------|------------------------------------------|----------------------------|
 | `~/.zshrc`                          | `.zshrc`                                 | macOS only                  |
+| `~/.zsh/prompt.zsh`                 | `.zsh/prompt.zsh`                        | macOS only (EstebanForgePrompt) |
 | `~/.bashrc`                         | `.bashrc`                                | Linux only                  |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |
 | `~/.gitignore_global`               | `.gitignore_global`                      | All platforms               |

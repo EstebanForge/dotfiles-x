@@ -1,24 +1,15 @@
-# OPENSPEC:START
-# OpenSpec shell completions configuration
-fpath=("$HOME/.oh-my-zsh/custom/completions" $fpath)
-autoload -Uz compinit
-compinit
-# OPENSPEC:END
+# ============================================================
+# ZSH configuration (lean, Oh-My-Zsh-free)
+# Native completion, history, and keybindings replace OMZ libs.
+# Prompt: EstebanForgePrompt (~/.zsh/prompt.zsh).
+# ============================================================
 
-# Load secrets file if it exists
+# --- Secrets ---
 if [[ -f ~/.secrets ]]; then
     source ~/.secrets
 fi
 
-# Speed up shell startup
-DISABLE_AUTO_UPDATE="true"
-DISABLE_MAGIC_FUNCTIONS="true"
-#DISABLE_COMPFIX="true"
-
-# Path to your Oh My Zsh installation
-export ZSH="$HOME/.oh-my-zsh"
-
-# OS-specific Homebrew setup
+# --- Homebrew ---
 if [[ "$(uname)" == "Darwin" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [[ "$(uname)" == "Linux" ]]; then
@@ -27,23 +18,107 @@ elif [[ "$(uname)" == "Linux" ]]; then
     fi
 fi
 
-ZSH_THEME="TCattd"
+# --- History (ported from OMZ history.zsh) ---
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=10000
+setopt extended_history       # record timestamp of command in HISTFILE
+setopt hist_expire_dups_first # delete duplicates first when HISTFILE exceeds HISTSIZE
+setopt hist_ignore_dups       # ignore duplicated commands
+setopt hist_ignore_space      # ignore commands that start with space
+setopt hist_verify            # show command with history expansion before running
+setopt share_history          # share command history data
 
-zstyle ':omz:update' frequency 30
+# --- Directories (ported from OMZ directories.zsh) ---
+setopt auto_cd
+setopt auto_pushd
+setopt pushd_ignore_dups
+setopt pushdminus
 
-plugins=(
-    git
-    git-prompt
-    aliases
-)
+# --- Completion (ported from OMZ completion.zsh) ---
+# OpenSpec completions + user completions live here now (was ~/.oh-my-zsh/custom/completions)
+fpath=("$HOME/.zsh/completions" $fpath)
 
-source $ZSH/oh-my-zsh.sh
+zmodload -i zsh/complist
+WORDCHARS=''
+unsetopt menu_complete flowcontrol
+setopt auto_menu complete_in_word always_to_end
+bindkey -M menuselect '^o' accept-and-infer-next-history
+zstyle ':completion:*:*:*:*:*' menu select
+# case-insensitive (all), partial-word and substring completion
+zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' special-dirs true
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
+zstyle ':completion:*:*:*:*:processes' command "ps -u $USERNAME -o pid,user,comm -w -w"
+zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
+zstyle ':completion:*' use-cache yes
+zstyle ':completion:*' cache-path "$HOME/.cache/zsh"
+mkdir -p "$HOME/.cache/zsh"
 
-# OS-specific plugin loading
+# --- OpenSpec completions (auto-managed block; relocated from OMZ) ---
+# OPENSPEC:START
+# OpenSpec shell completions configuration
+autoload -Uz compinit
+compinit
+# OPENSPEC:END
+
+autoload -U +X bashcompinit && bashcompinit
+
+# --- Key bindings (ported from OMZ key-bindings.zsh, emacs mode) ---
+bindkey -e
+if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
+    zle-line-init() { echoti smkx }
+    zle-line-finish() { echoti rmkx }
+    zle -N zle-line-init
+    zle -N zle-line-finish
+fi
+
+# Up/Down — prefix history search
+autoload -U up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
+[[ -n "${terminfo[kcuu1]}" ]] && bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search
+[[ -n "${terminfo[kcud1]}" ]] && bindkey "${terminfo[kcud1]}" down-line-or-beginning-search
+
+# Home/End/PageUp/PageDown/Shift-Tab
+[[ -n "${terminfo[khome]}" ]] && bindkey "${terminfo[khome]}" beginning-of-line
+[[ -n "${terminfo[kend]}" ]]  && bindkey "${terminfo[kend]}"  end-of-line
+[[ -n "${terminfo[kpp]}" ]]   && bindkey "${terminfo[kpp]}"   up-line-or-history
+[[ -n "${terminfo[knp]}" ]]   && bindkey "${terminfo[knp]}"   down-line-or-history
+[[ -n "${terminfo[kcbt]}" ]]  && bindkey "${terminfo[kcbt]}"  reverse-menu-complete
+
+# Delete/Backspace
+bindkey '^?' backward-delete-char
+[[ -n "${terminfo[kdch1]}" ]] && bindkey "${terminfo[kdch1]}" delete-char
+
+# Ctrl-arrows / Ctrl-delete — word motion
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+bindkey '^[[3;5~' kill-word
+
+# Misc emacs-style bindings
+bindkey '\ew' kill-region                          # [Esc-w] kill to mark
+bindkey '^r' history-incremental-search-backward   # [Ctrl-r]
+bindkey ' ' magic-space                            # [Space] no history expansion
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey '\C-x\C-e' edit-command-line               # [Ctrl-x Ctrl-e] edit in $EDITOR
+bindkey "^[m" copy-prev-shell-word                 # [Esc-m] copy prev word
+
+# --- Prompt: EstebanForgePrompt ---
+source "$HOME/.zsh/prompt.zsh"
+
+######################
+# User configuration #
+######################
+
+# OS-specific plugin loading (zsh-autosuggestions + zsh-syntax-highlighting)
 if [[ "$(uname)" == "Darwin" ]]; then
     source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-    #source $HOMEBREW_PREFIX/share/zsh-completions/zsh-completions.zsh
 elif [[ "$(uname)" == "Linux" ]]; then
     if [[ -d $HOMEBREW_PREFIX/share/zsh-autosuggestions ]]; then
         source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -58,10 +133,6 @@ ZSH_AUTOSUGGEST_USE_ASYNC=1
 
 # https://github.com/ajeetdsouza/zoxide
 eval "$(zoxide init zsh)"
-
-######################
-# User configuration #
-######################
 
 # Bitwarden SSH-Agent (macOS)
 if [[ "$(uname)" == "Darwin" ]]; then
@@ -203,17 +274,6 @@ fi
 export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 export COMPOSER_PROCESS_TIMEOUT=1800
 
-# PHP 8.3 first in PATH (Homebrew php@8.3 is keg-only)
-export PATH="$HOMEBREW_PREFIX/opt/php@8.3/bin:$PATH"
-export PATH="$HOMEBREW_PREFIX/opt/php@8.3/sbin:$PATH"
-
-# phpvm (PHP version manager)
-export PHPVM_DIR="$HOME/.phpvm"
-export PATH="$PHPVM_DIR/bin:$PATH"
-if [[ -s "$PHPVM_DIR/phpvm.sh" ]]; then
-    source "$PHPVM_DIR/phpvm.sh"
-fi
-
 # User-specific binary paths
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -248,18 +308,19 @@ if [[ "$(uname)" == "Darwin" ]]; then
     export PATH="$HOME/.antigravity-ide/antigravity-ide/bin:$PATH"
 fi
 
-# Load custom plugins from ~/.zsh/plugins/
-if [[ -n "$ZSH_VERSION" ]]; then
-    setopt NULL_GLOB 2>/dev/null || true
-    for plugin in ~/.zsh/plugins/*.plugin.sh; do
-        [[ -r "$plugin" ]] && source "$plugin"
-    done
-    unsetopt NULL_GLOB 2>/dev/null || true
-else
-    for plugin in ~/.zsh/plugins/*.plugin.sh; do
-        [[ -f "$plugin" && -r "$plugin" ]] && source "$plugin"
-    done
+# phpvm (PHP version manager)
+export PHPVM_DIR="$HOME/.phpvm"
+export PATH="$PHPVM_DIR/bin:$PATH"
+if [[ -s "$PHPVM_DIR/phpvm.sh" ]]; then
+    source "$PHPVM_DIR/phpvm.sh"
 fi
+
+# Load custom plugins from ~/.zsh/plugins/
+setopt NULL_GLOB 2>/dev/null || true
+for plugin in ~/.zsh/plugins/*.plugin.sh; do
+    [[ -r "$plugin" ]] && source "$plugin"
+done
+unsetopt NULL_GLOB 2>/dev/null || true
 
 eval "$(atuin init zsh)"
 

@@ -201,6 +201,7 @@ setup_dotfiles() {
     # Shell config: zsh on macOS, bash on Linux
     if [[ "$DISTRO" == "macos" ]]; then
         dotfiles+=(".zshrc:.zshrc")
+        dotfiles+=(".zsh/prompt.zsh:.zsh/prompt.zsh")
     else
         dotfiles+=(".bashrc:.bashrc")
     fi
@@ -261,6 +262,7 @@ cleanup_symlinks() {
     # Remove both shell configs if symlinked (handles platform switches cleanly)
     local dotfiles=(
         ".zshrc"
+        ".zsh/prompt.zsh"
         ".bashrc"
         ".gitconfig"
         ".gitignore_global"
@@ -297,6 +299,7 @@ show_status() {
     # Shell config: zsh on macOS, bash on Linux
     if [[ "$DISTRO" == "macos" ]]; then
         dotfiles+=(".zshrc:.zshrc")
+        dotfiles+=(".zsh/prompt.zsh:.zsh/prompt.zsh")
     else
         dotfiles+=(".bashrc:.bashrc")
     fi
@@ -618,28 +621,15 @@ health_check() {
         ((warnings++))
     fi
 
-    # Check if Oh My Zsh is installed (optional, macOS only)
-    if [[ "$DISTRO" == "macos" ]] && [[ -d "$HOME/.oh-my-zsh" ]]; then
-        print_success "✅ Oh My Zsh is installed"
-
-        cd "$HOME/.oh-my-zsh"
-        if git status >/dev/null 2>&1; then
-            local omz_local
-            omz_local=$(git rev-parse HEAD 2>/dev/null)
-            if git fetch --dry-run >/dev/null 2>&1; then
-                local omz_remote
-                omz_remote=$(git rev-parse origin/master 2>/dev/null)
-                if [[ "$omz_local" != "$omz_remote" ]]; then
-                    print_warning "⚠️  Oh My Zsh updates available"
-                    ((warnings++))
-                else
-                    print_success "✅ Oh My Zsh is up to date"
-                fi
-            fi
+    # Check EstebanForgePrompt is symlinked (macOS only)
+    if [[ "$DISTRO" == "macos" ]]; then
+        if [[ -L "$HOME/.zsh/prompt.zsh" ]] \
+           && [[ "$(readlink "$HOME/.zsh/prompt.zsh")" == "$DOTFILES_DIR/home/.zsh/prompt.zsh" ]]; then
+            print_success "✅ EstebanForgePrompt is properly symlinked"
+        else
+            print_warning "⚠️  ~/.zsh/prompt.zsh not symlinked (run: dots install)"
+            ((warnings++))
         fi
-        cd "$DOTFILES_DIR"
-    elif [[ "$DISTRO" == "macos" ]]; then
-        print_status "ℹ️  Oh My Zsh not detected (optional)"
     fi
 
     # 4. Check package managers
@@ -899,6 +889,7 @@ EXAMPLES:
 
 FILES MANAGED:
     ~/.zshrc                            ZSH configuration (macOS only)
+    ~/.zsh/prompt.zsh                   EstebanForgePrompt theme (macOS only)
     ~/.bashrc                           Bash configuration (Linux only)
     ~/.gitconfig                        Git configuration
     ~/.editorconfig                     Editor configuration

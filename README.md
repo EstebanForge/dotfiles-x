@@ -80,6 +80,7 @@ curl -H "Authorization: Bearer $ANTHROPIC_API_KEY" https://api.anthropic.com/v1/
 dotfiles-x/
 ├── home/                           # Your dotfiles
 │   ├── .zshrc                   # Zsh configuration (macOS)
+│   ├── .zsh/prompt.zsh          # EstebanForgePrompt theme (macOS)
 │   ├── .bashrc                  # Bash configuration (Linux)
 │   ├── .gitconfig               # Git configuration
 │   ├── .gitignore_global        # Global gitignore

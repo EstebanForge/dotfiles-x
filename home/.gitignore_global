@@ -64,6 +64,7 @@ nbproject/
 **/local-config.php
 **/wp-config-local.php
 **/searchreplacedb2.php
+**/breeze-config.php
 **/wp-content/backup-db/
 **/wp-content/cache/
 **/wp-content/advanced-cache.php

@@ -568,6 +568,16 @@ setup_crontab() {
     fi
 }
 
+run_backup() {
+    print_header "Backup"
+    local runner="$DOTFILES_DIR/scripts/lib/backup/backup.sh"
+    if [[ ! -f "$runner" ]]; then
+        print_error "Backup runner not found: $runner"
+        return 1
+    fi
+    bash "$runner" "${1:-run}"
+}
+
 # Function to show health check
 health_check() {
     print_header "Comprehensive Health Check"
@@ -915,6 +925,7 @@ COMMANDS:
     history                   Show recent git history
     health                    Run comprehensive health check
     crontab [action]          Manage crontab entries (install/show/remove/backup/service)
+    backup [run|list]         Run backup scripts (agentmemory, etc.)
     version                   Show script version
     help                      Show this help message
 
@@ -1066,6 +1077,9 @@ main() {
             ;;
         "crontab")
             setup_crontab "${args[0]:-install}"
+            ;;
+        "backup")
+            run_backup "${args[0]:-run}"
             ;;
         "help"|"-h"|"--help")
             show_help

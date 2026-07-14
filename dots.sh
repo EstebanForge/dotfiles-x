@@ -533,39 +533,13 @@ setup_crontab() {
     local action="${1:-install}"
     print_header "Crontab Setup"
 
-    case "$DISTRO" in
-        macos)
-            if [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]]; then
-                print_status "Running macOS crontab $action..."
-                "$DOTFILES_DIR/scripts/crontab_macos.sh" "$action"
-            else
-                print_error "macOS crontab script not found"
-                return 1
-            fi
-            ;;
-        rpm)
-            if [[ -f "$DOTFILES_DIR/scripts/crontab_rpm.sh" ]]; then
-                print_status "Running RPM crontab $action..."
-                "$DOTFILES_DIR/scripts/crontab_rpm.sh" "$action"
-            else
-                print_error "RPM crontab script not found"
-                return 1
-            fi
-            ;;
-        deb)
-            if [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]; then
-                print_status "Running Deb-based crontab $action..."
-                "$DOTFILES_DIR/scripts/crontab_deb.sh" "$action"
-            else
-                print_error "Deb-based crontab script not found"
-                return 1
-            fi
-            ;;
-        *)
-            print_error "Unsupported operating system for crontab setup"
-            return 1
-            ;;
-    esac
+    if [[ -f "$DOTFILES_DIR/scripts/crontab.sh" ]]; then
+        print_status "Running $DISTRO crontab $action..."
+        "$DOTFILES_DIR/scripts/crontab.sh" "$action"
+    else
+        print_error "Crontab script not found"
+        return 1
+    fi
 }
 
 # Function to show health check
@@ -1035,11 +1009,7 @@ main() {
 
             if [[ "$do_crontab" == true ]]; then
                 print_status "Setting up crontab entries..."
-                case "$DISTRO" in
-                    macos)  [[ -f "$DOTFILES_DIR/scripts/crontab_macos.sh" ]] && "$DOTFILES_DIR/scripts/crontab_macos.sh" install ;;
-                    rpm)    [[ -f "$DOTFILES_DIR/scripts/crontab_rpm.sh" ]]   && "$DOTFILES_DIR/scripts/crontab_rpm.sh" install ;;
-                    deb)    [[ -f "$DOTFILES_DIR/scripts/crontab_deb.sh" ]]   && "$DOTFILES_DIR/scripts/crontab_deb.sh" install ;;
-                esac
+                [[ -f "$DOTFILES_DIR/scripts/crontab.sh" ]] && "$DOTFILES_DIR/scripts/crontab.sh" install
             fi
 
             if [[ "$do_configure" == true ]]; then

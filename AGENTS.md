@@ -37,14 +37,18 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `configure_macos.sh`: macOS system settings and preferences.
     *   `configure_rpm.sh`: RPM-based GNOME desktop configuration.
     *   `configure_deb.sh`: Deb-based desktop configuration.
-    *   `crontab_macos.sh`: macOS crontab entry management.
-    *   `crontab_rpm.sh`: RPM crontab entry management.
-    *   `crontab_deb.sh`: Deb-based crontab entry management.
+    *   `crontab.sh`: Crontab entry management (all platforms; detects distro for cron service + topgrade path).
     *   `lib/detect_distro.sh`: Distro detection helper (returns `macos`, `rpm`, or `deb`).
     *   `lib/brew_shared.sh`: Shared Homebrew taps and formulae used by all platform install scripts.
     *   `lib/flatpak_shared.sh`: Shared Flatpak app list installed on all Linux platforms (RPM and deb).
     *   `lib/profile_picture.sh`: Shared Linux helper that sets the user profile picture (AccountsService icon + `~/.face`). Sourced by `configure_rpm.sh` and `configure_deb.sh`.
     *   `lib/agentmemory.sh`: Installs + enables the agentmemory engine as a host service (LaunchAgent on macOS, systemd user unit on Linux). The npm package itself is installed by `lib/npm_globals.sh`. Sourced by `configure_macos.sh`, `configure_rpm.sh`, and `configure_deb.sh`.
+    *   `lib/bash_compat.sh`: Re-exec-with-Bash guard sourced by every script so they work when invoked from another shell (e.g. `zsh install_rpm.sh`).
+    *   `lib/cli_installers.sh`: Curl-pipe-to-shell CLI installers (Antigravity, Claude Code, Codex, Bun, phpvm) with shared rc-file cleanup. Sourced by the platform `install_*.sh` scripts.
+    *   `lib/bash_compat.sh`: Re-exec-with-Bash guard sourced by every script so they work when invoked from another shell (e.g. `zsh install_rpm.sh`).
+    *   `lib/cli_installers.sh`: Curl-pipe-to-shell CLI installers (Antigravity, Claude Code, Codex, Bun, phpvm) with shared rc-file cleanup. Sourced by the platform `install_*.sh` scripts.
+    *   `lib/bash_compat.sh`: Re-exec-with-Bash guard sourced by every script so they work when invoked from another shell (e.g. `zsh install_rpm.sh`).
+    *   `lib/cli_installers.sh`: Curl-pipe-to-shell CLI installers (Antigravity, Claude Code, Codex, Bun, phpvm) with shared rc-file cleanup. Sourced by the platform `install_*.sh` scripts.
 
 *   `assets/`: Static binary assets committed to the repo. Currently holds `profile-picture.jpg` (Esteban's GitHub avatar), applied as the login/user picture by the configure scripts.
 
@@ -178,7 +182,7 @@ dots help                                # Show help message
 
 *   **Adding new dotfiles:** Add the file to `home/` using its final filename relative to `$HOME` (e.g., `.myconfig`). Then add a `"source:target"` entry to the `dotfiles` array in `dots.sh` and a matching entry to the `cleanup_symlinks` function.
 *   **Adding new packages:** Add `brew install` / `brew install --cask` lines to `install_macos.sh`, or the equivalent `dnf install` / `apt install` lines to `install_rpm.sh` / `install_deb.sh`.
-*   **Adding crontab entries:** Edit the relevant `crontab_<platform>.sh` script.
+*   **Adding crontab entries:** Edit `scripts/crontab.sh` (platform-specific behavior is keyed off `detect_distro` at the top of the script).
 *   **Customizing settings:** `configure_macos.sh` uses `defaults write` commands; `configure_rpm.sh` and `configure_deb.sh` use `gsettings`/`dconf` commands.
 *   **Distro detection:** Import `scripts/lib/detect_distro.sh` and call `detect_distro` to get `macos`, `rpm`, or `deb`. Do not replicate detection logic elsewhere.
 *   **Shared Homebrew logic:** Shared taps and formulae live in `scripts/lib/brew_shared.sh`. Extend it instead of duplicating across platform scripts.

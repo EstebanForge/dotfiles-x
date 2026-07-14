@@ -136,25 +136,31 @@ main() {
     print_status "$LABEL Crontab Setup Script"
     print_status "==================================="
 
-    check_dependencies
-    check_cron_service
-
+    # Deps and service checks run only for actions that need them, so help
+    # and read-only commands don't abort on a missing crontab binary or
+    # trigger a sudo'd systemctl start.
     case "${1:-install}" in
         install)
+            check_dependencies
+            check_cron_service
             backup_crontab
             install_crontab
             show_crontab
             ;;
         show|status)
+            check_dependencies
             show_crontab
             ;;
         remove|cleanup)
+            check_dependencies
             remove_crontab
             ;;
         backup)
+            check_dependencies
             backup_crontab
             ;;
         service)
+            check_dependencies
             check_cron_service
             ;;
         help|-h|--help)

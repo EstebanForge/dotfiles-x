@@ -213,9 +213,11 @@ setup_dotfiles() {
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")
+        dotfiles+=(".bash/plugins/agentmemory.plugin.sh:.bash/plugins/agentmemory.plugin.sh")
         dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")
         dotfiles+=(".config/environment.d/freetype.conf:.config/environment.d/freetype.conf")
         dotfiles+=(".config/fontconfig/fonts.conf:.config/fontconfig/fonts.conf")
+        dotfiles+=(".config/systemd/user/agentmemory.service:.config/systemd/user/agentmemory.service")
     fi
 
     for dotfile in "${dotfiles[@]}"; do
@@ -281,6 +283,8 @@ cleanup_symlinks() {
         ".config/environment.d/freetype.conf"
         ".config/fontconfig/fonts.conf"
         ".bash/plugins/ghost.plugin.sh"
+        ".bash/plugins/agentmemory.plugin.sh"
+        ".config/systemd/user/agentmemory.service"
         ".gitconfig"
         ".config/git/ignore"
         ".secrets.example"
@@ -335,9 +339,11 @@ show_status() {
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")
+        dotfiles+=(".bash/plugins/agentmemory.plugin.sh:.bash/plugins/agentmemory.plugin.sh")
         dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")
         dotfiles+=(".config/environment.d/freetype.conf:.config/environment.d/freetype.conf")
         dotfiles+=(".config/fontconfig/fonts.conf:.config/fontconfig/fonts.conf")
+        dotfiles+=(".config/systemd/user/agentmemory.service:.config/systemd/user/agentmemory.service")
     fi
 
     local all_good=true

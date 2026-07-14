@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+        agentmemory engine, managed by launchd.
+        Label matches the LaunchAgent reference in home/.zshrc.
+
+        ProgramArguments sources ~/.secrets (set -a; . ~/.secrets; set +a)
+        so any env var referenced by mcp_servers.json (e.g. API keys) is
+        visible to the engine at boot.
+
+        WorkingDirectory is forced to __HOME__ to dodge the engine's
+        cwd-relative ./data path bug (see issue rohitg00/agentmemory#524
+        for context). __HOME__ is substituted at install time because
+        launchd does not expand ~ or $HOME.
+
+        OTEL_ENABLED / OTEL_METRICS_ENABLED / III_TELEMETRY_ENABLED are
+        forced false to break the agentmemory worker's OTel reconnect
+        storm on the Mac. iii-sdk reads OTEL_ENABLED at boot; the default
+        is true, so the worker tries to push spans/logs/metrics to
+        ws://localhost:49134/otel, the engine subscriber falls behind,
+        the WS drops, and the worker enters a disconnect/reconnect
+        backoff (1s -> 9s -> 38s+) that consumes CPU and drains battery
+        on every recall. OTEL_METRICS_ENABLED is set false separately
+        because iii-sdk checks it independently.
+
+        ProcessType=Background + Nice=5 deprioritize the engine so it
+        never contends with interactive work.
+
+        ThrottleInterval=30 prevents launchd from restart-looping if the
+        engine fails to boot (e.g. ~/.secrets missing).
+    -->
+    <key>Label</key>
+    <string>com.agentmemory.server</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/sh</string>
+        <string>-c</string>
+        <string>set -a; . ~/.secrets; set +a; exec /opt/homebrew/bin/agentmemory</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin</string>
+        <key>OTEL_ENABLED</key>
+        <string>false</string>
+        <key>OTEL_METRICS_ENABLED</key>
+        <string>false</string>
+        <key>III_TELEMETRY_ENABLED</key>
+        <string>false</string>
+    </dict>
+
+    <key>WorkingDirectory</key>
+    <string>__HOME__</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+
+    <key>ThrottleInterval</key>
+    <integer>30</integer>
+
+    <key>StandardOutPath</key>
+    <string>__HOME__/.agentmemory/server.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>__HOME__/.agentmemory/server-error.log</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <key>Nice</key>
+    <integer>5</integer>
+</dict>
+</plist>

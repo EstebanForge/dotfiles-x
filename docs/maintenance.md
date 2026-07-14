@@ -25,6 +25,6 @@ To modify installed packages:
 ## System Configuration & Crontab
 
 * **Preferences**: Edit platform-specific configure scripts (e.g., [scripts/configure_macos.sh](../scripts/configure_macos.sh)).
-* **Crontabs**: Edit the relevant platform-specific crontab scripts (e.g., [scripts/crontab_rpm.sh](../scripts/crontab_rpm.sh)).
+* **Crontabs**: Edit [scripts/crontab.sh](../scripts/crontab.sh) (platform-specific behavior keyed off `detect_distro`).
 * **Distro Detection**: Import [scripts/lib/detect_distro.sh](../scripts/lib/detect_distro.sh) and execute `detect_distro`. Do not duplicate lookup logic.
 

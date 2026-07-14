@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 
-# Re-exec with Bash when invoked from another shell (for example: zsh script.sh).
-if [[ -z "${BASH_VERSION:-}" ]]; then
-    if command -v bash >/dev/null 2>&1; then
-        exec bash "$0" "$@"
-    fi
-    echo "This script requires Bash to run." >&2
-    exit 1
-fi
+# Re-exec under Bash when invoked from another shell (e.g. zsh configure_deb.sh).
+source "$(dirname "$0")/lib/bash_compat.sh"
 
 # Deb-based GNOME configuration script
 # Applies GNOME settings for ZorinOS, Ubuntu, and other Deb-based distros.

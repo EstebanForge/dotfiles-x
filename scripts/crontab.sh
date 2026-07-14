@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 
-# Re-exec with Bash when invoked from another shell (for example: zsh script.sh).
-if [[ -z "${BASH_VERSION:-}" ]]; then
-    if command -v bash >/dev/null 2>&1; then
-        exec bash "$0" "$@"
-    fi
-    echo "This script requires Bash to run." >&2
-    exit 1
-fi
+# Re-exec under Bash when invoked from another shell (e.g. zsh crontab.sh).
+source "$(dirname "$0")/lib/bash_compat.sh"
 
-# Crontab setup script for Deb-based systems
-# Supports ZorinOS, Ubuntu, and other Deb-based distros.
+# Crontab setup script (all platforms: macOS, RPM, Deb).
+# Installs a daily topgrade cron job, plus backup/show/remove/service helpers.
+# Platform differences (cron service name, topgrade path, deps) are resolved
+# from the detected distro so the CLI surface is identical everywhere.
 
 set -euo pipefail
 
@@ -18,11 +14,34 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/detect_distro.sh
 source "$SCRIPT_DIR/lib/detect_distro.sh"
 
-distro="$(detect_distro)"
-if [[ "$distro" != "deb" ]]; then
-    echo "This script is for Deb-based distros. Detected: $distro" >&2
-    exit 1
-fi
+DISTRO="$(detect_distro)"
+
+# Per-platform config: cron service name (empty = launchd, no service check),
+# topgrade invocation, and required deps.
+case "$DISTRO" in
+    macos)
+        CRON_SERVICE=""
+        TOPGRADE="/opt/homebrew/bin/topgrade"
+        REQUIRED_DEPS=(crontab)
+        LABEL="macOS"
+        ;;
+    rpm)
+        CRON_SERVICE="crond"
+        TOPGRADE="topgrade"
+        REQUIRED_DEPS=(crontab systemctl)
+        LABEL="Fedora Linux"
+        ;;
+    deb)
+        CRON_SERVICE="cron"
+        TOPGRADE="topgrade"
+        REQUIRED_DEPS=(crontab systemctl)
+        LABEL="Deb-based"
+        ;;
+    *)
+        echo "Unsupported distro for crontab setup: $DISTRO" >&2
+        exit 1
+        ;;
+esac
 
 # Colors for output
 RED='\033[0;31m'
@@ -30,7 +49,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-print_status() { echo -e "${GREEN}[INFO]${NC} $1"; }
+print_status()  { echo -e "${GREEN}[INFO]${NC} $1"; }
 print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 print_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
 
@@ -44,6 +63,7 @@ backup_crontab() {
 }
 
 install_crontab() {
+    local temp_crontab
     temp_crontab=$(mktemp)
     trap 'rm -f "$temp_crontab"' EXIT
 
@@ -57,10 +77,10 @@ install_crontab() {
         return 0
     fi
 
-    cat >>"$temp_crontab" <<'EOF'
+    cat >>"$temp_crontab" <<EOF
 
 # Run topgrade for system updates - Daily at 10 AM
-0 10 * * * topgrade -y 2>/dev/null || true
+0 10 * * * $TOPGRADE -y 2>/dev/null || true
 
 EOF
 
@@ -88,54 +108,56 @@ remove_crontab() {
 }
 
 check_cron_service() {
-    if ! systemctl is-active --quiet cron 2>/dev/null; then
-        print_warning "Cron service is not running"
+    [[ -n "$CRON_SERVICE" ]] || return 0
+    if ! systemctl is-active --quiet "$CRON_SERVICE" 2>/dev/null; then
+        print_warning "Cron service ($CRON_SERVICE) is not running"
         print_status "Starting cron service..."
-        sudo systemctl start cron
-        sudo systemctl enable cron
+        sudo systemctl start "$CRON_SERVICE"
+        sudo systemctl enable "$CRON_SERVICE"
         print_status "Cron service started and enabled"
     else
-        print_status "Cron service is running"
+        print_status "Cron service ($CRON_SERVICE) is running"
     fi
 }
 
 check_dependencies() {
-    local missing_deps=()
-    command -v crontab >/dev/null 2>&1 || missing_deps+=("crontab")
-    command -v systemctl >/dev/null 2>&1 || missing_deps+=("systemctl")
-
+    local missing_deps=() dep
+    for dep in "${REQUIRED_DEPS[@]}"; do
+        command -v "$dep" >/dev/null 2>&1 || missing_deps+=("$dep")
+    done
     if (( ${#missing_deps[@]} > 0 )); then
-        print_error "Missing dependencies: ${missing_deps[*]}"
+        print_error "Missing required dependencies: ${missing_deps[*]}"
+        print_error "Please install the missing dependencies and try again"
         exit 1
     fi
 }
 
 main() {
-    print_status "Deb-based Crontab Setup Script"
+    print_status "$LABEL Crontab Setup Script"
     print_status "==================================="
 
     check_dependencies
     check_cron_service
 
     case "${1:-install}" in
-        "install")
+        install)
             backup_crontab
             install_crontab
             show_crontab
             ;;
-        "show"|"status")
+        show|status)
             show_crontab
             ;;
-        "remove"|"cleanup")
+        remove|cleanup)
             remove_crontab
             ;;
-        "backup")
+        backup)
             backup_crontab
             ;;
-        "service")
+        service)
             check_cron_service
             ;;
-        "help"|"-h"|"--help")
+        help|-h|--help)
             echo "Usage: $0 [command]"
             echo ""
             echo "Commands:"

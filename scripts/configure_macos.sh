@@ -129,7 +129,7 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
-echo "Enable trackpad drag lock (Accessibility > Pointer Control: Use trackpad for dragging = On, Dragging style = With Drag Lock)"
+echo "Set trackpad drag lock (Accessibility > Pointer Control: Use trackpad for dragging = On, Dragging style = With Drag Lock)"
 # macOS trackpad drag modes (mutually exclusive overall):
 #   Without Drag Lock: Dragging=1 DragLock=0 ThreeFingerDrag=0
 #   With Drag Lock:    Dragging=1 DragLock=1 ThreeFingerDrag=0  <-- desired
@@ -137,12 +137,27 @@ echo "Enable trackpad drag lock (Accessibility > Pointer Control: Use trackpad f
 # Dragging enables the feature; DragLock selects the lock style. The two are
 # complementary, NOT exclusive. Only TrackpadThreeFingerDrag is an
 # alternative dragging mechanism and must be off for drag lock to apply.
-defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool false
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool false
-defaults write com.apple.AppleMultitouchTrackpad Dragging -bool true
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Dragging -bool true
-defaults write com.apple.AppleMultitouchTrackpad DragLock -bool true
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad DragLock -bool true
+#
+# GUARD REQUIRED — read-before-write, do not remove. The live "Dragging style"
+# dropdown reads from the kernel I/O registry, not just the on-disk plist.
+# defaults write updates the plist but does NOT push to the I/O registry, and
+# each write fires a preference-changed notification that can RESET the
+# driver's live state, reverting a manually-chosen "With Drag Lock" back to
+# "Without Drag Lock" on every configure run. So: if DragLock is already 1 in
+# the plist, skip the write entirely — this stops the reversion loop. On a
+# fresh machine (DragLock absent/0) the write runs once; the live dropdown
+# still needs a one-time manual click in System Settings because no public
+# CLI pushes these HID prefs to the I/O registry on Sequoia.
+if [[ "$(defaults read com.apple.AppleMultitouchTrackpad DragLock 2>/dev/null)" != "1" ]]; then
+    defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool false
+    defaults write com.apple.AppleMultitouchTrackpad Dragging -bool true
+    defaults write com.apple.AppleMultitouchTrackpad DragLock -bool true
+fi
+if [[ "$(defaults read com.apple.driver.AppleBluetoothMultitouch.trackpad DragLock 2>/dev/null)" != "1" ]]; then
+    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool false
+    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Dragging -bool true
+    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad DragLock -bool true
+fi
 
 echo 'Disable the "reopen windows when logging back in" option'
 defaults write com.apple.loginwindow TALLogoutSavesState -bool false

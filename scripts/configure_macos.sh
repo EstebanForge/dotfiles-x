@@ -129,13 +129,18 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
-echo "Enable drag lock (double-tap-and-hold to drag, tap again to release)"
-# DragLock is mutually exclusive with Dragging and TrackpadThreeFingerDrag;
-# disable the latter so drag lock takes effect.
+echo "Enable trackpad drag lock (Accessibility > Pointer Control: Use trackpad for dragging = On, Dragging style = With Drag Lock)"
+# macOS trackpad drag modes (mutually exclusive overall):
+#   Without Drag Lock: Dragging=1 DragLock=0 ThreeFingerDrag=0
+#   With Drag Lock:    Dragging=1 DragLock=1 ThreeFingerDrag=0  <-- desired
+#   Three Finger Drag: Dragging=0 DragLock=0 ThreeFingerDrag=1
+# Dragging enables the feature; DragLock selects the lock style. The two are
+# complementary, NOT exclusive. Only TrackpadThreeFingerDrag is an
+# alternative dragging mechanism and must be off for drag lock to apply.
 defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool false
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool false
-defaults write com.apple.AppleMultitouchTrackpad Dragging -bool false
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Dragging -bool false
+defaults write com.apple.AppleMultitouchTrackpad Dragging -bool true
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Dragging -bool true
 defaults write com.apple.AppleMultitouchTrackpad DragLock -bool true
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad DragLock -bool true
 

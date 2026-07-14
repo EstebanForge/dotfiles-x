@@ -38,7 +38,9 @@ install_curl_cli() {
         curl $curl_flags "$url" | $pipe_shell
     fi
 
-    [[ -n "$rc_marker" ]] && strip_installer_rc_block "$rc_marker"
+    if [[ -n "$rc_marker" ]]; then
+        strip_installer_rc_block "$rc_marker"
+    fi
 }
 
 install_antigravity_cli() {

@@ -50,6 +50,7 @@ SHARED_BREW_FORMULAE=(
     "ripgrep"
     "rtk-ai/tap/rtk"
     "rust"
+    "sevenzip"
     "shellcheck"
     "sshpass"
     "tailwindcss"

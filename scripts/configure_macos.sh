@@ -10,6 +10,8 @@ if [[ -z "${BASH_VERSION:-}" ]]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/agentmemory.sh
+source "$SCRIPT_DIR/lib/agentmemory.sh"
 
 # macOS system configuration script
 # This script applies macOS defaults and system settings
@@ -299,6 +301,13 @@ unset _PIC
 # To revert: launchctl load -w /System/Library/LaunchAgents/com.apple.rcd.plist
 echo "Disabling Remote Desktop daemon"
 launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist
+
+###############################################################################
+# agentmemory engine (background LaunchAgent)                                #
+###############################################################################
+# Auto-launches the engine on login + restarts on crash. Requires the npm
+# package installed first (install_macos.sh -> npm_globals.sh).
+install_agentmemory_service_macos
 
 ###############################################################################
 # Kill affected applications                                                  #

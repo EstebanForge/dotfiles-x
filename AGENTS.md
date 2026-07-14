@@ -44,6 +44,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `lib/brew_shared.sh`: Shared Homebrew taps and formulae used by all platform install scripts.
     *   `lib/flatpak_shared.sh`: Shared Flatpak app list installed on all Linux platforms (RPM and deb).
     *   `lib/profile_picture.sh`: Shared Linux helper that sets the user profile picture (AccountsService icon + `~/.face`). Sourced by `configure_rpm.sh` and `configure_deb.sh`.
+    *   `lib/agentmemory.sh`: Installs + enables the agentmemory engine as a host service (LaunchAgent on macOS, systemd user unit on Linux). The npm package itself is installed by `lib/npm_globals.sh`. Sourced by `configure_macos.sh`, `configure_rpm.sh`, and `configure_deb.sh`.
 
 *   `assets/`: Static binary assets committed to the repo. Currently holds `profile-picture.jpg` (Esteban's GitHub avatar), applied as the login/user picture by the configure scripts.
 
@@ -68,8 +69,8 @@ cd ~/.dotfiles
 # Symlinks only
 ./dots.sh install
 
-# Full machine setup (symlinks + packages + crontab)
-./dots.sh install --packages --crontab
+# Full machine setup (symlinks + packages + crontab + system config)
+./dots.sh install --packages --crontab --configure
 
 # Reload shell configuration (macOS: zsh, Linux: bash)
 exec zsh        # macOS
@@ -121,7 +122,9 @@ After `install`, `dots` is available globally via `~/.local/bin/dots`.
 dots install                             # Install dotfiles (symlinks only)
 dots install --packages                  # Also install system packages
 dots install --crontab                   # Also install crontab entries
-dots install --packages --crontab        # Full new machine setup
+dots install --configure                 # Also apply desktop + service config
+# Full new machine setup (symlinks + packages + crontab + system config):
+dots install --packages --crontab --configure
 dots cleanup                             # Remove existing symlinks
 dots status                              # Check current status of all dotfiles
 dots sync                                # Pull + push + reinstall dotfiles
@@ -152,7 +155,9 @@ dots help                                # Show help message
 | `~/.config/environment.d/gnome-wayland.conf` | `.config/environment.d/gnome-wayland.conf` | Linux only (GNOME/Wayland session env) |
 | `~/.config/environment.d/freetype.conf` | `.config/environment.d/freetype.conf` | Linux only (FreeType stem darkening) |
 | `~/.bash/plugins/ghost.plugin.sh` | `.bash/plugins/ghost.plugin.sh` | Linux only (Fish-style ghost text for Bash 5.x; loaded by `.bashrc` plugin loader) |
+| `~/.bash/plugins/agentmemory.plugin.sh` | `.bash/plugins/agentmemory.plugin.sh` | Linux only (agentmemory CLI guard + `memconsolidate`; loaded by `.bashrc` plugin loader) |
 | `~/.config/fontconfig/fonts.conf`      | `.config/fontconfig/fonts.conf`           | Linux only (fontconfig for non-GNOME apps) |
+| `~/.config/systemd/user/agentmemory.service` | `.config/systemd/user/agentmemory.service` | Linux only (agentmemory engine user service; auto-launched on login) |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |
 | `~/.config/git/ignore`              | `.config/git/ignore`                     | All platforms               |
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |
@@ -179,5 +184,6 @@ dots help                                # Show help message
 *   **Shared Homebrew logic:** Shared taps and formulae live in `scripts/lib/brew_shared.sh`. Extend it instead of duplicating across platform scripts.
 *   **Shared Flatpak apps:** The full Linux Flatpak app list lives in `scripts/lib/flatpak_shared.sh`. Both `install_rpm.sh` and `install_deb.sh` source it. Add new Flatpak apps there, not in the individual install scripts.
 *   **Profile picture:** `scripts/lib/profile_picture.sh` (`set_profile_picture_linux`) handles Linux (GNOME AccountsService + `~/.face`); `configure_macos.sh` embeds the image via `dsimport` (the only reliable macOS method). Both read `assets/profile-picture.jpg`. Replace that file to change the picture; keep it square JPEG for best results.
+*   **agentmemory engine:** Installed as an npm global by `scripts/lib/npm_globals.sh`, then auto-launched in the background by `scripts/lib/agentmemory.sh` (LaunchAgent `com.agentmemory.server` on macOS, systemd user unit `agentmemory.service` on Linux). The macOS plist is rendered from `scripts/lib/com.agentmemory.server.plist.template` (the `__HOME__` placeholder is substituted at install time because launchd does not expand `~` or `$HOME`). On Linux the unit file is symlinked from `home/.config/systemd/user/agentmemory.service` (uses `%h`). Both shell rc files guard `agentmemory` so accidental manual starts from a project dir are redirected to the service manager.
 *   **Backup Management:** `dots.sh` automatically creates timestamped backups (`.backup.YYYYMMDD_HHMMSS`) of existing files before creating symlinks.
 *   **Bash requirement:** `dots.sh` requires Bash 5.x. On macOS with the system Bash (3.x), it auto-detects and re-execs with Homebrew Bash, installing it if needed.

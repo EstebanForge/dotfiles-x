@@ -18,6 +18,8 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/profile_picture.sh
 source "$SCRIPT_DIR/lib/profile_picture.sh"
+# shellcheck source=lib/agentmemory.sh
+source "$SCRIPT_DIR/lib/agentmemory.sh"
 
 # Best-effort gsettings setter: silently skips schemas/keys that don't exist
 # on this GNOME version/distro (e.g. Ubuntu-only org.gnome.privacy on Fedora,
@@ -244,6 +246,12 @@ gset org.gnome.desktop.interface temperature-unit 'celsius'
 # User profile picture (AccountsService + ~/.face)
 echo "Setting user profile picture..."
 set_profile_picture_linux "$SCRIPT_DIR/../assets/profile-picture.jpg"
+
+# agentmemory engine (background systemd user unit)
+# Auto-launches the engine on login + restarts on crash. Requires the npm
+# package installed first (install_rpm.sh -> npm_globals.sh) and the systemd
+# unit symlinked from the dotfiles repo (dots install).
+install_agentmemory_service_linux
 
 # Settings apply on next session; prompt user to relogin
 echo "Fedora GNOME configuration complete!"

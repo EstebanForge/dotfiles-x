@@ -28,7 +28,6 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `.config/zed/settings.json`: Zed editor configuration (theme, fonts, agent servers).
     *   `.config/mcp-cli-ent/mcp_servers.json`: MCP server registry (secrets kept as `${ENV_VAR}` refs resolved from `~/.secrets`).
     *   `.config/gh/config.yml`: GitHub CLI configuration.
-    *   `.config/gh/hosts.yml`: GitHub CLI hosts.
 
 *   `scripts/`: Setup scripts for package installation and system configuration:
     *   `install_macos.sh`: macOS package installation using Homebrew.
@@ -172,11 +171,12 @@ dots help                                # Show help message
 | `~/.config/zed/settings.json`       | `.config/zed/settings.json`              | All platforms               |
 | `~/.config/mcp-cli-ent/mcp_servers.json` | `.config/mcp-cli-ent/mcp_servers.json` | All platforms          |
 | `~/.config/gh/config.yml`           | `.config/gh/config.yml`                  | All platforms               |
-| `~/.config/gh/hosts.yml`            | `.config/gh/hosts.yml`                   | All platforms               |
 | `~/.config/construct-cli/config.toml` | `.config/construct-cli/config.toml`    | All platforms (Construct CLI) |
 | `~/.local/bin/dots`                 | `dots.sh`                                | Global `dots` command       |
 
 `~/.secrets` is created automatically from `.secrets.example` on first install (not a symlink; stays local). It holds both secrets and machine-local values (e.g. `SANDBOX_IP`).
+
+`~/.config/gh/hosts.yml` is intentionally NOT symlinked or tracked. `gh auth login` rewrites it with an OAuth token at runtime, so it must stay a local file owned by gh (same rationale as `~/.secrets`). On install, `dots.sh` converts any pre-existing symlink to a real local file, preserving the current token when possible.
 
 ## Development Conventions
 

@@ -1,0 +1,211 @@
+# Construct CLI Configuration File
+# Path: ~/.config/construct-cli/config.toml
+# Documentation: https://github.com/EstebanForge/construct-cli
+
+# Runtime Preferences
+[runtime]
+# Options: "auto", "container", "podman", "docker"
+# "auto" will detect in priority order: container > podman > docker
+engine = "auto"
+
+# Automatically check for updates once per day (true/false)
+auto_update_check = true
+
+# Update check interval in seconds (default: 86400 = 24 hours)
+update_check_interval = 86400
+
+# Update channel: "stable" (default) or "beta"
+# "beta" lets selected machines receive pre-release updates only.
+update_channel = "stable"
+
+# Sandbox Settings
+[sandbox]
+# Mount the entire home directory? (Dangerous, default: false)
+mount_home = false
+
+# Forward host SSH agent into the container (default: true)
+forward_ssh_agent = true
+
+# Pin SSH identities per host to avoid "Too many authentication failures" when
+# the forwarded agent holds many keys. Accepts MORE THAN ONE entry.
+# Forms:
+#   "host=keyname"            ~/.ssh/<keyname>.pub (agent) or ~/.ssh/<keyname> (file)
+#   "alias=hostname=keyname"  same service, many accounts; use alias in remote URL
+# Examples:
+#   ssh_pin_identities = ["github.com=github", "gitlab.com=work"]
+#   ssh_pin_identities = ["github-work=github.com=work", "github-personal=github.com=personal"]
+ssh_pin_identities = ["github.com=github"]
+
+# Sync host git name/email into container (default: true)
+propagate_git_identity = true
+
+# Enforce strict non-root runtime behavior by forcing container user mapping (default: false)
+# WARNING: On Docker this can break first-run package installs (Homebrew/npm permission issues)
+# because root bootstrap permission-fixes are bypassed.
+# Enable only for strict compliance environments where non-root is mandatory.
+non_root_strict = false
+
+# Allow manual customizations in docker-compose.override.yml (default: false)
+# Advanced: when enabled, Construct will not auto-heal manual 'user:' override mappings.
+# Use only if you intentionally maintain your own override behavior.
+allow_custom_compose_override = false
+
+# Run agent exec sessions as host UID:GID on Linux Docker (default: true)
+# Purpose: preserve host file ownership for files written by agents.
+# This applies to exec paths (daemon + attach), while keeping startup root-bootstrap intact.
+# If host UID is not present in container /etc/passwd, Construct keeps host UID:GID mapping and forces HOME=/home/construct.
+exec_as_host_user = true
+
+# Explicit host env vars to pass through into Construct unchanged.
+# Default passthroughs cover common CLI/tool auth use cases.
+env_passthrough = ["GITHUB_TOKEN", "CONTEXT7_API_KEY", "BRAVE_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "QWEN_API_KEY", "DEEPSEEK_API_KEY", "MINIMAX_API_KEY", "KIMI_API_KEY", "ZAI_API_KEY", "ASANA_ACCESS_TOKEN", "SLACK_USER_TOKEN"]
+
+# Host env prefixes to auto-pass into Construct after stripping the prefix.
+# Example: host CNSTR_CONTEXT7_API_KEY=... becomes CONTEXT7_API_KEY inside Construct.
+# Explicit env_passthrough values win if both sources target the same inside key.
+env_passthrough_prefixes = ["CNSTR_"]
+
+# SELinux mount labels on Linux: "auto" | "enabled" | "disabled"
+selinux_labels = "auto"
+
+# Default shell inside the container
+shell = "/bin/bash"
+
+# Hostname for the host clipboard bridge
+clipboard_host = "host.docker.internal"
+
+# Binaries proxied to the host instead of run in-container.
+# WARNING: each runs on the host with full container-controlled argv.
+# Only list binaries you trust with that. Requires `construct build`.
+host_binaries = ["wicket"]
+
+# Host service environment variables (injected into container, localhost → host.docker.internal)
+# Format: "VAR_NAME=http://localhost:PORT" — localhost/127.0.0.1 is auto-rewritten to host.docker.internal.
+# Uncomment to bridge host services into the sandbox.
+host_service_env = [
+    "AGENTMEMORY_URL=http://localhost:3111",
+]
+
+# Agent Behavior
+[agents]
+# Enable yolo mode for all supported agents (default: false, overrides yolo_agents)
+yolo_all = true
+
+# Enable yolo mode for specific agents (slugs), e.g. ["claude", "gemini"]
+# Supported: claude, gemini, codex, qwen, copilot, cline, kilocode, crush
+yolo_agents = []
+
+# Patch clipboard integrations for JS/NPM agents (gemini, qwen, cline, copilot, kilocode)
+# and enable codex WSL fallback + powershell shim to allow image pasting (default: true).
+clipboard_image_patch = true
+
+# Daemon Settings
+[daemon]
+# Auto-start the daemon on first agent run for faster subsequent startups (default: true)
+auto_start = true
+
+# Enable multi-root daemon mounts (advanced, default: false)
+# Purpose: allow the daemon to serve runs from multiple host roots, not just the current repo.
+# Benefits: faster agent startups across different projects without restarting the daemon.
+multi_paths_enabled = true
+
+# Host directories the daemon can serve (used only when multi_paths_enabled=true)
+# Supports "~" home expansion, e.g. ["~/Dev/Projects", "/work/client-repos"]
+mount_paths = ["~/Dev"]
+
+# Network Isolation (Optional)
+[network]
+# Mode: "permissive" (default), "strict" (block all except allowed), "offline" (no network)
+mode = "permissive"
+
+# Domain allowlist (supports wildcards)
+allowed_domains = [
+  "*.anthropic.com",
+  "*.openai.com",
+  "*.googleapis.com",
+  "api.z.ai"
+]
+
+# IP/CIDR allowlist
+allowed_ips = [
+  "1.1.1.1/32",     # Cloudflare DNS
+  "8.8.8.8/32"      # Google DNS
+]
+
+# Domain blocklist (takes precedence)
+blocked_domains = [
+  "*.malicious-site.example",
+  "*.phishing.attempt.com"
+]
+
+# IP blocklist
+blocked_ips = [
+  "192.168.100.100/32",
+  "203.0.113.0/24"
+]
+
+# Maintenance Settings
+[maintenance]
+# Enable periodic cleanup of old log files (true/false)
+cleanup_enabled = true
+
+# Cleanup interval in seconds (default: 86400 = 24 hours)
+cleanup_interval_seconds = 86400
+
+# Delete logs older than this many days (default: 15)
+log_retention_days = 15
+
+
+# Claude Code Provider Aliases
+# Configure custom API endpoints and authentication for Claude Code.
+# Reference host environment variables using ${VAR_NAME} syntax
+# OR use direct values (less secure but simpler).
+
+# Z.AI GLM Provider (Uncomment to use)
+[claude.cc.zai]
+ANTHROPIC_BASE_URL = "https://api.z.ai/api/anthropic"
+ANTHROPIC_AUTH_TOKEN = "${CNSTR_ZAI_API_KEY}"
+API_TIMEOUT_MS = "3000000"
+CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
+
+# MiniMax M2 Provider (Uncomment to use)
+[claude.cc.minimax]
+ANTHROPIC_BASE_URL = "https://api.minimax.io/anthropic"
+ANTHROPIC_AUTH_TOKEN = "${CNSTR_MINIMAX_API_KEY}"
+API_TIMEOUT_MS = "3000000"
+ANTHROPIC_MODEL = "MiniMax-M2.7"
+ANTHROPIC_SMALL_FAST_MODEL = "MiniMax-M2.7"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "MiniMax-M2.7"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "MiniMax-M2.7"
+ANTHROPIC_DEFAULT_HAIKU_MODEL = "MiniMax-M2.7"
+CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
+
+# Moonshot Kimi K2 Provider (Uncomment to use)
+# [claude.cc.kimi]
+# ANTHROPIC_BASE_URL = "https://api.moonshot.ai/anthropic"
+# ANTHROPIC_AUTH_TOKEN = "${CNSTR_KIMI_API_KEY}"
+# API_TIMEOUT_MS = "3000000"
+# CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
+#
+# Alibaba Qwen Provider (Uncomment to use)
+# [claude.cc.qwen]
+# ANTHROPIC_BASE_URL = "https://dashscope-intl.aliyuncs.com/api/v2/apps/claude-code-proxy"
+# ANTHROPIC_AUTH_TOKEN = "${CNSTR_QWEN_API_KEY}"
+# API_TIMEOUT_MS = "3000000"
+# CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1"
+#
+# Xiaomi Mimo Provider (Uncomment to use)
+# [claude.cc.mimo]
+# ANTHROPIC_BASE_URL = "https://api.xiaomimimo.com/anthropic"
+# ANTHROPIC_AUTH_TOKEN = "${CNSTR_MIMO_API_KEY}"
+# API_TIMEOUT_MS = "3000000"
+
+[security]
+# Added by construct sys doctor --fix
+hide_git_dir = true
+hide_secrets = false
+hide_secrets_allow_paths = []
+hide_secrets_deny_paths = []
+hide_secrets_mask_style = 'hash'
+hide_secrets_passthrough_vars = []
+hide_secrets_report = true

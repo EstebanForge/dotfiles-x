@@ -202,6 +202,7 @@ setup_dotfiles() {
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
         ".config/gh/hosts.yml:.config/gh/hosts.yml"
+        ".config/construct-cli/config.toml:.config/construct-cli/config.toml"
     )
 
     # Shell config: zsh on macOS, bash on Linux
@@ -289,6 +290,7 @@ cleanup_symlinks() {
         ".config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml"
         ".config/gh/hosts.yml"
+        ".config/construct-cli/config.toml"
         ".local/bin/dots"
     )
 
@@ -320,6 +322,7 @@ show_status() {
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
         ".config/gh/hosts.yml:.config/gh/hosts.yml"
+        ".config/construct-cli/config.toml:.config/construct-cli/config.toml"
     )
 
     # Shell config: zsh on macOS, bash on Linux
@@ -932,6 +935,7 @@ FILES MANAGED:
     ~/.config/mcp-cli-ent/mcp_servers.json  MCP server registry
     ~/.config/gh/config.yml             GitHub CLI configuration
     ~/.config/gh/hosts.yml              GitHub CLI hosts
+    ~/.config/construct-cli/config.toml  Construct CLI configuration
 
 SUPPORTED PLATFORMS:
     macOS (Homebrew) · Fedora Linux (DNF/Flatpak) · Deb-based (apt)

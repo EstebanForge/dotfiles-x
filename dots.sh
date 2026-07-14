@@ -201,7 +201,6 @@ setup_dotfiles() {
         ".config/zed/settings.json:.config/zed/settings.json"
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
-        ".config/gh/hosts.yml:.config/gh/hosts.yml"
         ".config/construct-cli/config.toml:.config/construct-cli/config.toml"
     )
 
@@ -234,6 +233,9 @@ setup_dotfiles() {
         fi
     done
 
+    # Migrate previously-symlinked files to local ownership
+    migrate_local_files
+
     # Setup secrets file
     setup_secrets
 
@@ -245,6 +247,32 @@ setup_dotfiles() {
         print_status "Run 'exec zsh' to reload shell configuration"
     else
         print_status "Run 'source ~/.bashrc' (or 'exec bash') to reload shell configuration"
+    fi
+}
+
+# Migrate previously-symlinked files to local ownership.
+# Some configs are written by their apps at runtime (oauth tokens, device state)
+# and must not be symlinks into the repo. Convert any leftover symlink to a real
+# local file, preserving current content when the target still resolves.
+migrate_local_files() {
+    local hosts_yml="$HOME_DIR/.config/gh/hosts.yml"
+
+    # gh hosts.yml: holds oauth tokens, rewritten by `gh auth login`.
+    if [[ -L "$hosts_yml" ]]; then
+        if [[ -e "$hosts_yml" ]]; then
+            # Symlink resolves: copy content out, drop the symlink, write a real file.
+            local tmp_file
+            tmp_file="$(mktemp)"
+            cp "$hosts_yml" "$tmp_file"
+            rm "$hosts_yml"
+            mv "$tmp_file" "$hosts_yml"
+            chmod 600 "$hosts_yml"
+            print_status "Converted ~/.config/gh/hosts.yml to a local file (auth preserved)"
+        else
+            # Dangling symlink (repo file already gone): just remove it.
+            rm "$hosts_yml"
+            print_warning "Stale symlink: ~/.config/gh/hosts.yml; run 'gh auth login' to recreate"
+        fi
     fi
 }
 
@@ -295,7 +323,6 @@ cleanup_symlinks() {
         ".config/zed/settings.json"
         ".config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml"
-        ".config/gh/hosts.yml"
         ".config/construct-cli/config.toml"
         ".local/bin/dots"
     )
@@ -327,7 +354,6 @@ show_status() {
         ".config/zed/settings.json:.config/zed/settings.json"
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
-        ".config/gh/hosts.yml:.config/gh/hosts.yml"
         ".config/construct-cli/config.toml:.config/construct-cli/config.toml"
     )
 
@@ -917,7 +943,6 @@ FILES MANAGED:
     ~/.config/zed/settings.json         Zed editor configuration
     ~/.config/mcp-cli-ent/mcp_servers.json  MCP server registry
     ~/.config/gh/config.yml             GitHub CLI configuration
-    ~/.config/gh/hosts.yml              GitHub CLI hosts
     ~/.config/construct-cli/config.toml  Construct CLI configuration
 
 SUPPORTED PLATFORMS:

@@ -52,7 +52,8 @@ run_all() {
             echo ""
             ((succeeded++)) || true
         else
-            print_error "✗ $(basename "$script") failed (exit $?)"
+            status=$?
+            print_error "✗ $(basename "$script") failed (exit $status)"
             echo ""
             ((failed++)) || true
         fi

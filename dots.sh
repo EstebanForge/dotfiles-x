@@ -217,6 +217,12 @@ setup_dotfiles() {
         dotfiles+=(".config/environment.d/freetype.conf:.config/environment.d/freetype.conf")
         dotfiles+=(".config/fontconfig/fonts.conf:.config/fontconfig/fonts.conf")
         dotfiles+=(".config/systemd/user/agentmemory.service:.config/systemd/user/agentmemory.service")
+        # Ptyxis terminal palettes (Catppuccin). Ptyxis reads .palette files
+        # from ~/.local/share/org.gnome.Ptyxis/palettes/ at runtime.
+        dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette")
+        dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette")
+        dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette")
+        dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Mocha.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Mocha.palette")
     fi
 
     for dotfile in "${dotfiles[@]}"; do
@@ -313,6 +319,10 @@ cleanup_symlinks() {
         ".bash/plugins/ghost.plugin.sh"
         ".bash/plugins/agentmemory.plugin.sh"
         ".config/systemd/user/agentmemory.service"
+        ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette"
+        ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette"
+        ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette"
+        ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Mocha.palette"
         ".gitconfig"
         ".config/git/ignore"
         ".secrets.example"

@@ -14,6 +14,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/profile_picture.sh"
 # shellcheck source=lib/agentmemory.sh
 source "$SCRIPT_DIR/lib/agentmemory.sh"
+# shellcheck source=lib/ptyxis_palette.sh
+source "$SCRIPT_DIR/lib/ptyxis_palette.sh"
 
 # Best-effort gsettings setter: silently skips schemas/keys that don't exist
 # on this GNOME version/distro (e.g. Ubuntu-only org.gnome.privacy on Fedora,
@@ -240,6 +242,10 @@ gset org.gnome.desktop.interface temperature-unit 'celsius'
 # User profile picture (AccountsService + ~/.face)
 echo "Setting user profile picture..."
 set_profile_picture_linux "$SCRIPT_DIR/../assets/profile-picture.jpg"
+
+# Set the active Ptyxis palette (Catppuccin Mocha) on the default profile.
+# Best-effort: no-op if ptyxis isn't installed natively or has no profile yet.
+configure_ptyxis_palette
 
 # agentmemory engine (background systemd user unit)
 # Auto-launches the engine on login + restarts on crash. Requires the npm

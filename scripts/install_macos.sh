@@ -21,8 +21,6 @@ source "$SCRIPT_DIR/lib/brew_shared.sh"
 source "$SCRIPT_DIR/lib/cli_installers.sh"
 # shellcheck source=lib/npm_globals.sh
 source "$SCRIPT_DIR/lib/npm_globals.sh"
-# shellcheck source=lib/gogh_shared.sh
-source "$SCRIPT_DIR/lib/gogh_shared.sh"
 
 ensure_xcode_clt() {
     if xcode-select -p >/dev/null 2>&1 && [[ -d "/Library/Developer/CommandLineTools" ]]; then
@@ -256,8 +254,5 @@ install_codex_cli
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)
 install_antigravity_cli
-
-# Install Gogh terminal color schemes (Catppuccin Mocha)
-install_gogh_themes
 
 echo "macOS package installation complete!"

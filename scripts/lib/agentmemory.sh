@@ -50,14 +50,24 @@ install_agentmemory_service_macos() {
         return 0
     fi
 
-    # Bootout any existing copy so a re-run doesn't accumulate agents.
-    launchctl bootout "gui/$uid/$label" 2>/dev/null || true
-    launchctl bootstrap "gui/$uid" "$target" 2>/dev/null \
-        || echo "WARNING: launchctl bootstrap failed for $label (may already be loaded)." >&2
-    launchctl enable "gui/$uid/$label" 2>/dev/null || true
-    # kickstart ensures the engine is actually running right now, not just
-    # configured to start on next login.
-    launchctl kickstart -k "gui/$uid/$label" 2>/dev/null || true
+    # Idempotent reload. The original bootout->bootstrap sequence raced:
+    # bootout returns before launchd releases the domain, so the immediate
+    # bootstrap fails with I/O error ("may already be loaded" is misleading;
+    # the domain wasn't released yet). Instead:
+    #   - If the label is already loaded, kickstart -k refreshes the service
+    #     in place (no teardown, no race).
+    #   - Only bootout+bootstrap when the label is absent (first install, or
+    #     after a manual bootout that removed it).
+    # launchctl print exits 0 if the label is present in the domain.
+    if launchctl print "gui/$uid/$label" >/dev/null 2>&1; then
+        launchctl kickstart -k "gui/$uid/$label" 2>/dev/null || true
+    else
+        launchctl bootout "gui/$uid/$label" 2>/dev/null || true
+        launchctl bootstrap "gui/$uid" "$target" 2>/dev/null \
+            || echo "WARNING: launchctl bootstrap failed for $label." >&2
+        launchctl enable "gui/$uid/$label" 2>/dev/null || true
+        launchctl kickstart -k "gui/$uid/$label" 2>/dev/null || true
+    fi
 
     echo "agentmemory LaunchAgent installed: $label"
 }

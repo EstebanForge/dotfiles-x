@@ -163,6 +163,7 @@ dots help                                # Show help message
 | `~/.config/mcp-cli-ent/mcp_servers.json` | `.config/mcp-cli-ent/mcp_servers.json` | All platforms          |
 | `~/.config/gh/config.yml`           | `.config/gh/config.yml`                  | All platforms               |
 | `~/.config/gh/hosts.yml`            | `.config/gh/hosts.yml`                   | All platforms               |
+| `~/.config/construct-cli/config.toml` | `.config/construct-cli/config.toml`    | All platforms (Construct CLI) |
 | `~/.local/bin/dots`                 | `dots.sh`                                | Global `dots` command       |
 
 `~/.secrets` is created automatically from `.secrets.example` on first install (not a symlink; stays local). It holds both secrets and machine-local values (e.g. `SANDBOX_IP`).

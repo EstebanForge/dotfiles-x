@@ -43,6 +43,9 @@ case "$DISTRO" in
         ;;
 esac
 
+# dots CLI path (stable symlink created by `dots install` on all platforms).
+DOTS_BIN="$HOME/.local/bin/dots"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -65,27 +68,46 @@ backup_crontab() {
 install_crontab() {
     local temp_crontab
     temp_crontab=$(mktemp)
-    trap 'rm -f "$temp_crontab"' EXIT
+    trap 'rm -f "${temp_crontab:-}"' EXIT
 
     if crontab -l >/dev/null 2>&1; then
         crontab -l >"$temp_crontab"
     fi
 
-    # Skip if entry already exists
-    if grep -qF 'topgrade' "$temp_crontab" 2>/dev/null; then
-        print_status "Crontab entries already installed"
-        return 0
-    fi
+    local changed=false
 
-    cat >>"$temp_crontab" <<EOF
+    # Topgrade: daily system updates at 10 AM.
+    if ! grep -qF 'topgrade' "$temp_crontab" 2>/dev/null; then
+        cat >>"$temp_crontab" <<EOF
 
 # Run topgrade for system updates - Daily at 10 AM
 0 10 * * * $TOPGRADE -y 2>/dev/null || true
 
 EOF
+        print_status "Added: topgrade (daily 10 AM)"
+        changed=true
+    fi
 
-    crontab "$temp_crontab"
-    print_status "Crontab entries installed successfully"
+    # Encrypted backups: daily at 1 PM (13h Chile).
+    # Runs all scripts/lib/backup/*.sh via the runner. Output appended to
+    # ~/.dots-backup.log so failures are debuggable (`tail ~/.dots-backup.log`).
+    if ! grep -qF 'dots backup' "$temp_crontab" 2>/dev/null; then
+        cat >>"$temp_crontab" <<EOF
+
+# Run encrypted backups - Daily at 1 PM (13h Chile)
+0 13 * * * $DOTS_BIN backup >> "\$HOME/.dots-backup.log" 2>&1 || true
+
+EOF
+        print_status "Added: backup (daily 1 PM)"
+        changed=true
+    fi
+
+    if [[ "$changed" == true ]]; then
+        crontab "$temp_crontab"
+        print_status "Crontab entries installed successfully"
+    else
+        print_status "Crontab entries already installed"
+    fi
 }
 
 show_crontab() {

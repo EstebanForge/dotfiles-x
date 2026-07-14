@@ -8,6 +8,7 @@ Unified dotfiles and system configuration for macOS, Fedora, and Debian-based Li
 * **Symlink Management**: Automatic symbolic link creation with safe backups of existing configs.
 * **Secrets Isolation**: Git-safe local secrets template (`~/.secrets`) sourced automatically by your shell.
 * **Distro Detection & Provisioning**: Auto-detects platform to install native packages and configure system preferences.
+* **Background Services**: The [agentmemory](https://github.com/rohitg00/agentmemory) memory engine is installed globally via npm and auto-launched in the background on login (LaunchAgent on macOS, systemd user unit on Linux).
 
 ## Quick Start
 
@@ -18,8 +19,9 @@ cd ~/.dotfiles
 # Run setup (creates symlinks, backs up existing files)
 ./dots.sh install
 
-# Optional: Install packages & crontab entries
-./dots.sh install --packages --crontab
+# Full setup: symlinks + packages + crontab + system config
+# (--configure wires the agentmemory background service among other things)
+./dots.sh install --packages --crontab --configure
 ```
 
 Once installed, use the global `dots` command to manage symlinks, packages, backups, and crontabs. Run `dots help` for all commands.

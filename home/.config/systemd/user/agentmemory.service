@@ -1,0 +1,22 @@
+[Unit]
+Description=agentmemory: persistent memory engine for AI coding agents
+Documentation=https://github.com/rohitg00/agentmemory
+# Don't start until the user session is fully up — needs $PATH and
+# $XDG_RUNTIME_DIR from the user manager, not the system one.
+After=default.target
+
+[Service]
+Type=simple
+# PATH explicitly includes Homebrew Linuxbrew paths because systemd
+# user units don't source ~/.bashrc / ~/.profile, so brew shellenv
+# additions to PATH never reach us here.
+Environment=PATH=%h/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=%h
+ExecStart=/usr/bin/env agentmemory
+# Restart on crash; let `agentmemory stop` exit cleanly (code 0) stop
+# the unit without immediately respawning.
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target

@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 
-# Re-exec with Bash when invoked from another shell (for example: zsh script.sh).
-if [[ -z "${BASH_VERSION:-}" ]]; then
-    if command -v bash >/dev/null 2>&1; then
-        exec bash "$0" "$@"
-    fi
-    echo "This script requires Bash to run." >&2
-    exit 1
-fi
+# Re-exec under Bash when invoked from another shell (e.g. zsh install_macos.sh).
+source "$(dirname "$0")/lib/bash_compat.sh"
 
 # macOS Homebrew packages installation script
 # This script installs all Homebrew packages and casks
@@ -23,18 +17,10 @@ export HOMEBREW_NO_INSTALL_CLEANUP=1
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/brew_shared.sh
 source "$SCRIPT_DIR/lib/brew_shared.sh"
-# shellcheck source=lib/antigravity_cli.sh
-source "$SCRIPT_DIR/lib/antigravity_cli.sh"
-# shellcheck source=lib/claude_code_cli.sh
-source "$SCRIPT_DIR/lib/claude_code_cli.sh"
-# shellcheck source=lib/phpvm_cli.sh
-source "$SCRIPT_DIR/lib/phpvm_cli.sh"
+# shellcheck source=lib/cli_installers.sh
+source "$SCRIPT_DIR/lib/cli_installers.sh"
 # shellcheck source=lib/npm_globals.sh
 source "$SCRIPT_DIR/lib/npm_globals.sh"
-# shellcheck source=lib/bun_cli.sh
-source "$SCRIPT_DIR/lib/bun_cli.sh"
-# shellcheck source=lib/codex_cli.sh
-source "$SCRIPT_DIR/lib/codex_cli.sh"
 # shellcheck source=lib/gogh_shared.sh
 source "$SCRIPT_DIR/lib/gogh_shared.sh"
 

@@ -1,4 +1,6 @@
 # ShellCheck project-wide configuration.
 # Sources use runtime $SCRIPT_DIR paths that can't be statically resolved,
-# so disable the "not following" info rather than chase false positives.
-disable=SC1091
+# so disable the "can't follow" info rather than chase false positives.
+# SC1091 = constant-path source (e.g. source "$SCRIPT_DIR/lib/...")
+# SC1090 = non-constant source (e.g. source "$SECRETS_FILE" from ~/.secrets)
+disable=SC1091,SC1090

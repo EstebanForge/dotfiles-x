@@ -495,6 +495,64 @@ sync_dotfiles() {
     setup_dotfiles
 }
 
+# Commit local tracked changes and push to remote, without losing work.
+# Stages tracked modifications/deletions only (git add -u) — new untracked
+# files are NOT swept in (add them manually once, then they sync forever).
+# Pulls with --rebase before pushing; on conflict, aborts the rebase so the
+# local commit is preserved untouched for manual resolution. Distinct from
+# sync_dotfiles, which refuses to run over uncommitted changes.
+push_to_remote() {
+    print_header "Commit & Push Local Changes"
+
+    cd "$DOTFILES_DIR" || return 1
+
+    # Stage tracked modifications + deletions only. Idempotent and ignores
+    # untracked files (.secrets, hosts.yml, new dotfiles not yet git-added).
+    git add -u
+
+    # Commit only if something is staged.
+    if git diff --cached --quiet 2>/dev/null; then
+        print_status "No tracked changes to commit"
+    else
+        local hostname datestamp
+        hostname="$(hostname -s 2>/dev/null || echo unknown)"
+        datestamp="$(date +%Y-%m-%d)"
+        print_status "Committing local tracked changes..."
+        git commit -m "chore: sync local changes from ${hostname} on ${datestamp}" >/dev/null 2>&1 \
+            || { print_error "Commit failed (resolve manually)"; return 1; }
+        print_success "Committed"
+    fi
+
+    # Pull remote with rebase (keeps history linear). On conflict, abort the
+    # rebase so the local commit is preserved untouched — never lose work.
+    print_status "Pulling remote changes (rebase)..."
+    if ! git pull --rebase 2>/dev/null; then
+        print_error "Pull failed (likely conflict). Aborting rebase to preserve your local commit."
+        git rebase --abort 2>/dev/null || true
+        print_error "Resolve manually: cd \"$DOTFILES_DIR\" && git pull --rebase"
+        return 1
+    fi
+
+    # Push local commits.
+    if git log origin/main..HEAD --oneline 2>/dev/null | grep -q .; then
+        print_status "Pushing local changes..."
+        if git push; then
+            print_success "Push completed successfully"
+        else
+            print_error "Push failed. Resolve manually: cd \"$DOTFILES_DIR\" && git push"
+            return 1
+        fi
+    else
+        print_status "No local commits to push (already in sync)"
+    fi
+
+    # Reinstall dotfiles (apply any pulled changes to $HOME).
+    print_status "Reinstalling dotfiles..."
+    setup_dotfiles
+
+    print_success "Done"
+}
+
 # Function to restore from git
 restore_from_git() {
     local commit_hash="HEAD"
@@ -930,6 +988,7 @@ COMMANDS:
     cleanup                   Remove existing symlinks
     status                    Check current status of dotfiles
     sync                      Pull, push, and reinstall dotfiles
+    push                      Commit local tracked changes and push to remote
     restore [commit]          Restore to a git commit (default: HEAD)
     restore [commit] --force  Skip confirmation prompt
     history                   Show recent git history
@@ -993,11 +1052,12 @@ show_menu() {
         printf '  %s6)%s   Check status\n' "$CYAN" "$NC"
         printf '  %s7)%s   Run health check\n' "$CYAN" "$NC"
         printf '  %s8)%s   Sync (pull + push + reinstall)\n' "$CYAN" "$NC"
-        printf '  %s9)%s   Cleanup symlinks\n' "$CYAN" "$NC"
-        printf '  %s10)%s  Show help\n' "$CYAN" "$NC"
+        printf '  %s9)%s   Commit & push local changes\n' "$CYAN" "$NC"
+        printf '  %s10)%s  Cleanup symlinks\n' "$CYAN" "$NC"
+        printf '  %s11)%s  Show help\n' "$CYAN" "$NC"
         printf '  %s0)%s   Exit\n' "$CYAN" "$NC"
         echo ""
-        read -r -p "Select an option [0-10]: " choice
+        read -r -p "Select an option [0-11]: " choice
 
         case "$choice" in
             1)  main install --packages --crontab --configure; return 0 ;;
@@ -1008,8 +1068,9 @@ show_menu() {
             6)  main status; return 0 ;;
             7)  main health; return 0 ;;
             8)  main sync; return 0 ;;
-            9)  main cleanup; return 0 ;;
-            10) main help; return 0 ;;
+            9)  main push; return 0 ;;
+            10) main cleanup; return 0 ;;
+            11) main help; return 0 ;;
             0|"q"|"quit"|"exit") echo "Bye."; return 0 ;;
             "")  echo "Bye."; return 0 ;;
             *) print_error "Invalid option: $choice" ;;
@@ -1075,6 +1136,9 @@ main() {
             ;;
         "sync"|"s")
             sync_dotfiles
+            ;;
+        "push"|"p")
+            push_to_remote
             ;;
         "restore"|"r")
             restore_from_git "${args[@]}"

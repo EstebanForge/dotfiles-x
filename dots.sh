@@ -212,6 +212,7 @@ setup_dotfiles() {
         dotfiles+=(".config/linearmouse/linearmouse.json:.config/linearmouse/linearmouse.json")
     else
         dotfiles+=(".bashrc:.bashrc")
+        dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")
         dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")
         dotfiles+=(".config/environment.d/freetype.conf:.config/environment.d/freetype.conf")
         dotfiles+=(".config/fontconfig/fonts.conf:.config/fontconfig/fonts.conf")
@@ -279,6 +280,7 @@ cleanup_symlinks() {
         ".config/environment.d/gnome-wayland.conf"
         ".config/environment.d/freetype.conf"
         ".config/fontconfig/fonts.conf"
+        ".bash/plugins/ghost.plugin.sh"
         ".gitconfig"
         ".config/git/ignore"
         ".secrets.example"
@@ -332,6 +334,7 @@ show_status() {
         dotfiles+=(".config/linearmouse/linearmouse.json:.config/linearmouse/linearmouse.json")
     else
         dotfiles+=(".bashrc:.bashrc")
+        dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")
         dotfiles+=(".config/environment.d/gnome-wayland.conf:.config/environment.d/gnome-wayland.conf")
         dotfiles+=(".config/environment.d/freetype.conf:.config/environment.d/freetype.conf")
         dotfiles+=(".config/fontconfig/fonts.conf:.config/fontconfig/fonts.conf")

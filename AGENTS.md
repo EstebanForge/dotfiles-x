@@ -151,6 +151,7 @@ dots help                                # Show help message
 | `~/.bashrc`                         | `.bashrc`                                | Linux only                  |
 | `~/.config/environment.d/gnome-wayland.conf` | `.config/environment.d/gnome-wayland.conf` | Linux only (GNOME/Wayland session env) |
 | `~/.config/environment.d/freetype.conf` | `.config/environment.d/freetype.conf` | Linux only (FreeType stem darkening) |
+| `~/.bash/plugins/ghost.plugin.sh` | `.bash/plugins/ghost.plugin.sh` | Linux only (Fish-style ghost text for Bash 5.x; loaded by `.bashrc` plugin loader) |
 | `~/.config/fontconfig/fonts.conf`      | `.config/fontconfig/fonts.conf`           | Linux only (fontconfig for non-GNOME apps) |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |
 | `~/.config/git/ignore`              | `.config/git/ignore`                     | All platforms               |

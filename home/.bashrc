@@ -20,6 +20,18 @@ if [[ -f ~/.bashrc.local ]]; then
     source ~/.bashrc.local
 fi
 
+# Terminal-env hygiene: Ghostty leaks TERM_PROGRAM=ghostty into the GNOME
+# session's D-Bus activation environment on launch, and Ptyxis (GTK4, doesn't
+# set TERM_PROGRAM itself) inherits it. TUI apps (Claude Code, Codex, ...) then
+# assume a Ghostty terminal and enable the kitty keyboard protocol, which VTE
+# does not support — every keystroke renders as a raw \xNN escape. Guard: when
+# we're actually inside a VTE terminal (VTE_VERSION set), a TERM_PROGRAM=ghostty
+# claim is always the leaked lie, so drop it. A real Ghostty session has no
+# VTE_VERSION and is left untouched.
+if [[ -n "${VTE_VERSION:-}" && "${TERM_PROGRAM:-}" == "ghostty" ]]; then
+    unset TERM_PROGRAM
+fi
+
 ######################
 # Shell options      #
 ######################

@@ -16,13 +16,22 @@
 # Remove the 2-line "<marker>\nexport PATH=..." block installer leaves in rc files.
 # marker is escaped for sed: any / \ & . * [ ] ^ $ in the marker are made literal.
 strip_installer_rc_block() {
-    local marker="$1" rc escaped
+    local marker="$1" rc escaped tmp
     escaped="${marker//\\\\/\\\\\\\\}"   # backslash first
     escaped="${escaped//\//\\/}"        # then slash (sed delimiter)
     escaped="${escaped//&/\\&}"        # then & (replacement meta, harmless in addr)
     for rc in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.bash_profile" "$HOME/.profile"; do
         [[ -f "$rc" ]] || continue
-        sed -i "/${escaped}/{N;d;}" "$rc" 2>/dev/null || true
+        # Symlink-safe in-place edit: sed -i replaces the target via temp+rename,
+        # which CONVERTS a symlink (e.g. ~/.bashrc -> repo) into a regular file,
+        # un-coupling it from the dotfiles repo. Redirecting through the path
+        # instead follows the symlink and writes the resolved target, preserving
+        # the link on both GNU and BSD sed.
+        tmp="$(mktemp)"
+        if sed "/${escaped}/{N;d;}" "$rc" > "$tmp" 2>/dev/null; then
+            cat "$tmp" > "$rc"
+        fi
+        rm -f "$tmp"
     done
 }
 

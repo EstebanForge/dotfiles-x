@@ -181,8 +181,12 @@ _ghost_refresh
 # different and requires backslash-escaping " and \ when wrapped in double
 # quotes). 34 = ", 92 = \.
 for ((_ghost_i = 32; _ghost_i <= 255; _ghost_i++)); do
-    printf -v _ghost_hex '%02x' "$_ghost_i"
-    _ghost_char=$'\x'"$_ghost_hex"
+    # Build the byte as a real char. printf '%b' interprets backslash escapes;
+    # octal \ooo covers all bytes 0-255 uniformly. (Do NOT split $'\xNN' across
+    # two quoted segments like $'\x'"$hex" -- on bash 5.3 that yields the
+    # literal 4-char string "\xNN" and binds every key to echo \xNN.)
+    printf -v _ghost_oct '\\%03o' "$_ghost_i"
+    printf -v _ghost_char '%b' "$_ghost_oct"
     printf -v _ghost_argq '%q' "$_ghost_char"
 
     if (( _ghost_i == 34 || _ghost_i == 92 )); then
@@ -193,7 +197,7 @@ for ((_ghost_i = 32; _ghost_i <= 255; _ghost_i++)); do
 
     bind -x "\"$_ghost_keyspec\": _ghost_insert $_ghost_argq"
 done
-unset _ghost_i _ghost_hex _ghost_char _ghost_argq _ghost_keyspec
+unset _ghost_i _ghost_oct _ghost_char _ghost_argq _ghost_keyspec
 
 # Accept full suggestion
 bind -x '"\C-i": _ghost_accept'  # Tab

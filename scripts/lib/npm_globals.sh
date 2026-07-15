@@ -14,7 +14,10 @@ install_npm_globals() {
         # (LaunchAgent on macOS, systemd user unit on Linux) — see
         # scripts/lib/agentmemory.sh.
         npm install -g @agentmemory/agentmemory
-        corepack enable yarn
+        # corepack ships its own shims; enable the Yarn/pnpm managers we use.
+        # Homebrew's node does not bundle corepack (added above as its own
+        # formula), so this is what wires yarn/pnpm onto PATH.
+        corepack enable yarn pnpm
     else
         echo "WARNING: npm not found; skipping npm packages." >&2
     fi

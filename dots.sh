@@ -646,6 +646,25 @@ run_backup() {
     bash "$runner" "${1:-run}"
 }
 
+# Wayland-Wheeltani middle-mouse-hold autoscroll. Fedora/Wayland-only: it reads
+# a physical USB mouse via evdev and needs systemd --user. The standalone
+# script owns install (cargo), one-time mouse picker, udev rule, and service.
+# Exposed as a menu entry so setup can be completed later (e.g. after plugging
+# in a mouse) without memorizing the daemon commands.
+run_wheeltani_setup() {
+    print_header "Wayland-Wheeltani Autoscroll"
+    if [[ "$DISTRO" != "rpm" ]]; then
+        print_error "Wayland-Wheeltani is Fedora/Wayland-only (this machine: $DISTRO)."
+        return 1
+    fi
+    local runner="$DOTFILES_DIR/scripts/wheeltani_autoscroll.sh"
+    if [[ ! -f "$runner" ]]; then
+        print_error "Wheeltani setup script not found: $runner"
+        return 1
+    fi
+    bash "$runner"
+}
+
 # Function to show health check
 health_check() {
     print_header "Comprehensive Health Check"
@@ -995,6 +1014,7 @@ COMMANDS:
     health                    Run comprehensive health check
     crontab [action]          Manage crontab entries (install/show/remove/backup/service)
     backup [run|list]         Run backup scripts (agentmemory, etc.)
+    wheeltani                 Wayland-Wheeltani middle-mouse autoscroll (Fedora/Wayland)
     version                   Show script version
     help                      Show this help message
 
@@ -1008,6 +1028,7 @@ EXAMPLES:
     dots restore HEAD~1                 # Roll back one commit
     dots health                         # Run health diagnostics
     dots crontab show                   # Show scheduled jobs
+    dots wheeltani                     # (Re)run Wayland-Wheeltani mouse setup
 
 FILES MANAGED:
     ~/.zshrc                            ZSH configuration (macOS only)
@@ -1054,10 +1075,11 @@ show_menu() {
         printf '  %s8)%s   Sync (pull + push + reinstall)\n' "$CYAN" "$NC"
         printf '  %s9)%s   Commit & push local changes\n' "$CYAN" "$NC"
         printf '  %s10)%s  Cleanup symlinks\n' "$CYAN" "$NC"
-        printf '  %s11)%s  Show help\n' "$CYAN" "$NC"
+        printf '  %s11)%s  Wayland-Wheeltani autoscroll setup\n' "$CYAN" "$NC"
+        printf '  %s12)%s  Show help\n' "$CYAN" "$NC"
         printf '  %s0)%s   Exit\n' "$CYAN" "$NC"
         echo ""
-        read -r -p "Select an option [0-11]: " choice
+        read -r -p "Select an option [0-12]: " choice
 
         case "$choice" in
             1)  main install --packages --crontab --configure; return 0 ;;
@@ -1070,7 +1092,8 @@ show_menu() {
             8)  main sync; return 0 ;;
             9)  main push; return 0 ;;
             10) main cleanup; return 0 ;;
-            11) main help; return 0 ;;
+            11) main wheeltani; return 0 ;;
+            12) main help; return 0 ;;
             0|"q"|"quit"|"exit") echo "Bye."; return 0 ;;
             "")  echo "Bye."; return 0 ;;
             *) print_error "Invalid option: $choice" ;;
@@ -1154,6 +1177,9 @@ main() {
             ;;
         "backup")
             run_backup "${args[0]:-run}"
+            ;;
+        "wheeltani")
+            run_wheeltani_setup
             ;;
         "help"|"-h"|"--help")
             show_help

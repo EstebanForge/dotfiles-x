@@ -9,6 +9,10 @@ SHARED_BREW_TAPS=(
 
 SHARED_BREW_FORMULAE=(
     "ast-grep"
+    # corepack: Node package-manager bridge. Homebrew's node formula does NOT
+    # bundle corepack (unlike the nodejs.org installer), so install it
+    # separately to enable `corepack enable yarn/pnpm` in npm_globals.sh.
+    "corepack"
     "atuin"
     "aws-nuke"
     "awscli"

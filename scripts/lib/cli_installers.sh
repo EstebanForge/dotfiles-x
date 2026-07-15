@@ -26,16 +26,19 @@ strip_installer_rc_block() {
     done
 }
 
-# install_curl_cli <name> <binary> <url> <curl_flags> <pipe_shell> [rc_marker]
+# install_curl_cli <name> <binary> <url> <curl_flags> <pipe_shell> [rc_marker] [env...]
+# Optional env (7th arg) is a space-separated list of KEY=VAL assignments
+# exported to the installer only, e.g. "CODEX_NON_INTERACTIVE=true" to answer
+# its interactive prompts with the safe default (no) for unattended runs.
 install_curl_cli() {
-    local name="$1" binary="$2" url="$3" curl_flags="$4" pipe_shell="$5" rc_marker="${6:-}"
+    local name="$1" binary="$2" url="$3" curl_flags="$4" pipe_shell="$5" rc_marker="${6:-}" installer_env="${7:-}"
 
     if command -v "$binary" >/dev/null 2>&1; then
         echo "$name already installed, skipping."
     else
         echo "Installing $name..."
-        # shellcheck disable=SC2086 # curl_flags is intentionally word-split
-        curl $curl_flags "$url" | $pipe_shell
+        # shellcheck disable=SC2086 # curl_flags + installer_env are intentionally word-split
+        curl $curl_flags "$url" | env $installer_env $pipe_shell
     fi
 
     if [[ -n "$rc_marker" ]]; then
@@ -61,8 +64,11 @@ install_claude_code_cli() {
 }
 
 install_codex_cli() {
+    # CODEX_NON_INTERACTIVE: the installer prompts "Start Codex now?" at the
+    # end (and on conflicts); answer no to both so a dotfiles install never
+    # blocks on an interactive TTY.
     install_curl_cli "Codex" codex "https://chatgpt.com/codex/install.sh" "-fsSL" sh \
-        "# Added by Codex CLI installer"
+        "# Added by Codex CLI installer" "CODEX_NON_INTERACTIVE=true"
 }
 
 install_bun_cli() {

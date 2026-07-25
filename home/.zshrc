@@ -429,3 +429,9 @@ MENU
     printf '\n[enter to continue]'; read -r || break
   done
 }
+
+# Android SDK (Baluard mobile)
+export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
+export ANDROID_SDK_ROOT=$ANDROID_HOME
+export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018
+export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"

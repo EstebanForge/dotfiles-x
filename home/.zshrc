@@ -430,6 +430,9 @@ MENU
   done
 }
 
+# Pi agent
+export PI_CACHE_RETENTION="long"
+
 # Android SDK (Baluard mobile)
 export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
 export ANDROID_SDK_ROOT=$ANDROID_HOME

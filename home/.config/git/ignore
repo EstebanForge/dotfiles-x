@@ -93,6 +93,10 @@ config.codekit
 **/node_modules/
 **/bower_components/
 
+# Work #
+########
+**/mu-plugins/stack-local-autologin.php
+
 # LLM Agents #
 ##############
 **/.clinerules

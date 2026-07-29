@@ -93,6 +93,10 @@ config.codekit
 **/node_modules/
 **/bower_components/
 
+# Work #
+########
+**/mu-plugins/wicket-local-autologin.php
+
 # LLM Agents #
 ##############
 **/.clinerules

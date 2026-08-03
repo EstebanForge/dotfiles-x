@@ -191,6 +191,7 @@ setup_dotfiles() {
 
     # List of dotfiles to symlink (relative to home/ directory)
     local dotfiles=(
+        "AGENTS.md:AGENTS.md"
         ".gitconfig:.gitconfig"
         ".config/git/ignore:.config/git/ignore"
         ".secrets.example:.secrets.example"
@@ -323,6 +324,7 @@ cleanup_symlinks() {
         ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette"
         ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette"
         ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Mocha.palette"
+        "AGENTS.md"
         ".gitconfig"
         ".config/git/ignore"
         ".secrets.example"
@@ -354,6 +356,7 @@ show_status() {
     print_status "Checking dotfile status"
 
     local dotfiles=(
+        "AGENTS.md:AGENTS.md"
         ".gitconfig:.gitconfig"
         ".config/git/ignore:.config/git/ignore"
         ".secrets.example:.secrets.example"
@@ -1031,6 +1034,7 @@ EXAMPLES:
     dots wheeltani                     # (Re)run Wayland-Wheeltani mouse setup
 
 FILES MANAGED:
+    ~/AGENTS.md                         Agent protocol (all platforms)
     ~/.zshrc                            ZSH configuration (macOS only)
     ~/.zsh/prompt.zsh                   EstebanForgePrompt theme (macOS only)
     ~/.bashrc                           Bash configuration (Linux only)

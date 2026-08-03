@@ -18,6 +18,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `.zshrc`: Zsh configuration (symlinked on macOS only).
     *   `.bashrc`: Bash configuration (symlinked on Linux only).
     *   `.config/environment.d/gnome-wayland.conf`: Per-user session environment for GNOME/Wayland (animation speed, Electron ozone hint; symlinked on Linux only).
+    *   `AGENTS.md`: Global agent protocol read by coding agents at `~/AGENTS.md` (all platforms).
     *   `.gitconfig`: Git configuration with user details.
     *   `.config/git/ignore`: Global gitignore rules for all projects (canonical XDG path).
     *   `.secrets.example`: Secrets management template for API keys and sensitive data.
@@ -161,6 +162,7 @@ dots help                                # Show help message
 | `~/.bash/plugins/agentmemory.plugin.sh` | `.bash/plugins/agentmemory.plugin.sh` | Linux only (agentmemory CLI guard + `memconsolidate`; loaded by `.bashrc` plugin loader) |
 | `~/.config/fontconfig/fonts.conf`      | `.config/fontconfig/fonts.conf`           | Linux only (fontconfig for non-GNOME apps) |
 | `~/.config/systemd/user/agentmemory.service` | `.config/systemd/user/agentmemory.service` | Linux only (agentmemory engine user service; auto-launched on login) |
+| `~/AGENTS.md`                       | `AGENTS.md`                              | All platforms (agent protocol) |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |
 | `~/.config/git/ignore`              | `.config/git/ignore`                     | All platforms               |
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |

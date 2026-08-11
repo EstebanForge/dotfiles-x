@@ -35,6 +35,13 @@ setopt auto_pushd
 setopt pushd_ignore_dups
 setopt pushdminus
 
+# Dot aliases (global so they also expand mid-command, e.g. `cp f .../sib/`).
+# `..` needs no alias: it is a real fs entry picked up by auto_cd above.
+alias -g ...='../..'
+alias -g ....='../../..'
+alias -g .....='../../../..'
+alias -g ......='../../../../..'
+
 # --- Completion (ported from OMZ completion.zsh) ---
 # OpenSpec completions + user completions live here now (was ~/.oh-my-zsh/custom/completions)
 fpath=("$HOME/.zsh/completions" $fpath)
@@ -441,3 +448,41 @@ export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin
 
 # druk
 export PATH=/Users/esteban/.druk/bin:$PATH
+
+# --- Route directory opens to QSpace Pro (macOS Tahoe) ---
+# Tahoe locks the public.folder default handler to Finder, so plain
+# `open <dir>` and `open .` land in Finder. This routes a SINGLE existing
+# directory argument to QSpace instead; everything else (URLs, files, -R,
+# -a, multiple args) passes through to the real open.
+# Behavior matches the Hammerspoon redirect: running+window -> new tab;
+# running, no window -> new window; not running -> launch QSpace on the folder.
+# Bypass: command open <dir>   (or /usr/bin/open <dir>)
+if [[ "$(uname)" == "Darwin" ]]; then
+    __qspace_open_dir() {
+        emulate -L zsh
+        local dir="${1:A}"
+        [[ -d "$dir" ]] || return 1
+        local n
+        n=$(osascript -e 'tell application "System Events" to count (processes whose name contains "QSpace")' 2>/dev/null)
+        if [[ "$n" =~ [1-9] ]]; then
+            osascript >/dev/null 2>&1 \
+                -e 'tell application "QSpace Pro"' \
+                -e 'if (count of windows) > 0 then' \
+                -e "tell window 1 to open urlstr \"file://${dir}/\"" \
+                -e 'else' \
+                -e "open urlstr \"file://${dir}/\"" \
+                -e 'end if' \
+                -e 'end tell'
+        else
+            command open -a "QSpace Pro" "$dir"
+        fi
+    }
+
+    open() {
+        if (( $# == 1 )) && [[ -d "$1" ]]; then
+            __qspace_open_dir "$1"
+        else
+            command open "$@"
+        fi
+    }
+fi

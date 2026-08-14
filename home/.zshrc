@@ -440,6 +440,9 @@ MENU
 # Pi agent
 export PI_CACHE_RETENTION="long"
 
+# FFF
+export FFF_ENABLE_HOME_SCAN=0
+
 # Android SDK (Baluard mobile)
 export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
 export ANDROID_SDK_ROOT=$ANDROID_HOME

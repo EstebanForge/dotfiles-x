@@ -443,6 +443,9 @@ export PI_CACHE_RETENTION="long"
 # FFF
 export FFF_ENABLE_HOME_SCAN=0
 
+# Agent-browser
+export AGENT_BROWSER_IGNORE_HTTPS_ERRORS=true
+
 # Android SDK (Baluard mobile)
 export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
 export ANDROID_SDK_ROOT=$ANDROID_HOME

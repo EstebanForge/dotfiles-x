@@ -346,21 +346,17 @@ ns-cc-zai() {
     claude "$@"
 }
 
-# Construct-cli agent aliases (requires construct-cli installed)
+# Construct-cli agent routing.
+# Most agents now route through PATH shims (`construct sys shims --install`):
+# ~/.local/bin/<slug> execs `ct <slug>` sandboxed, ns-<slug> execs the real
+# # host binary. The aliases kept below exist because a real binary already
+# occupies the shim filename in ~/.local/bin for those agents, so the shell
+# alias is still the sandbox route and the ns- function the direct route.
 if command -v ct >/dev/null 2>&1; then
     alias agy='ct agy'
     alias claude='ct claude'
-    alias amp='ct amp'
-    alias qwen='ct qwen'
-    alias copilot='ct copilot'
-    alias opencode='ct opencode'
-    alias cline='ct cline'
-    alias crush='ct crush'
     alias codex='ct codex'
     alias droid='ct droid'
-    alias goose='ct goose'
-    alias kilocode='ct kilocode'
-    alias pi='ct pi'
     alias cc-kimi='ct cc kimi'
     alias cc-mimo='ct cc mimo'
     alias cc-minimax='ct cc minimax'
@@ -370,14 +366,8 @@ if command -v ct >/dev/null 2>&1; then
     # Non-sandboxed aliases - run agents directly
     ns-agy() { command agy "$@"; }
     ns-claude() { command claude "$@"; }
-    ns-qwen() { command qwen "$@"; }
-    ns-copilot() { command copilot "$@"; }
-    ns-opencode() { command opencode "$@"; }
-    ns-cline() { command cline "$@"; }
     ns-codex() { command codex "$@"; }
     ns-droid() { command droid "$@"; }
-    ns-kilocode() { command kilocode "$@"; }
-    ns-pi() { command pi "$@"; }
 fi
 
 # Load Fuse Agents plugin

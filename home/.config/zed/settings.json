@@ -40,6 +40,9 @@
     "font_size": 17.0,
   },
   "agent_servers": {
+    "antigravity-acp": {
+      "type": "registry"
+    },
     "pi-acp": {
       "default_config_options": {
         "model": "zai/glm-5.2",
@@ -50,10 +53,6 @@
       "type": "registry",
     },
     "github-copilot-cli": {
-      "type": "registry",
-    },
-    "gemini": {
-      "default_mode": "autoEdit",
       "type": "registry",
     },
     "codex-acp": {

@@ -118,6 +118,9 @@ bindkey "^[m" copy-prev-shell-word                 # [Esc-m] copy prev word
 # --- Prompt: EstebanForgePrompt ---
 source "$HOME/.zsh/prompt.zsh"
 
+# --- User functions (tunnel etc.) ---
+[[ -f "$HOME/.zsh/functions.zsh" ]] && source "$HOME/.zsh/functions.zsh"
+
 ######################
 # User configuration #
 ######################

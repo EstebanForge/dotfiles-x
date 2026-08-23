@@ -2,15 +2,20 @@
 # ghost.plugin.sh - Fish-style ghost text suggestions for Bash 5.x
 #
 # Suggestions from history appear as gray text after the cursor.
-#   Tab / Right / End   -> accept full suggestion
-#   Alt-F / Ctrl-F      -> accept next word
-#   Up / Down arrow     -> browse history (ghost text cleared)
+#   Right / End        -> accept full suggestion (Tab stays completion)
+#   Alt-F / Ctrl-F     -> accept next word
+#   Up / Down arrow    -> browse history (ghost text cleared)
 #
 # MIT License - part of dotfiles-x
 # Inspired by https://github.com/h-jangra/Ghost.sh (no license, unmaintained).
 # Rewritten to fix: Tab binding (Ghost.sh README claimed it, code lacked it),
 # clean license header, apostrophe-key crash, Ctrl-U data loss, and ANSI
 # control-sequence replay from history.
+# Later fixes: newline-eating tr in the history snapshot (suggestions never
+# matched), Up/Down macros whose bodies contained unbound bytes (readline
+# aborted and swallowed the keypress: arrows went dead on terminals sending
+# normal-mode \e[A codes), app-mode arrow variants, Ctrl-E end-of-line, and
+# PROMPT_COMMAND array clobbering (dropped systemd's OSC hook on Fedora).
 
 [[ $- != *i* ]] && return
 [[ -n "${_GHOST_LOADED:-}" ]] && return
@@ -26,7 +31,10 @@ _ghost_color=$'\e[38;5;244m' # gray
 # --- History ---------------------------------------------------------------
 
 # Build history snapshot: newest first, deduped, leading whitespace stripped,
-# C0 control chars (\x00-\x1f, \x7f) removed.
+# C0 control chars (\x00-\x08, \x0b-\x1f) and \x7f removed; newline (\x0a)
+# is PRESERVED as the record separator. The original range \000-\037 deleted
+# newlines too, collapsing the whole history into one mega-line so no
+# suggestion ever matched.
 #   - C0 stripping closes the door on replaying arbitrary escape sequences
 #     from history (a previously pasted/typed colored command could otherwise
 #     inject OSC/CSI bytes into the renderer on every keystroke that matches).
@@ -35,20 +43,20 @@ _ghost_init_history() {
     _ghost_history=$(
         fc -ln -2000 2>/dev/null \
             | sed 's/^[[:space:]]*//' \
-            | tr -d '\000-\037\177' \
+            | tr -d '\000-\011\013-\037\177' \
             | awk '!seen[$0]++' \
             | tac
     )
 }
 
 # Compute visible width of the last line of the current PS1.
-# Strips CSI escapes (\e[...letter). Does NOT strip OSC sequences (\e]...\a);
-# the prompt shipped in .bashrc is pure SGR so this is fine, but anyone adding
-# a window-title OSC later will need to extend the regex.
+# Strips OSC sequences (\e]...\a or \e]...\e\\) FIRST -- their payload can
+# contain '[' which would corrupt the CSI strip -- then CSI escapes
+# (\e[...letter), then the readline \x01/\x02 wrapper marks.
 _ghost_update_prompt_len() {
     local plain last
     plain=$(printf '%s' "${PS1@P}" \
-        | sed -E $'s/\x1b\\[[0-9;?]*[a-zA-Z]//g; s/\x01|\x02//g')
+        | sed -E $'s/\x1b\][^\x07\x1b]*(\x07|\x1b\\\\)//g; s/\x1b\\[[0-9;?]*[a-zA-Z]//g; s/\x01|\x02//g')
     last="${plain##*$'\n'}"
     _ghost_prompt_len=${#last}
 }
@@ -121,6 +129,17 @@ _ghost_accept() {
         READLINE_POINT=${#READLINE_LINE}
         _ghost_suggestion=""
     fi
+    _ghost_render
+}
+
+# End of line: accept the ghost suggestion when at the tail, then move to
+# end-of-line (restores stock Ctrl-E semantics instead of a 1-char step).
+_ghost_end() {
+    if [[ -n "$_ghost_suggestion" && $READLINE_POINT -eq ${#READLINE_LINE} ]]; then
+        READLINE_LINE+="$_ghost_suggestion"
+        _ghost_suggestion=""
+    fi
+    READLINE_POINT=${#READLINE_LINE}
     _ghost_render
 }
 
@@ -199,17 +218,19 @@ for ((_ghost_i = 32; _ghost_i <= 255; _ghost_i++)); do
 done
 unset _ghost_i _ghost_oct _ghost_char _ghost_argq _ghost_keyspec
 
-# Accept full suggestion
-bind -x '"\C-i": _ghost_accept'  # Tab
-bind -x '"\e[C":  _ghost_accept' # Right arrow
-bind -x '"\C-e":  _ghost_accept' # End (Bash's default is end-of-line; we extend it)
+# Accept full suggestion. Tab is NOT rebound: filename completion is worth
+# more than a second accept key (Right / End / Ctrl-E all accept).
+bind -x '"\e[C":  _ghost_accept' # Right arrow (normal mode)
+bind -x '"\eOC":  _ghost_accept' # Right arrow (application mode)
+bind -x '"\C-e":  _ghost_end'    # End (accepts ghost text when at line tail)
 
 # Accept next word
 bind -x '"\ef":  _ghost_accept_word' # Alt-F
 bind -x '"\C-f": _ghost_accept_word' # Ctrl-F (overrides Bash default forward-char)
 
-# Line-edit ops that need ghost re-render
-bind -x '"\e[D": _ghost_left'        # Left arrow
+# Line-edit ops that need ghost re-render (both cursor-key modes)
+bind -x '"\e[D": _ghost_left'        # Left arrow (normal mode)
+bind -x '"\eOD": _ghost_left'        # Left arrow (application mode)
 bind -x '"\C-?": _ghost_backspace'   # Backspace (some terminals)
 bind -x '"\C-h": _ghost_backspace'   # Ctrl-H / Backspace
 bind -x '"\C-u": _ghost_kill_line'   # Kill from cursor to start of line
@@ -217,9 +238,30 @@ bind -x '"\C-l": _ghost_clear'       # Clear screen
 bind -x '"\C-a": _ghost_home'        # Home
 
 # Up/Down: clear ghost text then defer to Bash's history browse.
-# (Readline macros; bind -x can't capture arrow-up here without losing history nav.)
-bind '"\e[A": "\e[s\e[1000G\e[K\e[u\e[A"'
-bind '"\e[B": "\e[s\e[1000G\e[K\e[u\e[B"'
+#
+# Readline macro bodies are re-dispatched through the keymap as KEYSTROKES,
+# never written to the terminal: every byte in a macro must be a BOUND key
+# sequence or _rl_abort_internal() discards the whole macro. The old bodies
+# contained \e[s / \e[1000G / \e[K (terminal OUTPUT codes, no keymap
+# binding), so readline aborted and silently swallowed the arrow key.
+#
+# Instead: bind a free chord to redraw-current-line (rl_refresh_line clears
+# to end-of-line, erasing the ghost text) and chain it with the stock
+# previous/next-history keys. Bind BOTH modes: readline's enable-keypad
+# defaults to off, so the prompt usually sees normal-mode \e[A/\e[B, while
+# terminals in application cursor mode send \eOA/\eOB.
+bind '"\C-x\C-g": redraw-current-line'
+bind '"\e[A": "\C-x\C-g\C-p"
+bind '"\e[B": "\C-x\C-g\C-n"
+bind '"\eOA": "\C-x\C-g\C-p"
+bind '"\eOB": "\C-x\C-g\C-n"
 
-# Refresh on each prompt draw.
-PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_ghost_refresh"
+# Refresh on each prompt draw. PROMPT_COMMAND may be an ARRAY (bash 5.1+;
+# Fedora's 80-systemd-osc-context.sh appends to it as one). String-appending
+# would flatten the array and silently drop every other hook, so branch on
+# the actual type.
+if [[ ${PROMPT_COMMAND@a} == *a* ]]; then
+    PROMPT_COMMAND+=(_ghost_refresh)
+else
+    PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_ghost_refresh"
+fi

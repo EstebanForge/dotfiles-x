@@ -482,3 +482,4 @@ if [[ "$(uname)" == "Darwin" ]]; then
         fi
     }
 fi
+eval "$(/Users/esteban/.local/bin/mise activate zsh)"

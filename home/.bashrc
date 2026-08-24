@@ -250,3 +250,13 @@ fi
 for plugin in ~/.bash/plugins/*.plugin.sh; do
     [[ -f "$plugin" && -r "$plugin" ]] && source "$plugin"
 done
+
+######################################
+# Atuin shell history                #
+######################################
+
+# Per-host install: ~/.atuin/bin/env only exists where Atuin is installed.
+if [[ -f "$HOME/.atuin/bin/env" ]]; then
+    . "$HOME/.atuin/bin/env"
+    eval "$(atuin init bash)"
+fi

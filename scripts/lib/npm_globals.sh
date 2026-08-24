@@ -9,6 +9,8 @@ install_npm_globals() {
         npm install -g postcss
         npm install -g postcss-cli
         npm install -g @github/copilot
+        # Code knowledge graph for AI coding agents (codegraph init/index/sync).
+        npm install -g @colbymchenry/codegraph
         # Persistent memory engine for AI coding agents.
         # Auto-started in the background by the platform-specific service
         # (LaunchAgent on macOS, systemd user unit on Linux) — see

@@ -4,7 +4,6 @@
 
 [core]
 	excludesFile = ~/.config/git/ignore
-	fileMode = false
 	pager = delta
 	ignorecase = true
 
@@ -31,3 +30,6 @@
 [url "git@github.com:"]
 	pushInsteadOf = https://github.com/
 	pushInsteadOf = git://github.com/
+[safe]
+	directory = /Volumes/Zenless/EstebanForge/Baluard
+	directory = /Volumes/Zenless/EstebanForge/construct-cli

@@ -228,6 +228,9 @@ export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 # HOMEBREW
 export HOMEBREW_NO_ENV_HINTS=1
 
+# FFF (disable $HOME scan)
+export FFF_ENABLE_HOME_SCAN=0
+
 # opencode
 export PATH="$HOME/.opencode/bin:$PATH"
 

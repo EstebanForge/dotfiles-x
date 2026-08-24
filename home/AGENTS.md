@@ -133,4 +133,5 @@ Notes:
 - `bw-ssh load` prompts for the master password. Hand the command to Esteban to run; agents never handle the password.
 - Keys stay decrypted in the agent only. Re-run `bw-ssh load` after a reboot or agent restart.
 - This is a bridge, not the Bitwarden agent. SSH agent forwarding and desktop-agent prompts do not apply.
+- Stanzas with vault-only keys (`.pub` on disk, private key in the agent) carry `IdentityAgent ~/.ssh/agent.sock` next to `IdentityFile` and `IdentitiesOnly yes`. The `IdentityAgent` line reaches the agent in non-interactive shells, where `~/.bashrc` was skipped and `SSH_AUTH_SOCK` is stale. A stanza missing the line fails with `no such identity` then `Permission denied (publickey)`: add the line. `IdentitiesOnly yes` stays safe, ssh matches the `.pub` file against the agent. Verify the agent holds a key: the fingerprint from `ssh-keygen -lf ~/.ssh/<name>.pub` appears in `ssh-add -l`.
 - Do not store or log the master password or `BW_SESSION`.

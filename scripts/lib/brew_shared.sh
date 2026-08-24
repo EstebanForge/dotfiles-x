@@ -28,6 +28,7 @@ SHARED_BREW_FORMULAE=(
     "fzf"
     "git"
     "git-delta"
+    "git-lfs"
     "gh"
     "go"
     "golangci-lint"

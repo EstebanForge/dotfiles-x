@@ -262,3 +262,13 @@ if [[ -f "$HOME/.atuin/bin/env" ]]; then
     . "$HOME/.atuin/bin/env"
     eval "$(atuin init bash)"
 fi
+
+######################################
+# zoxide (smarter cd)                #
+######################################
+
+# Installed via the shared Homebrew formulae (scripts/lib/brew_shared.sh).
+# Guarded: brew_install_list skips failed formulae, and hosts without the
+# binary must start clean instead of erroring on every shell.
+# https://github.com/ajeetdsouza/zoxide
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"

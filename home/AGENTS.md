@@ -20,7 +20,7 @@ Do not assume the OS. Detect at session start and branch on the result.
 | OS | `uname -s` | `Darwin` (macOS) \| `Linux` |
 | Distro | `cat /etc/os-release` (`ID=`) | `fedora` \| `ubuntu` \| `debian` \| ... |
 | Shell | `echo $SHELL` | `zsh` (macOS) \| `bash` (Linux) |
-| Package manager | `command -v brew dnf apt flatpak` | `brew` (all) + `dnf`/`flatpak` (Fedora) + `apt` (Deb) |
+| Package manager | `command -v brew dnf apt flatpak` | `brew` (all) + `dnf`/`flatpak` (Fedora) + `apt`/`flatpak` (Deb) |
 | Init / service mgr | `uname -s`; `pidof systemd` | `launchd` (macOS) \| `systemd` (Linux) |
 
 Never hardcode paths like `/Users/esteban` or `~/Library`. Use `$HOME` and branch on the detected OS.

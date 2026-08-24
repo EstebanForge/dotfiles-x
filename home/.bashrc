@@ -87,10 +87,13 @@ fi
 
 # Use the Bitwarden Flatpak SSH agent on Linux when its socket is present.
 # Flatpak stores the socket under ~/.var/app/... (not ~/.bitwarden-ssh-agent.sock).
+# Otherwise fall back to the systemd ssh-agent socket set up by the bw-ssh bridge.
 if [[ "$(uname)" == "Linux" ]]; then
     _BW_SSH_SOCK="$HOME/.var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock"
     if [[ -S "$_BW_SSH_SOCK" ]]; then
         export SSH_AUTH_SOCK="$_BW_SSH_SOCK"
+    else
+        export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
     fi
     unset _BW_SSH_SOCK
 fi

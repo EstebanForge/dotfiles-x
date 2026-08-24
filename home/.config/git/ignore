@@ -32,6 +32,16 @@
 .Spotlight-V100
 .Trashes
 *.Trashes
+.AppleDouble
+.AppleDesktop
+.AppleDB
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.apdisk
+.localized
+__MACOSX/
 *[Tt]humbs.db
 ehthumbs.db
 *.bak

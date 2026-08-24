@@ -237,24 +237,15 @@ bind -x '"\C-u": _ghost_kill_line'   # Kill from cursor to start of line
 bind -x '"\C-l": _ghost_clear'       # Clear screen
 bind -x '"\C-a": _ghost_home'        # Home
 
-# Up/Down: clear ghost text then defer to Bash's history browse.
-#
-# Readline macro bodies are re-dispatched through the keymap as KEYSTROKES,
-# never written to the terminal: every byte in a macro must be a BOUND key
-# sequence or _rl_abort_internal() discards the whole macro. The old bodies
-# contained \e[s / \e[1000G / \e[K (terminal OUTPUT codes, no keymap
-# binding), so readline aborted and silently swallowed the arrow key.
-#
-# Instead: bind a free chord to redraw-current-line (rl_refresh_line clears
-# to end-of-line, erasing the ghost text) and chain it with the stock
-# previous/next-history keys. Bind BOTH modes: readline's enable-keypad
-# defaults to off, so the prompt usually sees normal-mode \e[A/\e[B, while
-# terminals in application cursor mode send \eOA/\eOB.
-bind '"\C-x\C-g": redraw-current-line'
-bind '"\e[A": "\C-x\C-g\C-p"
-bind '"\e[B": "\C-x\C-g\C-n"
-bind '"\eOA": "\C-x\C-g\C-p"
-bind '"\eOB": "\C-x\C-g\C-n"
+# Up/Down arrows are left at their STOCK readline bindings (previous-history /
+# next-history in both \eA and \eOA modes). An earlier version chained a
+# redraw-current-line helper chord inside macros to clear ghost text on
+# arrow navigation; combined with the per-byte bind -x loop above, that made
+# readline's parser print "no key sequence terminator" notices at shell
+# startup (readline writes them straight to the tty; they cannot be
+# redirected). Stale ghost text after arrow navigation self-corrects on the
+# next keystroke (every printable byte re-renders) and at the next prompt
+# (_ghost_refresh), so stock arrows are the simpler, silent choice.
 
 # Refresh on each prompt draw. PROMPT_COMMAND may be an ARRAY (bash 5.1+;
 # Fedora's 80-systemd-osc-context.sh appends to it as one). String-appending

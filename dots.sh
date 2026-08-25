@@ -695,7 +695,7 @@ health_check() {
     print_status "1. Checking dotfile symlinks..."
     if ! show_status >/dev/null 2>&1; then
         print_warning "⚠️  Dotfile issues detected"
-        ((warnings++))
+        ((++warnings))
     else
         print_success "✅ All dotfiles properly linked"
     fi
@@ -718,17 +718,17 @@ health_check() {
                 print_success "✅ Remote repository is accessible"
             else
                 print_warning "⚠️  Cannot access remote repository"
-                ((warnings++))
+                ((++warnings))
             fi
         else
             print_error "❌ No remote origin configured"
-            ((issues++))
+            ((++issues))
         fi
 
         # Check for uncommitted changes
         if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
             print_warning "⚠️  Uncommitted changes detected"
-            ((warnings++))
+            ((++warnings))
         else
             print_success "✅ Working directory is clean"
         fi
@@ -741,11 +741,11 @@ health_check() {
             print_success "✅ Synced with remote"
         else
             print_warning "⚠️  Out of sync with remote"
-            ((warnings++))
+            ((++warnings))
         fi
     else
         print_error "❌ Not a git repository"
-        ((issues++))
+        ((++issues))
     fi
 
     # 3. Check shell configuration
@@ -771,11 +771,11 @@ health_check() {
             print_success "✅ $shell_name configuration is properly symlinked"
         else
             print_error "❌ $shell_name symlink is broken or incorrect"
-            ((issues++))
+            ((++issues))
         fi
     else
         print_warning "⚠️  $shell_name configuration is not symlinked"
-        ((warnings++))
+        ((++warnings))
     fi
 
     # Check EstebanForgePrompt is symlinked (macOS only)
@@ -785,7 +785,7 @@ health_check() {
             print_success "✅ EstebanForgePrompt is properly symlinked"
         else
             print_warning "⚠️  ~/.zsh/prompt.zsh not symlinked (run: dots install)"
-            ((warnings++))
+            ((++warnings))
         fi
     fi
 
@@ -801,7 +801,7 @@ health_check() {
             print_success "✅ Homebrew configuration is healthy"
         else
             print_warning "⚠️  Homebrew configuration issues detected"
-            ((warnings++))
+            ((++warnings))
         fi
 
         local outdated_count
@@ -810,11 +810,11 @@ health_check() {
             print_success "✅ All Homebrew packages are up to date"
         else
             print_warning "⚠️  $outdated_count Homebrew packages need updates"
-            ((warnings++))
+            ((++warnings))
         fi
     else
         print_error "❌ Homebrew is not installed (run: dots install --packages)"
-        ((issues++))
+        ((++issues))
     fi
 
     # npm health check
@@ -829,12 +829,12 @@ health_check() {
                 print_success "✅ npm is properly configured"
             else
                 print_warning "⚠️  npm prefix configuration issue"
-                ((warnings++))
+                ((++warnings))
             fi
         fi
     else
         print_warning "⚠️  npm is not installed"
-        ((warnings++))
+        ((++warnings))
     fi
 
     # Composer health check
@@ -843,11 +843,11 @@ health_check() {
 
         # Check Composer version
         local composer_version
-        composer_version=$(composer --version 2>/dev/null | cut -d' ' -f2)
+        composer_version=$(composer --version 2>/dev/null | cut -d' ' -f3)
         print_status "✅ Composer version: $composer_version"
     else
         print_warning "⚠️  Composer is not installed"
-        ((warnings++))
+        ((++warnings))
     fi
 
     # 5. Check development tools
@@ -863,11 +863,11 @@ health_check() {
             print_success "✅ Git user is configured"
         else
             print_warning "⚠️  Git user is not configured"
-            ((warnings++))
+            ((++warnings))
         fi
     else
         print_error "❌ Git is not installed"
-        ((issues++))
+        ((++issues))
     fi
 
     # Essential tools
@@ -881,7 +881,7 @@ health_check() {
             print_success "✅ $tool is available"
         else
             print_error "❌ $tool is not available"
-            ((issues++))
+            ((++issues))
         fi
     done
 
@@ -893,11 +893,11 @@ health_check() {
     if [[ -f "$HOME/.secrets" ]]; then
         local secrets_perms
         secrets_perms="$(stat -f '%A' "$HOME/.secrets" 2>/dev/null || stat -c '%A' "$HOME/.secrets" 2>/dev/null)"
-        if [[ "$secrets_perms" == "-rw-------" ]]; then
+        if [[ "$secrets_perms" == "600" ]]; then
             print_success "✅ Secrets file has correct permissions (600)"
         else
             print_warning "⚠️  Secrets file permissions may be insecure"
-            ((warnings++))
+            ((++warnings))
         fi
     else
         print_status "ℹ️  Secrets file does not exist (run 'dots install' to create)"
@@ -914,22 +914,23 @@ health_check() {
         print_success "✅ Home directory has sufficient disk space (${disk_usage}% used)"
     elif [[ $disk_usage -lt 95 ]]; then
         print_warning "⚠️  Home directory getting full (${disk_usage}% used)"
-        ((warnings++))
+        ((++warnings))
     else
         print_error "❌ Home directory is almost full (${disk_usage}% used)"
-        ((issues++))
+        ((++issues))
     fi
 
-    # Check memory usage (macOS)
+    # Check memory usage (macOS): memory_pressure reports "System-wide memory free
+    # percentage: N%"; the check must invert it (94% free = low pressure).
     if [[ "$(uname)" == "Darwin" ]]; then
-        local memory_pressure
-        memory_pressure=$(memory_pressure | head -1 | grep -o '[0-9]\+%')
-        if [[ -n "$memory_pressure" ]]; then
-            if [[ ${memory_pressure%?} -lt 80 ]]; then
-                print_success "✅ Memory pressure is normal"
+        local mem_free_pct
+        mem_free_pct=$(memory_pressure 2>/dev/null | grep 'free percentage' | grep -o '[0-9]\+' | head -1) || mem_free_pct=""
+        if [[ -n "$mem_free_pct" ]]; then
+            if (( mem_free_pct > 20 )); then
+                print_success "✅ Memory pressure is normal (${mem_free_pct}% free)"
             else
-                print_warning "⚠️  High memory pressure detected"
-                ((warnings++))
+                print_warning "⚠️  High memory pressure detected (only ${mem_free_pct}% free)"
+                ((++warnings))
             fi
         else
             print_status "ℹ️  Memory pressure not available"
@@ -956,7 +957,7 @@ health_check() {
                     ;;
                 *)
                     print_warning "⚠️  Running on unsupported Linux distro"
-                    ((warnings++))
+                    ((++warnings))
                     ;;
             esac
             if [[ -f /etc/os-release ]]; then
@@ -967,7 +968,7 @@ health_check() {
             ;;
         *)
             print_warning "⚠️  Running on unsupported OS: $os_name"
-            ((warnings++))
+            ((++warnings))
             ;;
     esac
 

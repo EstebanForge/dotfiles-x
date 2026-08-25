@@ -372,7 +372,7 @@ show_status() {
         ".secrets.example:.secrets.example"
         ".editorconfig:.editorconfig"
         ".hushlogin:.hushlogin"
-        ".config/topgrade/topgrade.toml:.config/topgrade.toml"
+        ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
         ".config/ghostty/config:.config/ghostty/config"
         ".config/zed/settings.json:.config/zed/settings.json"
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"

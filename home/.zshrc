@@ -35,12 +35,8 @@ setopt auto_pushd
 setopt pushd_ignore_dups
 setopt pushdminus
 
-# Dot aliases (global so they also expand mid-command, e.g. `cp f .../sib/`).
-# `..` needs no alias: it is a real fs entry picked up by auto_cd above.
-alias -g ...='../..'
-alias -g ....='../../..'
-alias -g .....='../../../..'
-alias -g ......='../../../../..'
+# Dot navigation aliases (... to ......): shared in
+# ~/.config/estebanforge/aliases.sh (loaded below with the other shared files).
 
 # --- Completion (ported from OMZ completion.zsh) ---
 # OpenSpec completions + user completions live here now (was ~/.oh-my-zsh/custom/completions)
@@ -121,6 +117,17 @@ source "$HOME/.zsh/prompt.zsh"
 # --- User functions (tunnel etc.) ---
 [[ -f "$HOME/.zsh/functions.zsh" ]] && source "$HOME/.zsh/functions.zsh"
 
+# --- Shared shell config (bash + zsh) ---
+# Everything in ~/.config/estebanforge/*.sh is shared with .bashrc:
+# aliases, environment, updaters, devtools, ssh host wrappers.
+# Loaded in glob (alphabetical) order; keep the files order-independent.
+setopt NULL_GLOB
+for _ef in "$HOME/.config/estebanforge"/*.sh; do
+    [[ -f "$_ef" ]] && source "$_ef"
+done
+unset _ef
+unsetopt NULL_GLOB
+
 ######################
 # User configuration #
 ######################
@@ -150,43 +157,10 @@ if [[ "$(uname)" == "Darwin" ]]; then
     launchctl setenv SSH_AUTH_SOCK "$SSH_AUTH_SOCK"
 fi
 
-# Preferred editor
-export EDITOR='nano'
+# EDITOR, brewup, phpv: shared in ~/.config/estebanforge/env.sh and
+# ~/.config/estebanforge/devtools.sh.
 
-# Brewup updater
-# Upgrades formulae and casks separately: a single OS-incompatible cask
-# (e.g. one requiring a newer macOS) must not abort the whole run or skip cleanup.
-brewup() {
-    echo "Updating Homebrew packages..."
-    brew update
-    brew upgrade --formula
-    for cask in $(brew outdated --cask --greedy -q); do
-        brew upgrade --cask "$cask" || echo "  -> skipped: $cask"
-    done
-    brew cleanup
-    echo "Homebrew packages updated and cleaned up."
-}
-
-# PHP version switcher. Default = 8.3 (set once via `brew link --force php@8.3`, persistent).
-# Keeps 8.2/8.3/8.4/8.5 installed; all unpinned so brewup updates them.
-phpv() {
-    local target
-    case "$1" in
-        8.5) target="php" ;;
-        8.2|8.3|8.4) target="php@$1" ;;
-        "") echo "usage: phpv <8.2|8.3|8.4|8.5>"; return 2 ;;
-        *) echo "phpv: unsupported version '$1'"; return 1 ;;
-    esac
-    brew list --formula "$target" >/dev/null 2>&1 || { echo "phpv: $target not installed"; return 1; }
-    brew unlink php php@8.2 php@8.3 php@8.4 2>/dev/null
-    brew link --force --overwrite "$target"
-    php --version | head -1
-}
-
-# Topgrade Updater
-sysup() {
-    topgrade
-}
+# sysup / sysup-full / dots-check: shared in ~/.config/estebanforge/updaters.sh
 
 # agentmemory: engine is launchd-managed (com.agentmemory.server) with the
 # correct WorkingDirectory. Prevent accidental manual starts from a project
@@ -239,23 +213,10 @@ memconsolidate() {
     fi
 }
 
-# OS-specific ls aliases
+# ls/ll/la/l, cat, artisan: shared in ~/.config/estebanforge/aliases.sh
 if [[ "$(uname)" == "Darwin" ]]; then
-    # gls (GNU ls) via Homebrew coreutils
-    alias ls='gls -GFh --color -h --group-directories-first'
-    alias ll='gls --color -alF --group-directories-first'
-    alias la='gls --color -A'
-    alias l='gls --color -CF'
     alias qs='open -a "QSpace Pro"'
-elif [[ "$(uname)" == "Linux" ]]; then
-    alias ls='ls -GFh --color -h --group-directories-first'
-    alias ll='ls --color -alF --group-directories-first'
-    alias la='ls --color -A'
-    alias l='ls --color -CF'
 fi
-
-alias artisan='php artisan'
-alias cat='bat'
 
 # --- Sandbox Control (UTM, macOS only) ---
 # Sandbox VM IP. Override in ~/.secrets. Must match ~/.ssh/config Host sandbox.
@@ -282,27 +243,15 @@ fi
 # PATH AND ENVIRONMENT CONFIGURATION #
 ######################################
 
-# PHP & Composer
-export PATH="$HOME/.config/composer/vendor/bin:$PATH"
-export COMPOSER_PROCESS_TIMEOUT=1800
+# Composer, ~/.local/bin, HOMEBREW_NO_ENV_HINTS, opencode, LM Studio, phpvm:
+# shared in ~/.config/estebanforge/env.sh
 
-# User-specific binary paths
-export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
-
-# HOMEBREW
-export HOMEBREW_NO_ENV_HINTS=1
 
 # Bun (macOS)
 if [[ "$(uname)" == "Darwin" ]]; then
     export PATH="$HOME/.bun/bin:$PATH"
 fi
-
-# opencode
-export PATH="$HOME/.opencode/bin:$PATH"
-
-# LM Studio CLI
-export PATH="$PATH:$HOME/.lmstudio/bin"
 
 # Go (Golang)
 export GOPATH="$HOME/.local/share/go"
@@ -318,13 +267,6 @@ fi
 if [[ "$(uname)" == "Darwin" ]]; then
     export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
     export PATH="$HOME/.antigravity-ide/antigravity-ide/bin:$PATH"
-fi
-
-# phpvm (PHP version manager)
-export PHPVM_DIR="$HOME/.phpvm"
-export PATH="$PHPVM_DIR/bin:$PATH"
-if [[ -s "$PHPVM_DIR/phpvm.sh" ]]; then
-    source "$PHPVM_DIR/phpvm.sh"
 fi
 
 # Load custom plugins from ~/.zsh/plugins/
@@ -432,9 +374,6 @@ MENU
 
 # Pi agent
 export PI_CACHE_RETENTION="long"
-
-# FFF
-export FFF_ENABLE_HOME_SCAN=0
 
 # Agent-browser
 export AGENT_BROWSER_IGNORE_HTTPS_ERRORS=true

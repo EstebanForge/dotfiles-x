@@ -46,12 +46,7 @@ shopt -s checkwinsize
 # Navigate by typing a directory name (zsh-like autocd)
 shopt -s autocd
 
-# Quick parent-dir navigation
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias .....='cd ../../../..'
-alias ......='cd ../../../../..'
+# Dot navigation aliases: shared in ~/.config/estebanforge/aliases.sh
 
 # If not running interactively, stop here
 case $- in
@@ -101,6 +96,18 @@ if [[ "$(uname)" == "Linux" ]]; then
 fi
 
 ######################################
+# Shared shell functions (bash + zsh) #
+######################################
+
+# Everything in ~/.config/estebanforge/*.sh is shared with .zshrc:
+# aliases, environment, updaters, devtools, ssh host wrappers.
+# Loaded in glob (alphabetical) order; keep the files order-independent.
+for _ef in "$HOME/.config/estebanforge"/*.sh; do
+    [[ -f "$_ef" ]] && source "$_ef"
+done
+unset _ef
+
+######################################
 # Prompt                             #
 ######################################
 
@@ -146,96 +153,26 @@ if command -v brew >/dev/null 2>&1; then
     unset _brew_completion
 fi
 
-######################################
-# User configuration                 #
-######################################
-
-export EDITOR='nano'
-
-######################################
-# Updaters                           #
-######################################
-
-sysup() {
-    echo "Starting system update with topgrade..."
-    topgrade
-    echo "System update complete!"
-    echo ""
-    echo "Checking dotfile status..."
-    if [[ -d ~/.dotfiles ]]; then
-        cd ~/.dotfiles || return 1
-        if [[ -n $(git status --porcelain 2>/dev/null) ]]; then
-            echo "Dotfiles have changes. Run 'dots status' to check."
-        else
-            echo "Dotfiles are up to date!"
-        fi
-    else
-        echo "$HOME/.dotfiles directory not found"
-    fi
-}
-
-sysup-full() {
-    echo "Full system and dotfiles update..."
-    echo ""
-    echo "1. Updating system packages..."
-    sysup
-    echo ""
-    echo "2. Updating dotfiles..."
-    dots sync
-    echo ""
-    echo "Full update complete! Run 'exec bash' to reload shell"
-}
-
-dots-check() {
-    echo "Quick dotfile health check..."
-    cd ~/.dotfiles || return 1
-    ./dots.sh health
-}
+# EDITOR: shared in ~/.config/estebanforge/env.sh
+# sysup / sysup-full / dots-check: shared in ~/.config/estebanforge/updaters.sh
 
 ######################################
 # Aliases                            #
 ######################################
 
-# ls aliases (Linux)
-alias ls='ls -GFh --color -h --group-directories-first'
-alias ll='ls --color -alF --group-directories-first'
-alias la='ls --color -A'
-alias l='ls --color -CF'
-
-alias cat='bat'
-alias artisan='php artisan'
+# ls family, cat, artisan, dot navigation: shared in
+# ~/.config/estebanforge/aliases.sh
 
 ######################################
 # PATH AND ENVIRONMENT               #
 ######################################
 
-# PHP & Composer
-export PATH="$HOME/.config/composer/vendor/bin:$PATH"
-export COMPOSER_PROCESS_TIMEOUT=600
+# Composer, ~/.local/bin, HOMEBREW_NO_ENV_HINTS, opencode, LM Studio, phpvm:
+# shared in ~/.config/estebanforge/env.sh
 
 # PHP 8.3 first in PATH (Homebrew php@8.3 is keg-only)
 export PATH="$HOMEBREW_PREFIX/opt/php@8.3/bin:$PATH"
 export PATH="$HOMEBREW_PREFIX/opt/php@8.3/sbin:$PATH"
-
-# phpvm (PHP version manager)
-export PHPVM_DIR="$HOME/.phpvm"
-export PATH="$PHPVM_DIR/bin:$PATH"
-[ -s "$PHPVM_DIR/phpvm.sh" ] && . "$PHPVM_DIR/phpvm.sh"
-
-# User-specific binary paths
-export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-
-# HOMEBREW
-export HOMEBREW_NO_ENV_HINTS=1
-
-# FFF (disable $HOME scan)
-export FFF_ENABLE_HOME_SCAN=0
-
-# opencode
-export PATH="$HOME/.opencode/bin:$PATH"
-
-# LM Studio CLI
-export PATH="$PATH:$HOME/.lmstudio/bin"
 
 # Windsurf
 export PATH="$HOME/.codeium/windsurf/bin:$PATH"

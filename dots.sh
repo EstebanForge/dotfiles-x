@@ -203,6 +203,11 @@ setup_dotfiles() {
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
         ".config/construct-cli/config.toml:.config/construct-cli/config.toml"
+        ".config/estebanforge/aliases.sh:.config/estebanforge/aliases.sh"
+        ".config/estebanforge/devtools.sh:.config/estebanforge/devtools.sh"
+        ".config/estebanforge/env.sh:.config/estebanforge/env.sh"
+        ".config/estebanforge/updaters.sh:.config/estebanforge/updaters.sh"
+        ".config/estebanforge/ssh-hosts.sh:.config/estebanforge/ssh-hosts.sh"
     )
 
     # Shell config: zsh on macOS, bash on Linux
@@ -336,6 +341,11 @@ cleanup_symlinks() {
         ".config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml"
         ".config/construct-cli/config.toml"
+        ".config/estebanforge/ssh-hosts.sh"
+        ".config/estebanforge/aliases.sh"
+        ".config/estebanforge/env.sh"
+        ".config/estebanforge/updaters.sh"
+        ".config/estebanforge/devtools.sh"
         ".local/bin/dots"
     )
 
@@ -368,6 +378,11 @@ show_status() {
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
         ".config/construct-cli/config.toml:.config/construct-cli/config.toml"
+        ".config/estebanforge/aliases.sh:.config/estebanforge/aliases.sh"
+        ".config/estebanforge/devtools.sh:.config/estebanforge/devtools.sh"
+        ".config/estebanforge/env.sh:.config/estebanforge/env.sh"
+        ".config/estebanforge/updaters.sh:.config/estebanforge/updaters.sh"
+        ".config/estebanforge/ssh-hosts.sh:.config/estebanforge/ssh-hosts.sh"
     )
 
     # Shell config: zsh on macOS, bash on Linux

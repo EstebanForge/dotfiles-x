@@ -12,6 +12,7 @@ tunnel() {
             if nc -z 127.0.0.1 8443 2>/dev/null; then
                 print 'tunnel: already up (https://localhost)'
             else
+                _bw_ssh_preflight "$HOME/.ssh/zenless" || return 1
                 ssh -fN tunneless && print 'tunnel: up (https://localhost)'
             fi
             ;;
@@ -23,7 +24,8 @@ tunnel() {
             fi
             ;;
         status)
-            if nc -z 127.0.0.1 8443 2>/dev/null; then
+            # 443 proves the full chain: pf + ssh + remote. 8443 only proves ssh.
+            if nc -z 127.0.0.1 443 2>/dev/null; then
                 print 'tunnel: up (https://localhost)'
             else
                 print 'tunnel: down'
@@ -35,3 +37,6 @@ tunnel() {
             ;;
     esac
 }
+
+# SSH host wrappers (zenless + Bitwarden agent pre-flight) live in
+# ~/.config/estebanforge/ssh-hosts.sh, shared with .bashrc.

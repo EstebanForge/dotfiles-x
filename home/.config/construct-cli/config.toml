@@ -5,7 +5,7 @@
 # Runtime Preferences
 [runtime]
 # Isolation backend: "docker" (default) or "microvm" (microsandbox microVMs, experimental)
-backend = "docker"
+backend = "microvm"
 
 # Options: "auto", "container", "podman", "docker"
 # "auto" will detect in priority order: container > podman > docker
@@ -97,6 +97,10 @@ host_service_env = [
 ]
 
 # Agent Behavior
+
+# Added by construct sys doctor --fix
+disable_seccomp = false
+host_loopback_ports = [80, 443]
 [agents]
 # Enable yolo mode for all supported agents (default: false, overrides yolo_agents)
 yolo_all = true

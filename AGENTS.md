@@ -173,7 +173,6 @@ dots help                                # Show help message
 | `~/.config/zed/settings.json`       | `.config/zed/settings.json`              | All platforms               |
 | `~/.config/mcp-cli-ent/mcp_servers.json` | `.config/mcp-cli-ent/mcp_servers.json` | All platforms          |
 | `~/.config/gh/config.yml`           | `.config/gh/config.yml`                  | All platforms               |
-| `~/.config/construct-cli/config.toml` | `.config/construct-cli/config.toml`    | All platforms (Construct CLI) |
 | `~/.config/estebanforge/ssh-hosts.sh` | `.config/estebanforge/ssh-hosts.sh`  | All platforms (SSH host wrappers with Bitwarden agent pre-flight; sourced by `.zshrc` and `.bashrc`) |
 | `~/.config/estebanforge/aliases.sh` | `.config/estebanforge/aliases.sh`    | All platforms (cross-shell aliases: ls family, cat, artisan, dot navigation) |
 | `~/.config/estebanforge/env.sh` | `.config/estebanforge/env.sh`          | All platforms (cross-shell exports and PATH: EDITOR, composer, `~/.local/bin`, opencode, LM Studio, phpvm) |

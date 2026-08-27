@@ -177,6 +177,11 @@ export PATH="$HOMEBREW_PREFIX/opt/php@8.3/sbin:$PATH"
 # Windsurf
 export PATH="$HOME/.codeium/windsurf/bin:$PATH"
 
+# Podman compose wrapper: drop the "Executing external compose provider"
+# banner printed by `podman compose` (and by wicket through it).
+# See podman-compose(1).
+export PODMAN_COMPOSE_WARNING_LOGS=false
+
 ######################################
 # Secrets                            #
 ######################################

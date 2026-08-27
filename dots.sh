@@ -202,7 +202,6 @@ setup_dotfiles() {
         ".config/zed/settings.json:.config/zed/settings.json"
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
-        ".config/construct-cli/config.toml:.config/construct-cli/config.toml"
         ".config/estebanforge/aliases.sh:.config/estebanforge/aliases.sh"
         ".config/estebanforge/devtools.sh:.config/estebanforge/devtools.sh"
         ".config/estebanforge/env.sh:.config/estebanforge/env.sh"
@@ -340,7 +339,6 @@ cleanup_symlinks() {
         ".config/zed/settings.json"
         ".config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml"
-        ".config/construct-cli/config.toml"
         ".config/estebanforge/ssh-hosts.sh"
         ".config/estebanforge/aliases.sh"
         ".config/estebanforge/env.sh"
@@ -377,7 +375,6 @@ show_status() {
         ".config/zed/settings.json:.config/zed/settings.json"
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
-        ".config/construct-cli/config.toml:.config/construct-cli/config.toml"
         ".config/estebanforge/aliases.sh:.config/estebanforge/aliases.sh"
         ".config/estebanforge/devtools.sh:.config/estebanforge/devtools.sh"
         ".config/estebanforge/env.sh:.config/estebanforge/env.sh"
@@ -1064,7 +1061,6 @@ FILES MANAGED:
     ~/.config/zed/settings.json         Zed editor configuration
     ~/.config/mcp-cli-ent/mcp_servers.json  MCP server registry
     ~/.config/gh/config.yml             GitHub CLI configuration
-    ~/.config/construct-cli/config.toml  Construct CLI configuration
 
 SUPPORTED PLATFORMS:
     macOS (Homebrew) · Fedora Linux (DNF/Flatpak) · Deb-based (apt)

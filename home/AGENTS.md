@@ -106,6 +106,26 @@ rm ~/Library/LaunchAgents/com.user.superkey.plist                               
 
 Notes: `sleep 1` lets VoiceInk init first; raise to 3 or 5 if needed, then reload (bootout + bootstrap). `open -gj`: `-g` no foreground, `-j` hidden. Plist auto-loads on every login. Quit the app before kickstart: `osascript -e 'quit app "Superkey"'`.
 
+### macOS: zenless localhost tunnel (pf redirect)
+
+Problem: `https://localhost` serves a site stack on the remote machine `zenless`. Two halves must both live: an ssh local forward (user-owned) and a pf port redirect (root-owned). The pf half dies silently when something flushes pf mid-session (the NordVPN privileged helper is the prime suspect; it lives in `/Library/PrivilegedHelperTools/`). After that, `tunnel up` still said "up" because it only checked the ssh half. Fixed: the `tunnel` function now proves the full chain via port 443 and prints the repair command on split state.
+
+Components (machine-local, not symlinked by dots):
+
+- ssh half: `ssh -fN tunneless` binds `127.0.0.1:8080` and `127.0.0.1:8443` on the Mac, forwarding to ports 80/443 on `zenless`. Host stanza lives in the ssh config managed by `~/.config/estebanforge/ssh-hosts.sh`.
+- pf half: `/etc/pf.anchors/tunneless` redirects `lo0` 80 -> 8080 and 443 -> 8443. Loaded by `rdr-anchor`/`load anchor` lines in `/etc/pf.conf`.
+- Boot loader: `/Library/LaunchDaemons/com.user.pf.plist` runs `pfctl -f /etc/pf.conf && pfctl -e` at load. Log: `/var/log/com.user.pf.log` (no timestamps).
+
+Gate: `nc -z 127.0.0.1 443 && echo full-chain-ok`. Port 8443 answering while 443 refuses = pf half dead.
+
+Repair (run in Terminal):
+
+```bash
+sudo pfctl -f /etc/pf.conf && sudo pfctl -e   # reload rules, ensure enabled
+```
+
+Notes: pf loads cleanly at boot per the daemon log, so recurring deaths are mid-session flushes. If it dies again, correlate with NordVPN connect/disconnect times before blaming the boot daemon. Verify end to end: `curl -skI https://localhost/` must return 200.
+
 ### Linux: Bitwarden SSH key bridge (`bw-ssh`)
 
 Headless Linux has no Bitwarden desktop app, and the `bw` CLI cannot act as an ssh-agent (that is a desktop-app feature only). On hosts where the bridge is installed, vault SSH keys are pulled by `bw` and loaded into a real systemd `ssh-agent`. The bridge is machine-local, not part of this repo; gate on `command -v bw-ssh` before using this section.

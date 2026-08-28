@@ -61,3 +61,12 @@
 	directory = /System/Volumes/Data/mnt/Zenless/Dev/Stack/stack-sdk-php-next
 	directory = /System/Volumes/Data/mnt/Zenless/Dev/Stack/wordpress-baseline
 	directory = /System/Volumes/Data/mnt/Zenless/Dev/Stack/oba-website-wordpress
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/Stack/chfa-website-wordpress
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/Stack/cchl-website-wordpress
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/Stack/njbia-website-wordpress
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/AGENTS
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/Stack/escrs-website-wordpress
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/Stack/msa-website-wordpress
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/elgit
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/Stack/csae-portal-wordpress
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/pi-zendesk-me

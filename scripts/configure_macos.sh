@@ -324,6 +324,18 @@ launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist
 install_agentmemory_service_macos
 
 ###############################################################################
+# COPYFILE_DISABLE session env (AppleDouble prevention)                      #
+###############################################################################
+# Shell export lives in estebanforge/env.sh (terminal); this loads the
+# LaunchAgent symlinked by dots.sh so GUI-launched processes also inherit
+# COPYFILE_DISABLE=1. bootstrap fails benignly if already loaded; kickstart
+# then re-runs it. Setting it twice is harmless.
+if [[ -f "$HOME/Library/LaunchAgents/com.user.copyfile-disable.plist" ]]; then
+    launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/com.user.copyfile-disable.plist" 2>/dev/null \
+        || launchctl kickstart -k "gui/$(id -u)/com.user.copyfile-disable"
+fi
+
+###############################################################################
 # Kill affected applications                                                  #
 ###############################################################################
 

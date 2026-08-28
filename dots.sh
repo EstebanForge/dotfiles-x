@@ -214,6 +214,7 @@ setup_dotfiles() {
         dotfiles+=(".zshrc:.zshrc")
         dotfiles+=(".zsh/prompt.zsh:.zsh/prompt.zsh")
         dotfiles+=(".config/linearmouse/linearmouse.json:.config/linearmouse/linearmouse.json")
+        dotfiles+=("Library/LaunchAgents/com.user.copyfile-disable.plist:Library/LaunchAgents/com.user.copyfile-disable.plist")
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")
@@ -317,6 +318,7 @@ cleanup_symlinks() {
         ".zshrc"
         ".zsh/prompt.zsh"
         ".config/linearmouse/linearmouse.json"
+        "Library/LaunchAgents/com.user.copyfile-disable.plist"
         ".bashrc"
         ".config/environment.d/gnome-wayland.conf"
         ".config/environment.d/freetype.conf"
@@ -387,6 +389,7 @@ show_status() {
         dotfiles+=(".zshrc:.zshrc")
         dotfiles+=(".zsh/prompt.zsh:.zsh/prompt.zsh")
         dotfiles+=(".config/linearmouse/linearmouse.json:.config/linearmouse/linearmouse.json")
+        dotfiles+=("Library/LaunchAgents/com.user.copyfile-disable.plist:Library/LaunchAgents/com.user.copyfile-disable.plist")
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")

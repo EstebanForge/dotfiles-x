@@ -30,3 +30,12 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 export PHPVM_DIR="$HOME/.phpvm"
 export PATH="$PHPVM_DIR/bin:$PATH"
 [[ -s "$PHPVM_DIR/phpvm.sh" ]] && source "$PHPVM_DIR/phpvm.sh"
+
+# macOS: stop BSD tar/cp/mv from writing AppleDouble ._ companion files
+# (extended attributes) when the target cannot store them: tarballs, exFAT,
+# NFS, anything non-APFS. The LaunchAgent com.user.copyfile-disable.plist
+# (symlinked by dots.sh) sets the same variable for GUI-launched processes.
+# Finder is not affected by this variable. No-op on Linux.
+if [[ "$(uname)" == "Darwin" ]]; then
+    export COPYFILE_DISABLE=1
+fi

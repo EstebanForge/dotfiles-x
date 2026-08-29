@@ -74,7 +74,7 @@ Never run `topgrade`, `sysup`, or any `upgrade-all` without confirmation.
 ## 8. Output & Code Style
 
 - Markdown with code blocks. Use `diff` format for config edits; show exact lines to add or modify.
-- Explain WHY a change is needed, not only what.
+- Code comments should explain the "why", not the "what". The "why" doesn't go out of date, even if the "what" does.
 - Keep code comments short. Delete any claim from a comment that is derivable from the code; keep only the WHY.
 - Check for existing configuration before suggesting new configuration.
 - Shell scripts: quote variables, `[[ ]]` over `[ ]`, `set -euo pipefail`, portable Bash 5 / Zsh, pass ShellCheck. Shebang `#!/usr/bin/env bash`.

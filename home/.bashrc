@@ -177,6 +177,12 @@ export PATH="$HOMEBREW_PREFIX/opt/php@8.3/sbin:$PATH"
 # Windsurf
 export PATH="$HOME/.codeium/windsurf/bin:$PATH"
 
+# Go: keep tool state out of $HOME/go (the default). GOPATH is mirrored in
+# ~/.config/go/env via `go env -w` so non-shell tooling agrees; this export
+# covers $GOPATH/bin on PATH and hosts without the go env file.
+export GOPATH="$HOME/.local/share/go"
+export PATH="$GOPATH/bin:$PATH"
+
 # Podman compose wrapper: drop the "Executing external compose provider"
 # banner printed by `podman compose` (and by wicket through it).
 # See podman-compose(1).

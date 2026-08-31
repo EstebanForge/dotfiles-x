@@ -223,3 +223,15 @@ fi
 # binary must start clean instead of erroring on every shell.
 # https://github.com/ajeetdsouza/zoxide
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
+
+# >>> clipboard-ssh-bridge >>>
+# headless X display owned by the clipboard bridge (Xvfb, systemd --user).
+# Guarded so real ssh -X forwarding still wins.
+if [[ -z "${DISPLAY:-}" ]]; then
+    export DISPLAY=:77
+fi
+# NOTE: leave TERM_PROGRAM UNSET here. agy routes recognized values (ghostty,
+# iTerm.app, wezterm...) to terminal-upload protocols (OSC 1337) that cannot
+# cross a plain ssh pty; unset makes it read X11 via xclip, which the bridge
+# serves on :77.
+# <<< clipboard-ssh-bridge <<<

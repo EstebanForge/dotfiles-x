@@ -70,3 +70,10 @@
 	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/elgit
 	directory = /System/Volumes/Data/mnt/Zenless/Dev/Wicket/csae-portal-wordpress
 	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/pi-zendesk-me
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/docker-wp-devenv
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/docker-wp-hyperpress/src/app/plugins/HyperFields
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/docker-wp-hyperpress/src/app/plugins/HyperBlocks
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/docker-wp-hyperpress/src/app/plugins/HyperPress-Core
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/docker-wp-hyperpress/src/app/plugins/api-for-htmx
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/Wicket/ospe-website-wordpress
+	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/pi-antigravity-bridge

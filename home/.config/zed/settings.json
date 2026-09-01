@@ -45,7 +45,8 @@
     },
     "pi-acp": {
       "default_config_options": {
-        "model": "zai/glm-5.2",
+        "thought_level": "high",
+        "model": "zai/glm-5.3-flash",
       },
       "type": "registry",
     },

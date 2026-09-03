@@ -683,6 +683,25 @@ run_wheeltani_setup() {
     bash "$runner"
 }
 
+# Zenless NFS mountpoint self-heal. macOS-only: installs a root LaunchDaemon
+# that recreates /Volumes/Zenless when macOS prunes it (automountd cannot
+# create mountpoints under /Volumes, so the autofs map alone is not enough).
+# The /etc/auto_nfs map is machine-local, so this only fully applies on the
+# Mac that mounts the zenless export.
+run_zenless_mount_setup() {
+    print_header "Zenless NFS Mount Self-Heal"
+    if [[ "$DISTRO" != "macos" ]]; then
+        print_error "Zenless mount self-heal is macOS-only (this machine: $DISTRO)."
+        return 1
+    fi
+    local runner="$DOTFILES_DIR/scripts/zenless_mount.sh"
+    if [[ ! -f "$runner" ]]; then
+        print_error "Zenless mount script not found: $runner"
+        return 1
+    fi
+    bash "$runner" "${1:-install}"
+}
+
 # Function to show health check
 health_check() {
     print_header "Comprehensive Health Check"
@@ -1034,6 +1053,7 @@ COMMANDS:
     crontab [action]          Manage crontab entries (install/show/remove/backup/service)
     backup [run|list]         Run backup scripts (agentmemory, etc.)
     wheeltani                 Wayland-Wheeltani middle-mouse autoscroll (Fedora/Wayland)
+    zenless-mount [action]    NFS mountpoint self-heal daemon (macOS; install/plist/status)
     version                   Show script version
     help                      Show this help message
 
@@ -1048,6 +1068,7 @@ EXAMPLES:
     dots health                         # Run health diagnostics
     dots crontab show                   # Show scheduled jobs
     dots wheeltani                     # (Re)run Wayland-Wheeltani mouse setup
+    dots zenless-mount                 # (Re)install Zenless NFS mount self-heal
 
 FILES MANAGED:
     ~/AGENTS.md                         Agent protocol (all platforms)
@@ -1095,10 +1116,11 @@ show_menu() {
         printf '  %s9)%s   Commit & push local changes\n' "$CYAN" "$NC"
         printf '  %s10)%s  Cleanup symlinks\n' "$CYAN" "$NC"
         printf '  %s11)%s  Wayland-Wheeltani autoscroll setup\n' "$CYAN" "$NC"
-        printf '  %s12)%s  Show help\n' "$CYAN" "$NC"
+        printf '  %s12)%s  Zenless NFS mount self-heal (macOS)\n' "$CYAN" "$NC"
+        printf '  %s13)%s  Show help\n' "$CYAN" "$NC"
         printf '  %s0)%s   Exit\n' "$CYAN" "$NC"
         echo ""
-        read -r -p "Select an option [0-12]: " choice
+        read -r -p "Select an option [0-13]: " choice
 
         case "$choice" in
             1)  main install --packages --crontab --configure; return 0 ;;
@@ -1112,7 +1134,8 @@ show_menu() {
             9)  main push; return 0 ;;
             10) main cleanup; return 0 ;;
             11) main wheeltani; return 0 ;;
-            12) main help; return 0 ;;
+            12) main zenless-mount; return 0 ;;
+            13) main help; return 0 ;;
             0|"q"|"quit"|"exit") echo "Bye."; return 0 ;;
             "")  echo "Bye."; return 0 ;;
             *) print_error "Invalid option: $choice" ;;
@@ -1199,6 +1222,9 @@ main() {
             ;;
         "wheeltani")
             run_wheeltani_setup
+            ;;
+        "zenless-mount")
+            run_zenless_mount_setup "${args[0]:-install}"
             ;;
         "help"|"-h"|"--help")
             show_help

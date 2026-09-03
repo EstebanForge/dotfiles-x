@@ -77,3 +77,12 @@
 	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/docker-wp-hyperpress/src/app/plugins/api-for-htmx
 	directory = /System/Volumes/Data/mnt/Zenless/Dev/Wicket/ospe-website-wordpress
 	directory = /System/Volumes/Data/mnt/Zenless/Dev/EstebanForge/pi-antigravity-bridge
+	directory = /Volumes/Zenless/Dev/EstebanForge/docker-wp-hyperpress/src/app/plugins/HyperPress-Core
+	directory = /Volumes/Zenless/Dev/EstebanForge/Baluard
+	directory = /Volumes/Zenless/Dev/Wicket/njbia-website-wordpress
+	directory = /Volumes/Zenless/Dev/EstebanForge/AGENTS
+	directory = /Volumes/Zenless/Dev/EstebanForge/construct-cli
+	directory = /Volumes/Zenless/Dev/EstebanForge/docker-wp-devenv
+	directory = /Volumes/Zenless/Dev/EstebanForge/dotfiles-x
+	directory = /Volumes/Zenless/Dev/Wicket/wordpress-docker-template
+	directory = /Volumes/Zenless/Dev/Wicket/msa-website-wordpress

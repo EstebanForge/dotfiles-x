@@ -1,0 +1,7 @@
+[Unit]
+Description=Mirror ~/Dev to NAS (rsync)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/dev-backup.sh
+Nice=10

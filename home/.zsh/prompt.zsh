@@ -1,3 +1,7 @@
+# shellcheck shell=bash
+# zsh file: shellcheck only speaks bash. The zsh prompt expansion and array
+# syntax below are valid zsh; those checks are disabled file-wide.
+# shellcheck disable=SC2006,SC2016,SC2034,SC2053,SC2086,SC2091,SC2128,SC2155,SC2179,SC2327,SC2328
 #
 # EstebanForgePrompt
 # Ported from TCattd (Cobalt2 fork). Lean, Oh-My-Zsh-free.

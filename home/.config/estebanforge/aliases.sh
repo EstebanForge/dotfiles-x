@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Cross-shell aliases (bash + zsh), sourced from the
 # ~/.config/estebanforge/*.sh loop in .zshrc and .bashrc.
 # Keep entries identical on both shells; shell-specific syntax goes behind

@@ -1,3 +1,8 @@
+# shellcheck shell=bash
+# zsh file: shellcheck only speaks bash. zsh prompt expansion, zsh array
+# appends and zsh substitutions are valid here; those checks are disabled
+# file-wide instead of rewritten into bash.
+# shellcheck disable=SC2006,SC2016,SC2028,SC2034,SC2053,SC2086,SC2091,SC2128,SC2155,SC2179,SC2206,SC2327,SC2328
 # ============================================================
 # ZSH configuration (lean, Oh-My-Zsh-free)
 # Native completion, history, and keybindings replace OMZ libs.
@@ -70,9 +75,13 @@ autoload -U +X bashcompinit && bashcompinit
 
 # --- Key bindings (ported from OMZ key-bindings.zsh, emacs mode) ---
 bindkey -e
-if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
-    zle-line-init() { echoti smkx }
-    zle-line-finish() { echoti rmkx }
+if [[ -n ${terminfo[smkx]-} ]] && [[ -n ${terminfo[rmkx]-} ]]; then
+    function zle-line-init {
+        echoti smkx
+    }
+    function zle-line-finish {
+        echoti rmkx
+    }
     zle -N zle-line-init
     zle -N zle-line-finish
 fi

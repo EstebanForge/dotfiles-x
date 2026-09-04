@@ -254,5 +254,7 @@ bind -x '"\C-a": _ghost_home'        # Home
 if [[ ${PROMPT_COMMAND@a} == *a* ]]; then
     PROMPT_COMMAND+=(_ghost_refresh)
 else
+    # Intentional runtime type branch: array on bash 5.1+, string on older bash.
+    # shellcheck disable=SC2178,SC2128
     PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_ghost_refresh"
 fi

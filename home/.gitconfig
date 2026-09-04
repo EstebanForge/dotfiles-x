@@ -31,4 +31,5 @@
 	pushInsteadOf = https://github.com/
 	pushInsteadOf = git://github.com/
 [safe]
-	directory = *
+	directory = /System/Volumes/Data/mnt/Zenless/*
+	directory = /Volumes/Zenless/*

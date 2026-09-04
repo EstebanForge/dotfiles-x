@@ -32,7 +32,7 @@ tunnel() {
                 return 0
             fi
             if ! nc -z 127.0.0.1 8443 2>/dev/null; then
-                _bw_ssh_preflight "$HOME/.ssh/zenless" || return 1
+                _bw_ssh_preflight "$HOME/.ssh/attd-zenless" || return 1
                 ssh -fN tunneless || return 1
             fi
             if nc -z 127.0.0.1 443 2>/dev/null; then

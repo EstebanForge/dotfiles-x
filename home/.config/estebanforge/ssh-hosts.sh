@@ -92,6 +92,6 @@ _bw_ssh_preflight() {
 # Fool-proof ssh into the dev server: checks the Bitwarden agent, then
 # connects. Extra args pass through: zenless -- htop
 zenless() {
-    _bw_ssh_preflight "$HOME/.ssh/zenless" || return 1
+    _bw_ssh_preflight "$HOME/.ssh/attd-zenless" || return 1
     command ssh zenless "$@"
 }

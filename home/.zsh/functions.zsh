@@ -1,3 +1,7 @@
+# shellcheck shell=bash
+# zsh file: shellcheck only speaks bash, so zsh-specific constructs are
+# disabled file-wide (read -q prompt assignment, literal backticks in print).
+# shellcheck disable=SC2162,SC2154,SC2016
 # User shell functions. Sourced by .zshrc after the prompt.
 # Keep this file small: functions only, no aliases, no exports.
 

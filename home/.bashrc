@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 ######################################
 # System integration                 #
 ######################################
@@ -73,6 +74,8 @@ _distroname() {
 if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 elif [[ -x "$HOME/.linuxbrew/bin/brew" ]]; then
+    # brew shellenv: eval of the quoted substitution is the recommended pattern
+    # shellcheck disable=SC2086
     eval "$($HOME/.linuxbrew/bin/brew shellenv)"
 fi
 

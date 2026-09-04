@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Cross-shell environment (bash + zsh): exports and PATH entries shared by
 # .zshrc and .bashrc. Platform-specific PATH additions (bun, Android SDK,
 # php@8.3 keg paths, windsurf, LLVM, ...) stay in the per-shell rc files.

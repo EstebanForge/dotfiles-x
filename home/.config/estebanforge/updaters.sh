@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Cross-shell updaters (bash + zsh). sysup is one implementation for both
 # shells: topgrade first, then dotfile health through the global `dots`
 # command, so no hardcoded repo path (~/.dotfiles) survives here.

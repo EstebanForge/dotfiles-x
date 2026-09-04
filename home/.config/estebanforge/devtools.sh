@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Cross-shell dev tooling (bash + zsh). Both helpers are Homebrew-based and
 # work on every platform these dotfiles support (brew is the shared package
 # manager). Previously zsh-only; .bashrc gains them through this file.

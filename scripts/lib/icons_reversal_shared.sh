@@ -20,11 +20,16 @@ install_reversal_icon_theme() {
 
     echo "Installing Reversal icon theme..."
 
-    # Idempotent: install.sh installs every color in 'all', so the presence of
-    # any non-default color dir is a reliable "already installed" signal.
-    # Reversal-red exists only in the 'all' set (the default run produces no
-    # -<color> suffix).
-    if [[ -d "$icons_dir/Reversal-red" ]]; then
+    # Idempotent: probe for a directory the current color selection produces.
+    # 'all' installs every color incl. Reversal-red (red exists only in the
+    # full set); a specific color 'X' installs Reversal-X.
+    local probe
+    if [[ "$REVERSAL_COLOR" == "all" ]]; then
+        probe="$icons_dir/Reversal-red"
+    else
+        probe="$icons_dir/Reversal-${REVERSAL_COLOR%%,*}"
+    fi
+    if [[ -d "$probe" ]]; then
         echo "  Reversal icon theme already installed, skipping."
         rm -rf "$tmp_dir"
         return 0

@@ -11,9 +11,12 @@ brewup() {
     echo "Updating Homebrew packages..."
     brew update
     brew upgrade --formula
-    for cask in $(brew outdated --cask --greedy -q); do
+    # while-read (not for-over-$()): survives cask names with spaces and
+    # keeps an empty list from running the loop at all.
+    while IFS= read -r cask; do
+        [[ -z "$cask" ]] && continue
         brew upgrade --cask "$cask" || echo "  -> skipped: $cask"
-    done
+    done < <(brew outdated --cask --greedy -q)
     brew cleanup
     echo "Homebrew packages updated and cleaned up."
 }

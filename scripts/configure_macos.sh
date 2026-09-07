@@ -3,6 +3,10 @@
 # Re-exec under Bash when invoked from another shell (e.g. zsh configure_macos.sh).
 source "$(dirname "$0")/lib/bash_compat.sh"
 
+# Fail visibly: a failed sudo/defaults/PlistBuddy call must not exit 0.
+# Expected-failure commands carry an explicit `|| true` below.
+set -euo pipefail
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/agentmemory.sh
 source "$SCRIPT_DIR/lib/agentmemory.sh"
@@ -10,12 +14,18 @@ source "$SCRIPT_DIR/lib/agentmemory.sh"
 # macOS system configuration script
 # This script applies macOS defaults and system settings
 
-# Set computer name (as done via System Preferences → Sharing)
-COMPUTER_NAME="Zen4"
-sudo scutil --set ComputerName "$COMPUTER_NAME"
-sudo scutil --set HostName "$COMPUTER_NAME"
-sudo scutil --set LocalHostName "$COMPUTER_NAME"
-sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$COMPUTER_NAME"
+# Set computer name (as done via System Preferences → Sharing) only when
+# explicitly requested via DOTS_COMPUTER_NAME. Renaming unconditionally would
+# rename every other Mac that runs `dots install --configure`.
+COMPUTER_NAME="${DOTS_COMPUTER_NAME:-}"
+if [[ -n "$COMPUTER_NAME" ]]; then
+    sudo scutil --set ComputerName "$COMPUTER_NAME"
+    sudo scutil --set HostName "$COMPUTER_NAME"
+    sudo scutil --set LocalHostName "$COMPUTER_NAME"
+    sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$COMPUTER_NAME"
+else
+    echo "Keeping current computer name (set DOTS_COMPUTER_NAME to override)"
+fi
 
 echo "Enable full keyboard access for all controls (e.g. enable Tab in modal dialogs)"
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
@@ -105,11 +115,26 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 # Disable the warning when changing a file extension
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
-# Enable snap-to-grid for icons on the desktop and in other icon views
+# Enable snap-to-grid for desktop icons and in other icon views
+# PlistBuddy "Set" fails when the key (or a parent dict) does not exist yet,
+# which is the normal state on a fresh machine. Create missing ancestors
+# shallow-first, then Add the key.
+plist_set() {
+    local plist="$1" key="$2" value="$3"
+    /usr/libexec/PlistBuddy -c "Set :$key $value" "$plist" 2>/dev/null && return 0
+    local -a parts
+    IFS=':' read -r -a parts <<< "$key"
+    local i path=""
+    for ((i = 0; i < ${#parts[@]} - 1; i++)); do
+        path="${path:+$path:}${parts[i]}"
+        /usr/libexec/PlistBuddy -c "Add :$path dict" "$plist" 2>/dev/null || true
+    done
+    /usr/libexec/PlistBuddy -c "Add :$key string $value" "$plist"
+}
 echo "Enable snap-to-grid for desktop icons"
-/usr/libexec/PlistBuddy -c "Set :DesktopViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
-/usr/libexec/PlistBuddy -c "Set :FK_StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
-/usr/libexec/PlistBuddy -c "Set :StandardViewSettings:IconViewSettings:arrangeBy grid" ~/Library/Preferences/com.apple.finder.plist
+plist_set ~/Library/Preferences/com.apple.finder.plist "DesktopViewSettings:IconViewSettings:arrangeBy" "grid"
+plist_set ~/Library/Preferences/com.apple.finder.plist "FK_StandardViewSettings:IconViewSettings:arrangeBy" "grid"
+plist_set ~/Library/Preferences/com.apple.finder.plist "StandardViewSettings:IconViewSettings:arrangeBy" "grid"
 
 # Use list view in all Finder windows by default
 defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
@@ -313,8 +338,9 @@ unset _PIC
 
 # Disable Remote Desktop daemon
 # To revert: launchctl load -w /System/Library/LaunchAgents/com.apple.rcd.plist
+# || true: already-disabled services fail to unload; that is the desired state.
 echo "Disabling Remote Desktop daemon"
-launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist
+launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist 2>/dev/null || true
 
 ###############################################################################
 # agentmemory engine (background LaunchAgent)                                #
@@ -343,7 +369,8 @@ for app in "Activity Monitor" "Address Book" "Calendar" "Contacts" "cfprefsd" \
 	"Dock" "Finder" "Mail" "Messages" \
 	"SystemUIServer" "Terminal" \
 	"Transmission"; do
-	killall "${app}" > /dev/null 2>&1
+	# Not-running is the normal case for most of these; never fail on it.
+	killall "${app}" > /dev/null 2>&1 || true
 done
 
 echo "macOS system configuration complete!"

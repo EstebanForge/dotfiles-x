@@ -166,8 +166,11 @@ echo "Configuring GNOME Shell..."
 gset org.gnome.desktop.interface enable-hot-corners false
 
 # Set favorite apps in dock (only on first run; don't clobber user customizations)
+# dconf read distinguishes "never set" (no output) from "deliberately emptied"
+# ([]); gsettings reports both as an empty array, and re-setting would clobber
+# a deliberately emptied dock.
 local_apps=()
-if [[ -z "$(gsettings get org.gnome.shell favorite-apps 2>/dev/null | tr -d "[]@as '")" ]]; then
+if [[ -z "$(dconf read /org/gnome/shell/favorite-apps 2>/dev/null)" ]]; then
     for app in firefox.desktop google-chrome.desktop chromium-browser.desktop; do
         if [[ -f "/usr/share/applications/$app" ]]; then
             local_apps+=("'$app'")

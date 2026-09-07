@@ -260,15 +260,28 @@ sudo dnf install -y ghostty
 
 # Hyperkey (keyd): Capslock -> hyper modifier + esc on tap + hjkl arrows.
 # Standalone script owns all keyd setup (COPR, install, config, service).
-bash "$SCRIPT_DIR/hyperkey_keyd.sh"
+#
+# Fault-isolated optional extras: one failure (flaky COPR repo, no mouse
+# present) must not abort the rest of the Fedora install. Failures are
+# collected and reported at the end; the script still exits non-zero.
+_optional_failures=()
+run_optional() {
+    local name="$1"; shift
+    echo "==> $name"
+    if ! bash "$@"; then
+        echo "WARNING: $name failed (continuing)." >&2
+        _optional_failures+=("$name")
+    fi
+}
+run_optional "Hyperkey (keyd)" "$SCRIPT_DIR/hyperkey_keyd.sh"
 
 # Debloat: disable dead-weight services + remove deprecated ABRT stack.
 # Conservative list (safe wins only); see script header for rationale.
-bash "$SCRIPT_DIR/debloat_services.sh"
+run_optional "Debloat services" "$SCRIPT_DIR/debloat_services.sh"
 
 # Middle-mouse-hold autoscroll for Wayland (Wayland-Wheeltani daemon).
 # Replaces the deprecated libinput-config ld.so.preload hack.
-bash "$SCRIPT_DIR/wheeltani_autoscroll.sh"
+run_optional "Wayland-Wheeltani autoscroll" "$SCRIPT_DIR/wheeltani_autoscroll.sh"
 
 # Insync (Google Drive sync, official yum repo)
 # https://www.insynchq.com/downloads/linux
@@ -280,7 +293,7 @@ if ! rpm -q insync >/dev/null 2>&1; then
         sudo tee /etc/yum.repos.d/insync.repo >/dev/null <<'REPO'
 [insync]
 name=insync repo
-baseurl=http://yum.insync.io/fedora/$releasever/
+baseurl=https://yum.insync.io/fedora/$releasever/
 gpgcheck=1
 gpgkey=https://d2t3ff60b2tol4.cloudfront.net/repomd.xml.key
 enabled=1
@@ -329,5 +342,10 @@ install_codex_cli
 
 # Install Antigravity CLI (Google's replacement for Gemini CLI)
 install_antigravity_cli
+
+if ((${#_optional_failures[@]} > 0)); then
+    echo "WARNING: ${#_optional_failures[@]} optional step(s) failed: ${_optional_failures[*]}" >&2
+    exit 1
+fi
 
 echo "Fedora package installation complete!"

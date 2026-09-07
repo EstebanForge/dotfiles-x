@@ -40,8 +40,22 @@ if [[ "$distro" != "deb" ]]; then
     exit 1
 fi
 
-# Nuke snap if detected (snap is crap)
+# Nuke snap if detected (snap is crap). Removal takes user-facing apps with
+# it (e.g. stock Ubuntu Firefox), so it is opt-in: y at the interactive
+# prompt, or DOTS_REMOVE_SNAP=1 for unattended runs.
+_remove_snap=0
 if command -v snap >/dev/null 2>&1; then
+    if [[ -t 0 ]]; then
+        read -r -p "Remove ALL snap packages and purge snapd? [y/N] " _reply
+        [[ "$_reply" =~ ^[Yy]$ ]] && _remove_snap=1
+    elif [[ "${DOTS_REMOVE_SNAP:-0}" == "1" ]]; then
+        _remove_snap=1
+    else
+        echo "Snap detected; non-interactive run. Set DOTS_REMOVE_SNAP=1 to allow removal."
+    fi
+fi
+
+if command -v snap >/dev/null 2>&1 && [[ "$_remove_snap" == "1" ]]; then
     echo "Snap detected. Removing all snap packages and purging snapd..."
     echo "Dependency order: user-facing apps first, then content snaps, then bases."
 
@@ -116,8 +130,8 @@ PREF
 
     echo "Snap fully removed and pinned."
     unset _snap _remaining _removed _round
-else
-    echo "Snap not detected. Good."
+elif command -v snap >/dev/null 2>&1; then
+    echo "Snap removal skipped (not confirmed). Install proceeds without it."
 fi
 
 # Install Flatpak
@@ -256,8 +270,13 @@ if ! command -v tailscale >/dev/null 2>&1; then
     curl -fsSL https://tailscale.com/install.sh | sh
 fi
 
-# Install Ghostty terminal (mkasberg/ghostty-ubuntu)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
+# Install Ghostty terminal (mkasberg/ghostty-ubuntu); skip when present,
+# matching the other installer blocks (no re-download on every run).
+if ! command -v ghostty >/dev/null 2>&1; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
+else
+    echo "Ghostty already installed."
+fi
 
 # Insync (Google Drive sync, official apt repo)
 # https://www.insynchq.com/downloads/linux
@@ -275,12 +294,15 @@ if ! dpkg -l insync >/dev/null 2>&1; then
         ubuntu|pop|zorin*|elementary*)  _insync_dist="ubuntu" ;;
         *)                              _insync_dist="debian" ;;
     esac
-    if [[ ! -f /etc/apt/trusted.gpg.d/insynchq.gpg ]]; then
+    # Scoped keyring (same convention as VSCode/Sublime), never globally
+    # trusted; https baseurl so repo metadata is not fetched in the clear.
+    sudo install -d -m 0755 /etc/apt/keyrings
+    if [[ ! -f /etc/apt/keyrings/insynchq.gpg ]]; then
         curl -fsSL https://apt.insync.io/insynchq.gpg \
-            | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/insynchq.gpg
+            | sudo gpg --dearmor --yes -o /etc/apt/keyrings/insynchq.gpg
     fi
     if [[ ! -f /etc/apt/sources.list.d/insync.list ]]; then
-        echo "deb [signed-by=/etc/apt/trusted.gpg.d/insynchq.gpg] http://apt.insync.io/$_insync_dist $_insync_codename non-free contrib" \
+        echo "deb [signed-by=/etc/apt/keyrings/insynchq.gpg] https://apt.insync.io/$_insync_dist $_insync_codename non-free contrib" \
             | sudo tee /etc/apt/sources.list.d/insync.list >/dev/null
     fi
     sudo apt update
@@ -293,13 +315,14 @@ fi
 # Install additional GUI apps via apt
 # (where available; some apps may need Flatpak or manual install)
 echo "Installing GUI applications via apt..."
+# chromium deliberately absent: Ubuntu's apt package is a snapd transitional
+# stub, and this script may have just purged snapd. Flatpak covers it below.
 sudo apt install -y \
     calibre \
     transmission-gtk \
     vlc \
     gimp \
     remmina \
-    chromium \
     || true
 
 # Install Flatpak apps

@@ -50,24 +50,25 @@ install_agentmemory_service_macos() {
         return 0
     fi
 
-    # Idempotent reload. The original bootout->bootstrap sequence raced:
-    # bootout returns before launchd releases the domain, so the immediate
-    # bootstrap fails with I/O error ("may already be loaded" is misleading;
-    # the domain wasn't released yet). Instead:
-    #   - If the label is already loaded, kickstart -k refreshes the service
-    #     in place (no teardown, no race).
-    #   - Only bootout+bootstrap when the label is absent (first install, or
-    #     after a manual bootout that removed it).
-    # launchctl print exits 0 if the label is present in the domain.
-    if launchctl print "gui/$uid/$label" >/dev/null 2>&1; then
-        launchctl kickstart -k "gui/$uid/$label" 2>/dev/null || true
-    else
-        launchctl bootout "gui/$uid/$label" 2>/dev/null || true
-        launchctl bootstrap "gui/$uid" "$target" 2>/dev/null \
-            || echo "WARNING: launchctl bootstrap failed for $label." >&2
-        launchctl enable "gui/$uid/$label" 2>/dev/null || true
-        launchctl kickstart -k "gui/$uid/$label" 2>/dev/null || true
-    fi
+    # Always re-load so plist edits apply: kickstart -k restarts with the
+    # definition launchd already holds in memory and never re-reads the file.
+    # bootout returns before launchd releases the domain (the old race made an
+    # immediate bootstrap fail with an I/O error), so retry the bootstrap
+    # briefly instead of trusting the first attempt.
+    launchctl bootout "gui/$uid/$label" 2>/dev/null || true
+    local attempt
+    for attempt in 1 2 3 4 5; do
+        if launchctl bootstrap "gui/$uid" "$target" 2>/dev/null; then
+            launchctl enable "gui/$uid/$label" 2>/dev/null || true
+            launchctl kickstart -k "gui/$uid/$label" 2>/dev/null || true
+            break
+        fi
+        if [[ "$attempt" -eq 5 ]]; then
+            echo "WARNING: launchctl bootstrap failed for $label (domain never released?)." >&2
+        else
+            sleep 1
+        fi
+    done
 
     echo "agentmemory LaunchAgent installed: $label"
 }

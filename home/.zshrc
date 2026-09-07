@@ -15,10 +15,14 @@ if [[ -f ~/.secrets ]]; then
 fi
 
 # --- Homebrew ---
+# Guarded: `dots install` (symlinks only) is a supported pre-Homebrew state;
+# a missing brew must not throw on every shell start.
 if [[ "$(uname)" == "Darwin" ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+    if [[ -x /opt/homebrew/bin/brew ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
 elif [[ "$(uname)" == "Linux" ]]; then
-    if command -v brew >/dev/null 2>&1; then
+    if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
 fi
@@ -58,7 +62,7 @@ zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}
 zstyle ':completion:*' special-dirs true
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
-zstyle ':completion:*:*:*:*:processes' command "ps -u $USERNAME -o pid,user,comm -w -w"
+zstyle ':completion:*:*:*:*:processes' command 'ps -u $USERNAME -o pid,user,comm -w -w'
 zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
 zstyle ':completion:*' use-cache yes
 zstyle ':completion:*' cache-path "$HOME/.cache/zsh"
@@ -143,8 +147,14 @@ unsetopt NULL_GLOB
 
 # OS-specific plugin loading (zsh-autosuggestions + zsh-syntax-highlighting)
 if [[ "$(uname)" == "Darwin" ]]; then
-    source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-    source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    # Guarded like the Linux branch: unset HOMEBREW_PREFIX (pre-Homebrew
+    # install) must not throw on every shell start.
+    if [[ -d $HOMEBREW_PREFIX/share/zsh-autosuggestions ]]; then
+        source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    fi
+    if [[ -d $HOMEBREW_PREFIX/share/zsh-syntax-highlighting ]]; then
+        source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    fi
 elif [[ "$(uname)" == "Linux" ]]; then
     if [[ -d $HOMEBREW_PREFIX/share/zsh-autosuggestions ]]; then
         source $HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -240,8 +250,14 @@ if [[ "$(uname)" == "Darwin" ]]; then
         utmctl start "Fedora Server"
 
         echo -n "⏳ Waiting for SSH..."
-        while ! nc -z -G 1 "$SANDBOX_IP" 22 > /dev/null 2>&1; do
+        local waited=0
+        until nc -z -G 1 "$SANDBOX_IP" 22 > /dev/null 2>&1; do
+            if (( waited >= 120 )); then
+                echo "\n❌ Sandbox SSH unreachable after ${waited}s ($SANDBOX_IP)."
+                return 1
+            fi
             sleep 1
+            waited=$((waited + 1))
             echo -n "."
         done
         echo "\n✅ Sandbox is online!"

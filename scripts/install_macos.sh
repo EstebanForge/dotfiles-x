@@ -57,6 +57,9 @@ ensure_homebrew_permissions() {
 
     if (( ${#fix_paths[@]} > 0 )); then
         echo "Fixing Homebrew permissions..."
+        # BLAST RADIUS: -R recursion is bounded by fix_paths, which only ever
+        # contains paths under the Homebrew prefix (candidates list above).
+        # Single-user machine; never append anything else to fix_paths.
         sudo chown -R "$user_name" "${fix_paths[@]}"
         sudo chmod -R u+rwX "${fix_paths[@]}"
     fi

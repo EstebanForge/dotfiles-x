@@ -29,6 +29,10 @@ strip_installer_rc_block() {
         # the link on both GNU and BSD sed.
         tmp="$(mktemp)"
         if sed "/${escaped}/{N;d;}" "$rc" > "$tmp" 2>/dev/null; then
+            # ACCEPTED RISK: redirect (not sed -i) is deliberate to preserve
+            # symlinks, but the write itself is non-atomic. A crash exactly
+            # between truncate and flush could truncate the rc target. Restore
+            # via `dots restore` or git if that ever happens.
             cat "$tmp" > "$rc"
         fi
         rm -f "$tmp"
@@ -85,5 +89,7 @@ install_bun_cli() {
 }
 
 install_phpvm_cli() {
-    install_curl_cli "phpvm" phpvm "https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh" "-o-" bash
+    # -f is mandatory: without it an HTTP error page pipes into bash and
+    # "succeeds". -o- sends the body to stdout for the pipe.
+    install_curl_cli "phpvm" phpvm "https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh" "-fsSLo-" bash
 }

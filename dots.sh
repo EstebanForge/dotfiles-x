@@ -94,6 +94,10 @@ HOME_DIR="$HOME"
 source "$SCRIPT_DIR/scripts/lib/detect_distro.sh"
 DISTRO="$(detect_distro)"
 
+# One-time migrations for machines carrying older state. Test override:
+# DOTS_MIGRATIONS_DIR points the runner at a different directory.
+MIGRATIONS_DIR="${DOTS_MIGRATIONS_DIR:-$SCRIPT_DIR/migrations}"
+
 # Colors for output
 RED=$'\033[0;31m'
 GREEN=$'\033[0;32m'
@@ -258,6 +262,9 @@ setup_dotfiles() {
     # Setup dots command symlink
     setup_dots_command
 
+    # Apply any pending one-time migrations
+    run_migrations
+
     print_success "Dotfiles setup complete!"
     if [[ "$DISTRO" == "macos" ]]; then
         print_status "Run 'exec zsh' to reload shell configuration"
@@ -289,6 +296,49 @@ migrate_local_files() {
             rm "$hosts_yml"
             print_warning "Stale symlink: ~/.config/gh/hosts.yml; run 'gh auth login' to recreate"
         fi
+    fi
+}
+
+# Run pending one-time migrations (migrations/*.sh), newest-last, each exactly
+# once per host. Applied names are recorded in the XDG state dir; a failed
+# migration stops the run unmarked, so the next run retries it. One-time
+# cleanups belong here, never inside idempotent install code.
+migration_state_file() {
+    echo "${XDG_STATE_HOME:-$HOME_DIR/.local/state}/dotfiles-x/migrations"
+}
+
+run_migrations() {
+    local scripts=("$MIGRATIONS_DIR"/*.sh)
+    if [[ ! -e "${scripts[0]}" ]]; then
+        print_status "No migrations defined"
+        return 0
+    fi
+
+    local state_file
+    state_file="$(migration_state_file)"
+    mkdir -p "$(dirname "$state_file")"
+    touch "$state_file"
+
+    local script name applied=0
+    for script in "${scripts[@]}"; do
+        name="$(basename "$script")"
+        if grep -qxF "$name" "$state_file"; then
+            continue
+        fi
+        print_status "Running migration: $name"
+        if ! bash "$script"; then
+            print_error "Migration failed: $name (left unapplied; fix and rerun 'dots migrate')"
+            return 1
+        fi
+        printf '%s\n' "$name" >> "$state_file"
+        print_success "Migration applied: $name"
+        applied=$((applied + 1))
+    done
+
+    if (( applied == 0 )); then
+        print_status "All migrations already applied"
+    else
+        print_success "Applied $applied migration(s)"
     fi
 }
 
@@ -410,6 +460,10 @@ show_status() {
         dotfiles+=(".local/bin/dev-backup.sh:.local/bin/dev-backup.sh")
         dotfiles+=(".config/systemd/user/dev-backup.service:.config/systemd/user/dev-backup.service")
         dotfiles+=(".config/systemd/user/dev-backup.timer:.config/systemd/user/dev-backup.timer")
+        dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette")
+        dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette")
+        dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette")
+        dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Mocha.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Mocha.palette")
     fi
 
     local all_good=true
@@ -1055,6 +1109,7 @@ COMMANDS:
     install --crontab         Also install crontab entries
     install --configure       Also apply desktop settings (GNOME/macOS)
     cleanup                   Remove existing symlinks
+    migrate                   Run pending one-time migrations (once per host)
     status                    Check current status of dotfiles
     sync                      Pull, push, and reinstall dotfiles
     push                      Commit local tracked changes and push to remote
@@ -1075,6 +1130,7 @@ EXAMPLES:
     dots install --packages --crontab   # Full new machine setup
     dots install --configure             # Apply desktop settings
     dots status                         # Check everything is linked
+    dots migrate                        # Apply pending one-time migrations
     dots sync                           # Pull latest and reinstall
     dots restore HEAD~1                 # Roll back one commit
     dots health                         # Run health diagnostics
@@ -1222,6 +1278,9 @@ main() {
             ;;
         "history"|"log")
             show_history
+            ;;
+        "migrate")
+            run_migrations
             ;;
         "health"|"check")
             health_check

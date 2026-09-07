@@ -27,13 +27,15 @@ case "$DISTRO" in
         ;;
     rpm)
         CRON_SERVICE="crond"
-        TOPGRADE="topgrade"
+        # Absolute path: cron's minimal PATH has no linuxbrew. Fall back to the
+        # standard linuxbrew location when topgrade is not yet on PATH.
+        TOPGRADE="$(command -v topgrade || echo /home/linuxbrew/.linuxbrew/bin/topgrade)"
         REQUIRED_DEPS=(crontab systemctl)
         LABEL="Fedora Linux"
         ;;
     deb)
         CRON_SERVICE="cron"
-        TOPGRADE="topgrade"
+        TOPGRADE="$(command -v topgrade || echo /home/linuxbrew/.linuxbrew/bin/topgrade)"
         REQUIRED_DEPS=(crontab systemctl)
         LABEL="Deb-based"
         ;;
@@ -134,6 +136,8 @@ check_cron_service() {
     if ! systemctl is-active --quiet "$CRON_SERVICE" 2>/dev/null; then
         print_warning "Cron service ($CRON_SERVICE) is not running"
         print_status "Starting cron service..."
+        # sudo: root operation. Run dots crontab interactively (it prompts),
+        # or pre-authorize; a non-interactive run fails visibly here.
         sudo systemctl start "$CRON_SERVICE"
         sudo systemctl enable "$CRON_SERVICE"
         print_status "Cron service started and enabled"

@@ -45,7 +45,7 @@ source "$SCRIPT_DIR/lib/detect_distro.sh"
 
 PCR_LIST="${TPM2_PCRS:-7}"
 CONFIRM_YES=0
-FORCE_DEVICE="${LUKES_DEVICE:-}"
+FORCE_DEVICE="${LUKS_DEVICE:-}"
 
 # --- Helpers ----------------------------------------------------------------
 
@@ -112,7 +112,8 @@ detect_luks_device() {
         echo "$FORCE_DEVICE"
         return 0
     fi
-    local found="" mapper back
+    local -a found=()
+    local mapper back
     # Preferred path: each active mapper node resolves to its backing partition.
     # lsblk's FSTYPE column is unreliable without root in flat (-l) mode, so we
     # walk the inverse tree (-s) and pick the parent of type 'part'. -r drops
@@ -121,23 +122,23 @@ detect_luks_device() {
         while IFS= read -r mapper; do
             [[ -b "$mapper" ]] || continue
             back="$(lsblk -nrspo NAME,TYPE "$mapper" 2>/dev/null | awk '$2=="part"{print $1; exit}')"
-            [[ -n "$back" ]] && found="${found:+$found\n}${back}"
+            [[ -n "$back" ]] && found+=("$back")
         done < <(printf '%s\n' /dev/mapper/luks-*)
     fi
     # Fallback: header scan (needs root). Catches volumes not currently open.
-    if [[ -z "$found" && "${EUID}" -eq 0 ]]; then
+    if [[ ${#found[@]} -eq 0 && "${EUID}" -eq 0 ]]; then
         local dev
         while IFS= read -r dev; do
-            cryptsetup isLuks "$dev" 2>/dev/null && found="${found:+$found\n}${dev}"
+            cryptsetup isLuks "$dev" 2>/dev/null && found+=("$dev")
         done < <(lsblk -nrpo NAME,TYPE 2>/dev/null | awk '$2=="part"{print $1}')
     fi
-    [[ -z "$found" ]] && die "No LUKS volume detected. Set LUKS_DEVICE=/dev/xxx explicitly."
-    local count
-    count="$(printf '%s' "$found" | wc -l)"
-    if [[ "$count" -gt 1 ]]; then
-        die "Multiple LUKS volumes found:\n$(printf '%s' "$found")\nSet LUKS_DEVICE=/dev/xxx to choose one."
+    [[ ${#found[@]} -eq 0 ]] && die "No LUKS volume detected. Set LUKS_DEVICE=/dev/xxx explicitly."
+    if [[ ${#found[@]} -gt 1 ]]; then
+        die "Multiple LUKS volumes found:
+$(printf '%s\n' "${found[@]}")
+Set LUKS_DEVICE=/dev/xxx to choose one."
     fi
-    printf '%s' "$found"
+    printf '%s\n' "${found[0]}"
 }
 
 # Resolve mapper name (e.g. luks-<uuid>) for an active volume; empty if not open.
@@ -221,7 +222,9 @@ strip_tpm_from_crypttab() {
     info "Stripping tpm2-device from crypttab entry for ${mapper}"
     cp -a "$f" "${f}.bak.$(date +%s)"
     # Drop only the option, keep the line so passphrase prompt still works.
-    sed -i -E "s/[[:space:]]+tpm2-device=auto//g" "$f"
+    # Address-restricted: only this volume's line; other TPM-enrolled volumes
+    # in the same crypttab must keep their own tpm2-device option.
+    sed -i -E "/^[[:space:]]*${mapper}[[:space:]]/ s/[[:space:]]+tpm2-device=auto//" "$f"
 }
 
 # Rebuild initramfs so the crypttab change is baked in. Distros differ.
@@ -297,6 +300,15 @@ cmd_enroll() {
     local dev
     dev="$(detect_luks_device)"
     preflight "$dev"
+
+    # Same warning as status: enrolling with Secure Boot off seals to a nearly
+    # empty PCR7, leaving weak tamper protection. Warn, but allow it.
+    local sb
+    sb="$(bootctl status 2>/dev/null | awk '/Secure Boot:/{print $3,$4; exit}' || true)"
+    if [[ "${sb}" == disabled* ]]; then
+        warn "Secure Boot is DISABLED. PCR7 will be nearly empty, so tamper protection is weak."
+        warn "Consider enabling Secure Boot (sbctl) first, then re-running 'enroll'."
+    fi
 
     if has_tpm_token "$dev"; then
         info "TPM2 token already enrolled on ${dev}."

@@ -24,7 +24,7 @@ cd ~/.dotfiles
 ./dots.sh install --packages --crontab --configure
 ```
 
-Once installed, use the global `dots` command to manage symlinks, packages, backups, and crontabs. Run `dots help` for all commands.
+Once installed, use the global `dots` command to manage symlinks, packages, backups, and crontabs. Run `dots help` for all commands. One-time transitions for machines carrying older state live in `migrations/` and run via `dots migrate` (also applied automatically by `dots install`).
 
 ## Secrets Management
 
@@ -41,6 +41,8 @@ nano ~/.secrets
 * **`home/`**: Files symlinked to `$HOME` (e.g., `.bashrc`, `.zshrc`, `.gitconfig`, `.config/`)
 * **`scripts/`**: Distro-specific package installation (`install_*`) and system configurations (`configure_*`)
 * **`dots.sh`**: The main symlink and utility management engine
+* **`migrations/`**: Dated one-time cleanup scripts, run once per host by `dots migrate`
+* **`test/smoke.sh`**: Sandbox smoke test for the install/status/migrate/cleanup lifecycle
 
 ## License
 

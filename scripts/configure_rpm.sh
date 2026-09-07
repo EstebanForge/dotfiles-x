@@ -35,7 +35,9 @@ enable_gnome_extension() {
     if ! gsettings get org.gnome.shell enabled-extensions 2>/dev/null | grep -qF -- "$uuid"; then
         current="$(gsettings get org.gnome.shell enabled-extensions 2>/dev/null)"
         current="${current#@as }"   # strip GVariant empty-array type annotation
-        if [[ "$current" == "[]" ]]; then
+        # Absent schema (gsettings failing) leaves current empty; treat it like
+        # an empty array or the merge below emits a malformed GVariant.
+        if [[ -z "$current" || "$current" == "[]" ]]; then
             new="['$uuid']"
         else
             new="${current%]}, '$uuid']"
@@ -53,7 +55,9 @@ enable_mutter_experimental_feature() {
     if ! gsettings get org.gnome.mutter experimental-features 2>/dev/null | grep -qF -- "$feature"; then
         current="$(gsettings get org.gnome.mutter experimental-features 2>/dev/null)"
         current="${current#@as }"   # strip GVariant empty-array type annotation
-        if [[ "$current" == "[]" ]]; then
+        # Absent schema (gsettings failing) leaves current empty; treat it like
+        # an empty array or the merge below emits a malformed GVariant.
+        if [[ -z "$current" || "$current" == "[]" ]]; then
             new="['$feature']"
         else
             new="${current%]}, '$feature']"
@@ -185,7 +189,10 @@ echo "Configuring GNOME Shell..."
 gset org.gnome.desktop.interface enable-hot-corners false
 
 # Set favorite apps in dock (only on first run; don't clobber user customizations)
-if [[ -z "$(gsettings get org.gnome.shell favorite-apps 2>/dev/null | tr -d "[]@as '")" ]]; then
+# dconf read distinguishes "never set" (no output) from "deliberately emptied"
+# ([]); gsettings reports both as an empty array, and re-setting would clobber
+# a deliberately emptied dock.
+if [[ -z "$(dconf read /org/gnome/shell/favorite-apps 2>/dev/null)" ]]; then
     gset org.gnome.shell favorite-apps "['firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.gedit.desktop', 'org.gnome.Calendar.desktop']"
 fi
 

@@ -3,7 +3,7 @@
 # Sourced by both .zshrc (macOS) and .bashrc (Linux); keep syntax compatible
 # with bash 3.2+ and zsh (printf, [[ ]], no print/echo -n).
 #
-# Why: `ssh zenless` degrades to a password prompt when the Bitwarden
+# Why: `ssh attd-zenless` degrades to a password prompt when the Bitwarden
 # SSH agent is down (Bitwarden.app not running): the pub-only IdentityFile
 # then logs "invalid format" and no agent key gets offered. These wrappers
 # check the agent first and fix the common causes. Plain `ssh` stays
@@ -91,8 +91,8 @@ _bw_ssh_preflight() {
 }
 
 # Fool-proof ssh into the dev server: checks the Bitwarden agent, then
-# connects. Extra args pass through: zenless -- htop
-zenless() {
+# connects. Extra args pass through: attd-zenless -- htop
+attd-zenless() {
     _bw_ssh_preflight "$HOME/.ssh/attd-zenless" || return 1
-    command ssh zenless "$@"
+    command ssh attd-zenless "$@"
 }

@@ -78,5 +78,5 @@ tunnel() {
     esac
 }
 
-# SSH host wrappers (zenless + Bitwarden agent pre-flight) live in
+# SSH host wrappers (attd-zenless + Bitwarden agent pre-flight) live in
 # ~/.config/estebanforge/ssh-hosts.sh, shared with .bashrc.

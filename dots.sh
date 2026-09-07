@@ -201,6 +201,7 @@ setup_dotfiles() {
         ".secrets.example:.secrets.example"
         ".editorconfig:.editorconfig"
         ".hushlogin:.hushlogin"
+        ".tmux.conf:.tmux.conf"
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
         ".config/ghostty/config:.config/ghostty/config"
         ".config/zed/settings.json:.config/zed/settings.json"
@@ -394,6 +395,7 @@ cleanup_symlinks() {
         ".secrets.example"
         ".editorconfig"
         ".hushlogin"
+        ".tmux.conf"
         ".config/topgrade/topgrade.toml"
         ".config/ghostty/config"
         ".config/zed/settings.json"
@@ -430,6 +432,7 @@ show_status() {
         ".secrets.example:.secrets.example"
         ".editorconfig:.editorconfig"
         ".hushlogin:.hushlogin"
+        ".tmux.conf:.tmux.conf"
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
         ".config/ghostty/config:.config/ghostty/config"
         ".config/zed/settings.json:.config/zed/settings.json"
@@ -1146,6 +1149,7 @@ FILES MANAGED:
     ~/.gitconfig                        Git configuration
     ~/.editorconfig                     Editor configuration
     ~/.hushlogin                       Silence login banner (all platforms)
+    ~/.tmux.conf                       tmux terminal multiplexer config (all platforms)
     ~/.secrets.example                  Secrets template
     ~/.config/git/ignore                Global git ignore
     ~/.config/topgrade/topgrade.toml    Update manager configuration

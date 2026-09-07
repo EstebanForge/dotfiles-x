@@ -24,6 +24,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `.secrets.example`: Secrets management template for API keys and sensitive data.
     *   `.editorconfig`: Editor configuration for consistent coding style across tools.
     *   `.hushlogin`: Empty flag file that silences the "Last login" banner on terminal launch.
+    *   `.tmux.conf`: tmux terminal multiplexer configuration.
     *   `.config/topgrade/topgrade.toml`: Topgrade update manager configuration.
     *   `.config/ghostty/config`: Ghostty terminal configuration.
     *   `.config/zed/settings.json`: Zed editor configuration (theme, fonts, agent servers).
@@ -188,6 +189,7 @@ dots help                                # Show help message
 | `~/.secrets.example`                | `.secrets.example`                       | All platforms               |
 | `~/.editorconfig`                   | `.editorconfig`                          | All platforms               |
 | `~/.hushlogin`                      | `.hushlogin`                             | All platforms (silences login banner) |
+| `~/.tmux.conf`                      | `.tmux.conf`                             | All platforms (tmux mouse scroll + extended-keys) |
 | `~/.config/topgrade/topgrade.toml`  | `.config/topgrade/topgrade.toml`         | All platforms               |
 | `~/.config/ghostty/config`          | `.config/ghostty/config`                 | All platforms               |
 | `~/.config/zed/settings.json`       | `.config/zed/settings.json`              | All platforms               |

@@ -31,7 +31,7 @@ Never hardcode paths like `/Users/esteban` or `~/Library`. Use `$HOME` and branc
 - No unattended irreversible operation. Confirm each, case by case.
 - Ask before: `find -exec`, `find -delete`, editing shell rc files (`~/.zshrc`, `~/.bashrc`), cron, service units, bulk renames, or anything that touches `$HOME` broadly.
 - Destructive denylist. Refuse or confirm first: `rm -rf`, `rm` with globs, `dd`, `mkfs*`, `wipefs`, `diskutil erase*`, `shred`, fork bombs, `git reset --hard`, `git push --force` / `--force-with-lease`, `git clean -fd`, `chmod -R`, `chown -R`, `debconf-set-selections`, `firewall-cmd` / `ufw` changes, `launchctl bootout`, `systemctl stop` / `disable`.
-- Prefer non-destructive. Move to `~/tmp/` or a `.backup.<timestamp>` over `rm`. Never delete the `.backup.*` files that `dots.sh` creates.
+- Prefer non-destructive. Move to `$TMPDIR` or a `.backup.<timestamp>` over `rm`. Never delete the `.backup.*` files that `dots.sh` creates.
 
 ## 4. Filesystem: Fail Closed on Secrets, Open on Managed Config
 
@@ -49,7 +49,7 @@ macOS extra-sensitive: `~/Library` (Preferences, LaunchAgents you did not create
 
 Managed dotfiles are fair game. They are symlinks into the dotfiles repo, so editing them is editing the repo: `~/.gitconfig`, `~/.config/git`, `~/.config/ghostty`, `~/.config/zed`, `~/.zshrc`, `~/.bashrc`, `~/.config/mcp-cli-ent`, `~/.config/gh/config.yml`, `~/.config/topgrade`, `~/.config/environment.d`, `~/.config/systemd/user`, and the rest of the `dots.sh` managed set.
 
-Scratch: `~/tmp` (write freely), `~/Downloads` (read only if asked; do not write).
+Scratch: `mktemp -d` or `$TMPDIR` only. Never create tmp or scratch dirs anywhere in `$HOME`. `~/Downloads` (read only if asked; do not write).
 
 ## 5. Package Managers: Info Yes, Mutations No
 
@@ -83,7 +83,7 @@ Never run `topgrade`, `sysup`, or any `upgrade-all` without confirmation.
 ## 9. Backups & Recovery
 
 - `dots.sh` auto-creates `.backup.<timestamp>` before symlinking. Do not delete them.
-- Before bulk edits, snapshot: `cp -a <path> ~/tmp/<path>.bak.<timestamp>`.
+- Before bulk edits, snapshot: `cp -a <path> <path>.bak.<timestamp>` (in place, same convention as `dots.sh`).
 - Rollback options: `git` (repo), `dots restore <commit>`, Time Machine (macOS), restic/borg if installed.
 
 ## Appendix A. Known Fixes per OS

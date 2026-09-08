@@ -89,7 +89,8 @@ _ghost_get_suggestion() {
 # --- Rendering ------------------------------------------------------------
 
 # Render (or clear) the ghost text at the current cursor position.
-# Uses ANSI save/restore cursor (\e[s / \e[u) so the user's real input is untouched.
+# Uses DEC save/restore cursor (\e7 / \e8) so the user's real input is untouched.
+# Note: ANSI.SYS \e[s and \e[u are not supported by mosh's terminal emulator.
 # Limitation: \e[%dG (CHA) clamps to the current row; lines wider than the
 # terminal width render or clear at the wrong column. Suggestion text itself
 # is stripped of C0 controls above, but ANSI SGR (\e[...m) in a history entry
@@ -103,10 +104,10 @@ _ghost_render() {
 
     local col=$(( _ghost_prompt_len + ${#READLINE_LINE} + 1 ))
     if [[ -n "$_ghost_suggestion" ]]; then
-        printf '\e[s\e[%dG%s%s\e[0m\e[u' \
+        printf '\e7\e[%dG%s%s\e[0m\e8' \
             "$col" "$_ghost_color" "$_ghost_suggestion" >&2
     else
-        printf '\e[s\e[%dG\e[K\e[u' "$col" >&2
+        printf '\e7\e[%dG\e[K\e8' "$col" >&2
     fi
 }
 

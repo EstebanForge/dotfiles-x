@@ -90,16 +90,15 @@ _bw_ssh_preflight() {
     return 0
 }
 
-# Fool-proof mosh into the dev server: checks the Bitwarden agent (mosh
-# bootstraps over ssh, so the agent failure mode is the same), then hands
-# the session to mosh: UDP survives sleep, IP changes, and dead Wi-Fi.
-# Extra args pass through: zenless -- htop. scp/rsync/git and tunnels
-# (`ssh zenless ...`, tunneless) keep plain ssh: mosh carries no forwards.
-_mosh_zenless() {
+# Fool-proof ssh into the dev server: checks the Bitwarden agent (the same
+# failure mode as plain ssh through the wrapper), then connects. Extra args
+# pass through: zenless -- htop. scp/rsync/git and tunnels (`ssh zenless
+# ...`, tunneless) call the binary directly, untouched.
+_zenless_ssh() {
     local host="$1"
     shift
     _bw_ssh_preflight "$HOME/.ssh/attd-zenless" || return 1
-    command mosh "$host" "$@"
+    command ssh "$host" "$@"
 }
-zenless() { _mosh_zenless zenless "$@"; }
-attd-zenless() { _mosh_zenless attd-zenless "$@"; }
+zenless() { _zenless_ssh zenless "$@"; }
+attd-zenless() { _zenless_ssh attd-zenless "$@"; }

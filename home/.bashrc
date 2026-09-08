@@ -238,3 +238,7 @@ fi
 # cross a plain ssh pty; unset makes it read X11 via xclip, which the bridge
 # serves on :77.
 # <<< clipboard-ssh-bridge <<<
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/esteban/.local/bin:$PATH"

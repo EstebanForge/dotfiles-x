@@ -221,6 +221,7 @@ setup_dotfiles() {
         dotfiles+=(".config/linearmouse/linearmouse.json:.config/linearmouse/linearmouse.json")
         dotfiles+=("Library/LaunchAgents/com.user.copyfile-disable.plist:Library/LaunchAgents/com.user.copyfile-disable.plist")
         dotfiles+=(".zsh/functions.zsh:.zsh/functions.zsh")
+        dotfiles+=(".local/bin/clip2zen:.local/bin/clip2zen")
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")
@@ -383,6 +384,7 @@ cleanup_symlinks() {
         ".bash/plugins/agentmemory.plugin.sh"
         ".config/systemd/user/agentmemory.service"
         ".local/bin/dev-backup.sh"
+        ".local/bin/clip2zen"
         ".config/systemd/user/dev-backup.service"
         ".config/systemd/user/dev-backup.timer"
         ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette"
@@ -452,6 +454,7 @@ show_status() {
         dotfiles+=(".config/linearmouse/linearmouse.json:.config/linearmouse/linearmouse.json")
         dotfiles+=("Library/LaunchAgents/com.user.copyfile-disable.plist:Library/LaunchAgents/com.user.copyfile-disable.plist")
         dotfiles+=(".zsh/functions.zsh:.zsh/functions.zsh")
+        dotfiles+=(".local/bin/clip2zen:.local/bin/clip2zen")
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")

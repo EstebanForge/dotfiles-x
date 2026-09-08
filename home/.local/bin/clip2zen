@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# clip2zen: send the Mac clipboard image to zenless and copy the remote
+# path, so a CLI there (agy) can attach it by path.
+#
+# Why: terminal paste carries text only, and agy over ssh/tmux rejects
+# image pastes but attaches any image referenced by absolute path in the
+# prompt. So: clipboard PNG -> file on zenless -> path in pbcopy.
+#
+# Trigger: Hammerspoon hotkey Hyperkey+I (Ctrl+Opt+Cmd+I via Caps Lock,
+# see ~/.hammerspoon/clip2zen.lua), or run `clip2zen` in a terminal.
+# Needs: pngpaste (brew), the zenless ssh alias (LAN/mDNS), ssh keys.
+
+set -euo pipefail
+
+# Launchers (Hammerspoon, Alfred) run with a bare PATH; self-serve.
+export PATH="/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+# Host override for the VPN/Wi-Fi variants: CLIP2ZEN_HOST=zenless-lan clip2zen
+HOST="${CLIP2ZEN_HOST:-zenless}"
+
+notify() {
+    osascript -e "display notification \"$1\" with title \"clip2zen\"" >/dev/null
+}
+
+fail() {
+    printf 'clip2zen: %s\n' "$1" >&2
+    notify "$1"
+    exit 1
+}
+
+command -v pngpaste >/dev/null 2>&1 || fail "pngpaste missing (brew install pngpaste)"
+
+stamp=$(date +%Y%m%d-%H%M%S)
+name="clip-$stamp.png"
+local_tmp=$(mktemp -t clip2zen)
+trap 'rm -f "$local_tmp"' EXIT
+
+pngpaste "$local_tmp" 2>/dev/null || fail "no image in the clipboard"
+
+# BatchMode: never hang a hidden hotkey run on a password prompt; the
+# Bitwarden agent either has the key or the run fails visibly.
+ssh_opts=(-o BatchMode=yes -o ConnectTimeout=5)
+
+# One round trip: ensure ~/tmp exists and learn the absolute home, since
+# agy wants the absolute path spelled out.
+remote_home=$(ssh "${ssh_opts[@]}" "$HOST" 'mkdir -p ~/tmp && printf %s "$HOME"') \
+    || fail "cannot reach $HOST"
+
+scp -q "${ssh_opts[@]}" "$local_tmp" "$HOST:tmp/$name" || fail "scp to $HOST failed"
+
+remote_path="$remote_home/tmp/$name"
+printf '%s' "$remote_path" | pbcopy
+
+msg="sent to $HOST, path copied: $remote_path"
+printf '%s\n' "$msg"
+notify "$msg"

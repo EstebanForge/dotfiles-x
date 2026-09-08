@@ -180,6 +180,7 @@ dots help                                # Show help message
 | `~/.config/fontconfig/fonts.conf`      | `.config/fontconfig/fonts.conf`           | Linux only (fontconfig for non-GNOME apps) |
 | `~/.config/systemd/user/agentmemory.service` | `.config/systemd/user/agentmemory.service` | Linux only (agentmemory engine user service; auto-launched on login) |
 | `~/.local/bin/dev-backup.sh` | `.local/bin/dev-backup.sh` | Linux only (dev backup helper) |
+| `~/.local/bin/clip2zen` | `.local/bin/clip2zen` | macOS only (clipboard image → zenless `~/tmp/`; copies the remote path so agy can attach it; Hammerspoon hotkey hyperkey+I) |
 | `~/.config/systemd/user/dev-backup.service` | `.config/systemd/user/dev-backup.service` | Linux only (dev backup user service) |
 | `~/.config/systemd/user/dev-backup.timer` | `.config/systemd/user/dev-backup.timer` | Linux only (dev backup timer) |
 | `~/.local/share/org.gnome.Ptyxis/palettes/*.palette` | `.local/share/org.gnome.Ptyxis/palettes/` | Linux only (4 Catppuccin Ptyxis palettes: Latte, Frappe, Macchiato, Mocha) |

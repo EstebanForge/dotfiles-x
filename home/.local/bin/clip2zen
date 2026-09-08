@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # clip2zen: send the Mac clipboard image to zenless and copy the remote
 # path, so a CLI there (agy) can attach it by path.
+# Images land in zenless OS temp (/tmp/clip2zen, wiped on reboot):
+# nothing accumulates in $HOME.
 #
 # Why: terminal paste carries text only, and agy over ssh/tmux rejects
 # image pastes but attaches any image referenced by absolute path in the
@@ -41,14 +43,13 @@ pngpaste "$local_tmp" 2>/dev/null || fail "no image in the clipboard"
 # Bitwarden agent either has the key or the run fails visibly.
 ssh_opts=(-o BatchMode=yes -o ConnectTimeout=5)
 
-# One round trip: ensure ~/tmp exists and learn the absolute home, since
-# agy wants the absolute path spelled out.
-remote_home=$(ssh "${ssh_opts[@]}" "$HOST" 'mkdir -p ~/tmp && printf %s "$HOME"') \
-    || fail "cannot reach $HOST"
+# One round trip: ensure the OS-temp dir exists. The path is absolute
+# and fixed, and agy wants it spelled out.
+ssh "${ssh_opts[@]}" "$HOST" 'mkdir -p /tmp/clip2zen' || fail "cannot reach $HOST"
 
-scp -q "${ssh_opts[@]}" "$local_tmp" "$HOST:tmp/$name" || fail "scp to $HOST failed"
+scp -q "${ssh_opts[@]}" "$local_tmp" "$HOST:/tmp/clip2zen/$name" || fail "scp to $HOST failed"
 
-remote_path="$remote_home/tmp/$name"
+remote_path="/tmp/clip2zen/$name"
 printf '%s' "$remote_path" | pbcopy
 
 msg="sent to $HOST, path copied: $remote_path"

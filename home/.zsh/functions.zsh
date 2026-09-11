@@ -26,13 +26,29 @@ _tunnel_pf_repair() {
     fi
 }
 
+# Any HTTP reply counts as a live site; the site owns the status code. nc
+# can only prove pf + ssh exist, not that anything answers on zenless.
+_tunnel_site_ok() {
+    curl -sk -o /dev/null --max-time 3 https://127.0.0.1/
+}
+
+# Call only after 443 passes nc: pf + ssh are alive, ask about the site.
+_tunnel_report() {
+    if _tunnel_site_ok; then
+        print 'tunnel: up (https://localhost)'
+    else
+        print 'tunnel: chain up, no site answers on zenless:443'
+        print 'tunnel: put a site up on zenless (compose up / podman run -p 443:443)'
+    fi
+}
+
 tunnel() {
     local cmd="${1:-up}"
     case "$cmd" in
         up)
-            # 443 proves the full chain: pf + ssh + remote. 8443 only proves ssh.
+            # 443 proves pf + ssh; the HTTP probe adds the remote site.
             if nc -z 127.0.0.1 443 2>/dev/null; then
-                print 'tunnel: up (https://localhost)'
+                _tunnel_report
                 return 0
             fi
             if ! nc -z 127.0.0.1 8443 2>/dev/null; then
@@ -40,18 +56,18 @@ tunnel() {
                 ssh -fN tunneless || return 1
             fi
             if nc -z 127.0.0.1 443 2>/dev/null; then
-                print 'tunnel: up (https://localhost)'
+                _tunnel_report
                 return 0
             fi
             # pf disabled by a previous `tunnel down`: rules are still loaded,
             # just re-enable. Interactive reload below stays for broken rules.
             if sudo pfctl -e >/dev/null 2>&1 && nc -z 127.0.0.1 443 2>/dev/null; then
-                print 'tunnel: up (https://localhost)'
+                _tunnel_report
                 return 0
             fi
             print 'tunnel: ssh half up, pf redirect down'
             if _tunnel_pf_repair && nc -z 127.0.0.1 443 2>/dev/null; then
-                print 'tunnel: up (https://localhost)'
+                _tunnel_report
             else
                 print 'tunnel: pf redirect still down'
                 return 1
@@ -74,9 +90,9 @@ tunnel() {
             fi
             ;;
         status)
-            # 443 proves the full chain: pf + ssh + remote. 8443 only proves ssh.
+            # 443 proves pf + ssh; the HTTP probe adds the remote site.
             if nc -z 127.0.0.1 443 2>/dev/null; then
-                print 'tunnel: up (https://localhost)'
+                _tunnel_report
             elif nc -z 127.0.0.1 8443 2>/dev/null; then
                 print 'tunnel: ssh half up, pf half down'
                 print 'repair: run `tunnel up` (offers the sudo reload) or: sudo pfctl -f /etc/pf.conf && sudo pfctl -e'

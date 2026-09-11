@@ -43,6 +43,12 @@ tunnel() {
                 print 'tunnel: up (https://localhost)'
                 return 0
             fi
+            # pf disabled by a previous `tunnel down`: rules are still loaded,
+            # just re-enable. Interactive reload below stays for broken rules.
+            if sudo pfctl -e >/dev/null 2>&1 && nc -z 127.0.0.1 443 2>/dev/null; then
+                print 'tunnel: up (https://localhost)'
+                return 0
+            fi
             print 'tunnel: ssh half up, pf redirect down'
             if _tunnel_pf_repair && nc -z 127.0.0.1 443 2>/dev/null; then
                 print 'tunnel: up (https://localhost)'
@@ -53,9 +59,18 @@ tunnel() {
             ;;
         down)
             if pkill -f 'ssh -f?N tunneless'; then
-                print 'tunnel: down'
+                print 'tunnel: ssh down'
             else
-                print 'tunnel: not running'
+                print 'tunnel: ssh not running'
+            fi
+            # pf keeps redirecting lo0 80/443 into the now-dead 8080/8443, so
+            # localhost is not truly free until pf is disabled.
+            if sudo pfctl -d >/dev/null 2>&1; then
+                print 'tunnel: pf disabled (localhost 80/443 free)'
+            else
+                print 'tunnel: pf still enabled (sudo declined or failed)'
+                print 'tunnel: localhost 80/443 still redirected. manual: sudo pfctl -d'
+                return 1
             fi
             ;;
         status)

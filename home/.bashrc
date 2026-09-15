@@ -242,3 +242,4 @@ fi
 
 # Added by Antigravity CLI installer
 export PATH="/home/esteban/.local/bin:$PATH"
+. "$HOME/.cargo/env"

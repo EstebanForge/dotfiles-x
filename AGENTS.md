@@ -53,7 +53,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `lib/npm_globals.sh`: Global npm packages, per-package fault-isolated. Sourced by `install_macos.sh`, `install_rpm.sh`, and `install_deb.sh`.
     *   `lib/backup/`: Backup helpers (`backup.sh` runner plus per-target scripts); exposed as `dots backup`.
     *   `luks_tpm_enroll.sh`: LUKS2 to TPM2 enrollment for passwordless disk unlock (Linux; status/enroll/remove).
-    *   `zenless_mount.sh`: Zenless NFS mountpoint self-heal daemon installer (macOS; `dots zenless-mount`).
+    *   `zenless_mount.sh`: Wires the `auto_nfs` direct map into `auto_master` (trigger under `/System/Volumes/Data/mnt`, since the sealed root has no `/mnt`) and restores the `/Volumes/Zenless` symlink to it via root LaunchDaemon (macOS; `dots zenless-mount`).
     *   `wheeltani_autoscroll.sh`: Wayland middle-mouse-hold autoscroll setup (Fedora/Wayland; `dots wheeltani`).
     *   `debloat_services.sh`: Disables dead-weight services and removes the deprecated ABRT stack (Fedora).
     *   `hyperkey_keyd.sh`: Capslock-to-hyper modifier via keyd (Fedora).

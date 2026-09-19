@@ -316,30 +316,6 @@ ns-cc-zai() {
     claude "$@"
 }
 
-# Construct-cli agent routing.
-# Most agents now route through PATH shims (`construct sys shims --install`):
-# ~/.local/bin/<slug> execs `ct <slug>` sandboxed, ns-<slug> execs the real
-# # host binary. The aliases kept below exist because a real binary already
-# occupies the shim filename in ~/.local/bin for those agents, so the shell
-# alias is still the sandbox route and the ns- function the direct route.
-if command -v ct >/dev/null 2>&1; then
-    alias agy='ct agy'
-    alias claude='ct claude'
-    alias codex='ct codex'
-    alias droid='ct droid'
-    alias cc-kimi='ct cc kimi'
-    alias cc-mimo='ct cc mimo'
-    alias cc-minimax='ct cc minimax'
-    alias cc-qwen='ct cc qwen'
-    alias cc-zai='ct cc zai'
-
-    # Non-sandboxed aliases - run agents directly
-    ns-agy() { command agy "$@"; }
-    ns-claude() { command claude "$@"; }
-    ns-codex() { command codex "$@"; }
-    ns-droid() { command droid "$@"; }
-fi
-
 # Load Fuse Agents plugin
 if [[ -f "$HOME/.zsh/plugins/fuse-agents/fuse-agents.plugin.sh" ]]; then
     source "$HOME/.zsh/plugins/fuse-agents/fuse-agents.plugin.sh"

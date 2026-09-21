@@ -125,6 +125,8 @@ Repair (run in Terminal):
 sudo pfctl -f /etc/pf.conf && sudo pfctl -e   # reload rules, ensure enabled
 ```
 
+Self-heal: `tunnel up` repairs a reverted or misplaced tunneless setup in `/etc/pf.conf` (missing or out-of-order `rdr-anchor "tunneless"` / `load anchor` lines, e.g. after the macOS 27.0 upgrade on 2026-09-18): it strips and reinserts the lines in valid category order (pf requires translation rules above filtering), backs up to `pf.conf.bak.<timestamp>`, syntax-checks with `pfctl -nf`, then reloads. The bare command above remains for simple flushes.
+
 Notes: pf loads cleanly at boot per the daemon log, so recurring deaths are mid-session flushes. If it dies again, correlate with NordVPN connect/disconnect times before blaming the boot daemon. Verify end to end: `curl -skI https://localhost/` must return 200.
 
 ### Linux: Bitwarden SSH key bridge (`bw-ssh`)

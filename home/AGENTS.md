@@ -113,7 +113,7 @@ Problem: `https://localhost` serves a site stack on the remote machine `zenless`
 
 Components (machine-local, not symlinked by dots):
 
-- ssh half: `ssh -fN tunneless` binds `127.0.0.1:8080` and `127.0.0.1:8443` on the Mac, forwarding to ports 80/443 on `zenless`. Host stanza lives in the ssh config managed by `~/.config/estebanforge/ssh-hosts.sh`.
+- ssh half: `ssh -fN tunneless` binds `127.0.0.1:8080`, `127.0.0.1:8443`, and `127.0.0.1:8025` (Mailpit UI) on the Mac, forwarding to ports 80/443/8025 on `zenless`. Host stanza lives in the ssh config managed by `~/.config/estebanforge/ssh-hosts.sh`.
 - pf half: `/etc/pf.anchors/tunneless` redirects `lo0` 80 -> 8080 and 443 -> 8443. Loaded by `rdr-anchor`/`load anchor` lines in `/etc/pf.conf`.
 - Boot loader: `/Library/LaunchDaemons/com.user.pf.plist` runs `pfctl -f /etc/pf.conf && pfctl -e` at load. Log: `/var/log/com.user.pf.log` (no timestamps).
 

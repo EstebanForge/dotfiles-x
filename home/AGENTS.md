@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Global guardrails for any AI agent working on Esteban's personal machines (macOS and Linux). Safety rules are universal. OS-specific facts branch per section. A project-local AGENTS.md may add rules but never weaken these.
+Global guardrails for any AI agent working on Esteban's personal machines (macOS and Linux). Safety rules are universal. OS-specific facts branch per section. A project-local AGENTS.md may add rules but MUST NOT weaken these.
 
 ## 0. Prime Directive
 
@@ -13,7 +13,7 @@ Assist the user. Do no harm to the system. When unsure, STOP and ask. Order of p
 
 ## 2. Detect Your Environment
 
-Do not assume the OS. Detect at session start and branch on the result.
+MUST NOT assume the OS. Detect at session start and branch on the result.
 
 | Fact | How to detect | Values here |
 |---|---|---|
@@ -23,19 +23,19 @@ Do not assume the OS. Detect at session start and branch on the result.
 | Package manager | `command -v brew dnf apt flatpak` | `brew` (all) + `dnf`/`flatpak` (Fedora) + `apt`/`flatpak` (Deb) |
 | Init / service mgr | `uname -s`; `pidof systemd` | `launchd` (macOS) \| `systemd` (Linux) |
 
-Never hardcode paths like `/Users/esteban` or `~/Library`. Use `$HOME` and branch on the detected OS.
+MUST NOT hardcode paths like `/Users/esteban` or `~/Library`. Use `$HOME` and branch on the detected OS.
 
 ## 3. Execution & Privilege
 
-- NO `sudo`, `doas`, `su`, or `pkexec`. Ever. If an operation needs root, print the exact command for Esteban to run himself.
-- No unattended irreversible operation. Confirm each, case by case.
-- Ask before: `find -exec`, `find -delete`, editing shell rc files (`~/.zshrc`, `~/.bashrc`), cron, service units, bulk renames, or anything that touches `$HOME` broadly.
-- Destructive denylist. Refuse or confirm first: `rm -rf`, `rm` with globs, `dd`, `mkfs*`, `wipefs`, `diskutil erase*`, `shred`, fork bombs, `git reset --hard`, `git push --force` / `--force-with-lease`, `git clean -fd`, `chmod -R`, `chown -R`, `debconf-set-selections`, `firewall-cmd` / `ufw` changes, `launchctl bootout`, `systemctl stop` / `disable`.
-- Prefer non-destructive. Move to `$TMPDIR` or a `.backup.<timestamp>` over `rm`. Never delete the `.backup.*` files that `dots.sh` creates.
+- MUST NOT run `sudo`, `doas`, `su`, or `pkexec`. Ever. If an operation needs root, print the exact command for Esteban to run himself.
+- MUST NOT perform unattended irreversible operations. Confirm each, case by case.
+- MUST ask before: `find -exec`, `find -delete`, editing shell rc files (`~/.zshrc`, `~/.bashrc`), cron, service units, bulk renames, or anything that touches `$HOME` broadly.
+- Destructive denylist. MUST refuse or confirm first: `rm -rf`, `rm` with globs, `dd`, `mkfs*`, `wipefs`, `diskutil erase*`, `shred`, fork bombs, `git reset --hard`, `git push --force` / `--force-with-lease`, `git clean -fd`, `chmod -R`, `chown -R`, `debconf-set-selections`, `firewall-cmd` / `ufw` changes, `launchctl bootout`, `systemctl stop` / `disable`.
+- MUST prefer non-destructive. Move to `$TMPDIR` or a `.backup.<timestamp>` over `rm`. MUST NOT delete the `.backup.*` files that `dots.sh` creates.
 
 ## 4. Filesystem: Fail Closed on Secrets, Open on Managed Config
 
-Never read, write, or exfiltrate these without explicit per-action direction (credentials and secrets):
+MUST NOT read, write, or exfiltrate these without explicit per-action direction (credentials and secrets):
 
 - `~/.ssh`, `~/.aws`, `~/.gnupg`
 - `~/.secrets`, `~/.netrc`
@@ -43,13 +43,13 @@ Never read, write, or exfiltrate these without explicit per-action direction (cr
 - Keyrings: `~/Library/Keychains` (macOS), `~/.local/share/keyrings` (Linux)
 - Browser profiles: `~/Library/Application Support/Google/Chrome`, `~/.config/google-chrome`, `~/.mozilla`
 
-System directories (need root; you cannot write them anyway). Propose edits, do not apply: `/etc`, `/usr`, `/bin`, `/sbin`, `/boot`, `/efi`, `/var`, `/sys`, `/proc`, and on macOS `/System`, `/Library`, `/Applications`.
+System directories (need root; you cannot write them anyway). Propose edits; MUST NOT apply: `/etc`, `/usr`, `/bin`, `/sbin`, `/boot`, `/efi`, `/var`, `/sys`, `/proc`, and on macOS `/System`, `/Library`, `/Applications`.
 
-macOS extra-sensitive: `~/Library` (Preferences, LaunchAgents you did not create, Application Support). Ask first.
+macOS extra-sensitive: `~/Library` (Preferences, LaunchAgents you did not create, Application Support). MUST ask first.
 
 Managed dotfiles are fair game. They are symlinks into the dotfiles repo, so editing them is editing the repo: `~/.gitconfig`, `~/.config/git`, `~/.config/ghostty`, `~/.config/zed`, `~/.zshrc`, `~/.bashrc`, `~/.config/mcp-cli-ent`, `~/.config/gh/config.yml`, `~/.config/topgrade`, `~/.config/environment.d`, `~/.config/systemd/user`, and the rest of the `dots.sh` managed set.
 
-Scratch: `mktemp -d` or `$TMPDIR` only. Never create tmp or scratch dirs anywhere in `$HOME`. `~/Downloads` (read only if asked; do not write).
+Scratch: `mktemp -d` or `$TMPDIR` only. MUST NOT create tmp or scratch dirs anywhere in `$HOME`. `~/Downloads` (read only if asked; MUST NOT write).
 
 ## 5. Package Managers: Info Yes, Mutations No
 
@@ -57,32 +57,32 @@ Read-only, no confirmation needed: `brew search | info | list | outdated`, `dnf 
 
 Mutations need confirmation: `install | uninstall | reinstall | upgrade | remove | purge | autoremove`, `brew tap | untap`, `flatpak install`, `snap install`, `pip install`, `npm i -g`.
 
-Never run `topgrade`, `sysup`, or any `upgrade-all` without confirmation.
+MUST NOT run `topgrade`, `sysup`, or any `upgrade-all` without confirmation.
 
 ## 6. Services
 
 - macOS: `launchd`. `launchctl bootstrap | bootout | kickstart`, plists in `~/Library/LaunchAgents`. `launchctl load` is deprecated.
 - Linux: `systemd`. Try `systemctl --user` first (`start | stop | enable | status`). System services need root: print the command for Esteban.
-- Do not stop or disable a service you did not start.
+- MUST NOT stop or disable a service you did not start.
 
 ## 7. Data & Privacy
 
-- No exfiltration. Do not send file contents, environment variables, secrets, or system information to any external API or service unless that is the explicit function of the current tool and Esteban asked.
-- Never print: `env` output, `~/.secrets`, tokens, `~/.zsh_history`, `~/.bash_history`, keychain or keyring dumps.
-- Redact credentials from logs. Do not pipe secrets into commands that log their argv.
+- No exfiltration. MUST NOT send file contents, environment variables, secrets, or system information to any external API or service unless that is the explicit function of the current tool and Esteban asked.
+- MUST NOT print: `env` output, `~/.secrets`, tokens, `~/.zsh_history`, `~/.bash_history`, keychain or keyring dumps.
+- MUST redact credentials from logs. MUST NOT pipe secrets into commands that log their argv.
 
 ## 8. Output & Code Style
 
 - Markdown with code blocks. Use `diff` format for config edits; show exact lines to add or modify.
 - Code comments should explain the "why", not the "what". The "why" doesn't go out of date, even if the "what" does.
 - Keep code comments short. Delete any claim from a comment that is derivable from the code; keep only the WHY.
-- Check for existing configuration before suggesting new configuration.
+- MUST check for existing configuration before suggesting new configuration.
 - Shell scripts: quote variables, `[[ ]]` over `[ ]`, `set -euo pipefail`, portable Bash 5 / Zsh, pass ShellCheck. Shebang `#!/usr/bin/env bash`.
 - Editors in use: VS Code, Zed. Terminal: Ghostty.
 
 ## 9. Backups & Recovery
 
-- `dots.sh` auto-creates `.backup.<timestamp>` before symlinking. Do not delete them.
+- `dots.sh` auto-creates `.backup.<timestamp>` before symlinking. MUST NOT delete them.
 - Before bulk edits, snapshot: `cp -a <path> <path>.bak.<timestamp>` (in place, same convention as `dots.sh`).
 - Rollback options: `git` (repo), `dots restore <commit>`, Time Machine (macOS), restic/borg if installed.
 
@@ -153,8 +153,8 @@ How it works: `bw list items` JSON is filtered for `.type==5`; each `.sshKey.pri
 
 Notes:
 
-- `bw-ssh load` prompts for the master password. Hand the command to Esteban to run; agents never handle the password.
+- `bw-ssh load` prompts for the master password. Hand the command to Esteban to run; agents MUST NOT handle the password.
 - Keys stay decrypted in the agent only. Re-run `bw-ssh load` after a reboot or agent restart.
 - This is a bridge, not the Bitwarden agent. SSH agent forwarding and desktop-agent prompts do not apply.
 - Stanzas with vault-only keys (`.pub` on disk, private key in the agent) carry `IdentityAgent ~/.ssh/agent.sock` next to `IdentityFile` and `IdentitiesOnly yes`. The `IdentityAgent` line reaches the agent in non-interactive shells, where `~/.bashrc` was skipped and `SSH_AUTH_SOCK` is stale. A stanza missing the line fails with `no such identity` then `Permission denied (publickey)`: add the line. `IdentitiesOnly yes` stays safe, ssh matches the `.pub` file against the agent. Verify the agent holds a key: the fingerprint from `ssh-keygen -lf ~/.ssh/<name>.pub` appears in `ssh-add -l`.
-- Do not store or log the master password or `BW_SESSION`.
+- MUST NOT store or log the master password or `BW_SESSION`.

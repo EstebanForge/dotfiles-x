@@ -6,7 +6,8 @@ set -euo pipefail
 # Names mirror the AppleDouble set in ~/.config/git/ignore; git never sees them.
 # Files only, never dirs, never -rf. Safe to run from cron/systemd timers.
 # Install as a systemd --user unit via `dots install` +
-# `systemctl --user enable --now prune-macjunk.timer` (hourly, Persistent=true).
+# `systemctl --user enable --now prune-macjunk.timer` (every 2 hours,
+# Persistent=true).
 
 if (( EUID == 0 )); then
     echo "refusing: run as user, not root" >&2

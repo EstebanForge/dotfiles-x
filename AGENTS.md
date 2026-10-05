@@ -185,7 +185,7 @@ dots help                                # Show help message
 | `~/.config/systemd/user/dev-backup.timer` | `.config/systemd/user/dev-backup.timer` | Linux only (dev backup timer) |
 | `~/.local/bin/prune-macjunk.sh` | `.local/bin/prune-macjunk.sh` | Linux only (macOS junk pruner) |
 | `~/.config/systemd/user/prune-macjunk.service` | `.config/systemd/user/prune-macjunk.service` | Linux only (macOS junk pruner service) |
-| `~/.config/systemd/user/prune-macjunk.timer` | `.config/systemd/user/prune-macjunk.timer` | Linux only (macOS junk pruner timer; every 2 hours) |
+| `~/.config/systemd/user/prune-macjunk.timer` | `.config/systemd/user/prune-macjunk.timer` | Linux only (macOS junk pruner timer; every 6 hours) |
 | `~/.local/share/org.gnome.Ptyxis/palettes/*.palette` | `.local/share/org.gnome.Ptyxis/palettes/` | Linux only (4 Catppuccin Ptyxis palettes: Latte, Frappe, Macchiato, Mocha) |
 | `~/AGENTS.md`                       | `AGENTS.md`                              | All platforms (agent protocol) |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |

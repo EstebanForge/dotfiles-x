@@ -155,6 +155,8 @@ Notes:
 
 - `bw-ssh load` prompts for the master password. Hand the command to Esteban to run; agents MUST NOT handle the password.
 - Keys stay decrypted in the agent only. Re-run `bw-ssh load` after a reboot or agent restart.
+- Run `bw sync` before `bw-ssh load` after any vault change. The bw CLI cache never auto-syncs and the desktop app syncing does not refresh it, so a newly added vault key stays invisible to the bridge until the CLI cache is refreshed (symptom: load succeeds for old items but silently skips the new one).
 - This is a bridge, not the Bitwarden agent. SSH agent forwarding and desktop-agent prompts do not apply.
 - Stanzas with vault-only keys (`.pub` on disk, private key in the agent) carry `IdentityAgent ~/.ssh/agent.sock` next to `IdentityFile` and `IdentitiesOnly yes`. The `IdentityAgent` line reaches the agent in non-interactive shells, where `~/.bashrc` was skipped and `SSH_AUTH_SOCK` is stale. A stanza missing the line fails with `no such identity` then `Permission denied (publickey)`: add the line. `IdentitiesOnly yes` stays safe, ssh matches the `.pub` file against the agent. Verify the agent holds a key: the fingerprint from `ssh-keygen -lf ~/.ssh/<name>.pub` appears in `ssh-add -l`.
+- `IdentityFile` is a cumulative option: a `Host github.com` stanza plus a command-line `-i` pub file offers BOTH keys, config entry first, so a second key can silently authenticate as the first account. Deterministic per-repo routing for agent-only keys: a repo-local ssh config (`ssh -F <config>`) holding only the wanted `IdentityFile` + `IdentitiesOnly yes` + `IdentityAgent`, wired via `core.sshCommand`.
 - MUST NOT store or log the master password or `BW_SESSION`.

@@ -183,6 +183,9 @@ dots help                                # Show help message
 | `~/.local/bin/clip2zen` | `.local/bin/clip2zen` | macOS only (clipboard image → zenless OS temp `/tmp/clip2zen`, reboot-wiped; copies remote path so agy can attach it; Hammerspoon hotkey hyperkey+I) |
 | `~/.config/systemd/user/dev-backup.service` | `.config/systemd/user/dev-backup.service` | Linux only (dev backup user service) |
 | `~/.config/systemd/user/dev-backup.timer` | `.config/systemd/user/dev-backup.timer` | Linux only (dev backup timer) |
+| `~/.local/bin/prune-macjunk.sh` | `.local/bin/prune-macjunk.sh` | Linux only (macOS junk pruner) |
+| `~/.config/systemd/user/prune-macjunk.service` | `.config/systemd/user/prune-macjunk.service` | Linux only (macOS junk pruner service) |
+| `~/.config/systemd/user/prune-macjunk.timer` | `.config/systemd/user/prune-macjunk.timer` | Linux only (macOS junk pruner timer; hourly) |
 | `~/.local/share/org.gnome.Ptyxis/palettes/*.palette` | `.local/share/org.gnome.Ptyxis/palettes/` | Linux only (4 Catppuccin Ptyxis palettes: Latte, Frappe, Macchiato, Mocha) |
 | `~/AGENTS.md`                       | `AGENTS.md`                              | All platforms (agent protocol) |
 | `~/.gitconfig`                      | `.gitconfig`                             | All platforms               |

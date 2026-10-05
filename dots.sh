@@ -233,6 +233,9 @@ setup_dotfiles() {
         dotfiles+=(".local/bin/dev-backup.sh:.local/bin/dev-backup.sh")
         dotfiles+=(".config/systemd/user/dev-backup.service:.config/systemd/user/dev-backup.service")
         dotfiles+=(".config/systemd/user/dev-backup.timer:.config/systemd/user/dev-backup.timer")
+        dotfiles+=(".local/bin/prune-macjunk.sh:.local/bin/prune-macjunk.sh")
+        dotfiles+=(".config/systemd/user/prune-macjunk.service:.config/systemd/user/prune-macjunk.service")
+        dotfiles+=(".config/systemd/user/prune-macjunk.timer:.config/systemd/user/prune-macjunk.timer")
         # Ptyxis terminal palettes (Catppuccin). Ptyxis reads .palette files
         # from ~/.local/share/org.gnome.Ptyxis/palettes/ at runtime.
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette")
@@ -387,6 +390,9 @@ cleanup_symlinks() {
         ".local/bin/clip2zen"
         ".config/systemd/user/dev-backup.service"
         ".config/systemd/user/dev-backup.timer"
+        ".local/bin/prune-macjunk.sh"
+        ".config/systemd/user/prune-macjunk.service"
+        ".config/systemd/user/prune-macjunk.timer"
         ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette"
         ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette"
         ".local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette"
@@ -466,6 +472,9 @@ show_status() {
         dotfiles+=(".local/bin/dev-backup.sh:.local/bin/dev-backup.sh")
         dotfiles+=(".config/systemd/user/dev-backup.service:.config/systemd/user/dev-backup.service")
         dotfiles+=(".config/systemd/user/dev-backup.timer:.config/systemd/user/dev-backup.timer")
+        dotfiles+=(".local/bin/prune-macjunk.sh:.local/bin/prune-macjunk.sh")
+        dotfiles+=(".config/systemd/user/prune-macjunk.service:.config/systemd/user/prune-macjunk.service")
+        dotfiles+=(".config/systemd/user/prune-macjunk.timer:.config/systemd/user/prune-macjunk.timer")
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette")
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette")
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette")

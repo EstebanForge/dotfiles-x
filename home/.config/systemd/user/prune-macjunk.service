@@ -1,0 +1,8 @@
+[Unit]
+Description=Prune macOS AppleDouble junk files (._*, .DS_Store) from $HOME
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/prune-macjunk.sh
+Nice=19
+IOSchedulingClass=idle

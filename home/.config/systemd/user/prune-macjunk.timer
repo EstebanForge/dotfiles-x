@@ -1,0 +1,9 @@
+[Unit]
+Description=Hourly prune of macOS junk files
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

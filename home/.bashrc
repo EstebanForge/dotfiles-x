@@ -243,3 +243,10 @@ fi
 # Added by Antigravity CLI installer
 export PATH="/home/esteban/.local/bin:$PATH"
 . "$HOME/.cargo/env"
+
+# pi inline images: every shell here is ssh-from-Ghostty or a herdr pane, and
+# neither exposes a terminal marker pi-tui detects (ssh drops TERM_PROGRAM,
+# herdr panes report "herdr"). Outer terminals are kitty-graphics-capable.
+if [[ -n "${SSH_CONNECTION:-}" || "${HERDR_ENV:-}" == 1 ]]; then
+    export PI_IMAGE_PROTOCOL="${PI_IMAGE_PROTOCOL:-kitty}"
+fi

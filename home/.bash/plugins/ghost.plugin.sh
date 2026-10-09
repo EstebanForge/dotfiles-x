@@ -285,8 +285,12 @@ _ghost_pre_accept() {
 }
 bind -x '"\e[99~": _ghost_pre_accept'
 bind '"\e[98~": accept-line'
-bind -s '"\C-m": "\e[99~\e[98~"' # Enter
-bind -s '"\C-j": "\e[99~\e[98~"' # Ctrl-J (same accept semantics)
+# stdout goes to /dev/null: \C-m and \C-j are both rl_newline in readline,
+# and binding a macro over the second one makes bash print the first key's
+# macro line at shell startup (observed on bash 5.3). Pure listing noise;
+# the binding itself works, as the Enter E2E suite proves.
+bind -s '"\C-j": "\e[99~\e[98~"' >/dev/null # Ctrl-J (same accept semantics)
+bind -s '"\C-m": "\e[99~\e[98~"' >/dev/null # Enter
 
 # Refresh on each prompt draw. PROMPT_COMMAND may be an ARRAY (bash 5.1+;
 # Fedora's 80-systemd-osc-context.sh appends to it as one). String-appending

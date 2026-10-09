@@ -250,3 +250,4 @@ export PATH="/home/esteban/.local/bin:$PATH"
 if [[ -n "${SSH_CONNECTION:-}" || "${HERDR_ENV:-}" == 1 ]]; then
     export PI_IMAGE_PROTOCOL="${PI_IMAGE_PROTOCOL:-kitty}"
 fi
+export PATH=$PATH:$HOME/.maestro/bin

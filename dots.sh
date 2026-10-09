@@ -236,6 +236,7 @@ setup_dotfiles() {
         dotfiles+=(".local/bin/prune-macjunk.sh:.local/bin/prune-macjunk.sh")
         dotfiles+=(".config/systemd/user/prune-macjunk.service:.config/systemd/user/prune-macjunk.service")
         dotfiles+=(".config/systemd/user/prune-macjunk.timer:.config/systemd/user/prune-macjunk.timer")
+        dotfiles+=(".config/systemd/user/herdr.service:.config/systemd/user/herdr.service")
         # Ptyxis terminal palettes (Catppuccin). Ptyxis reads .palette files
         # from ~/.local/share/org.gnome.Ptyxis/palettes/ at runtime.
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette")
@@ -386,6 +387,7 @@ cleanup_symlinks() {
         ".bash/plugins/ghost.plugin.sh"
         ".bash/plugins/agentmemory.plugin.sh"
         ".config/systemd/user/agentmemory.service"
+        ".config/systemd/user/herdr.service"
         ".local/bin/dev-backup.sh"
         ".local/bin/clip2zen"
         ".config/systemd/user/dev-backup.service"
@@ -475,6 +477,7 @@ show_status() {
         dotfiles+=(".local/bin/prune-macjunk.sh:.local/bin/prune-macjunk.sh")
         dotfiles+=(".config/systemd/user/prune-macjunk.service:.config/systemd/user/prune-macjunk.service")
         dotfiles+=(".config/systemd/user/prune-macjunk.timer:.config/systemd/user/prune-macjunk.timer")
+        dotfiles+=(".config/systemd/user/herdr.service:.config/systemd/user/herdr.service")
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette")
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette")
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette")

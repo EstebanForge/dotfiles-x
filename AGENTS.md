@@ -179,6 +179,7 @@ dots help                                # Show help message
 | `~/.bash/plugins/agentmemory.plugin.sh` | `.bash/plugins/agentmemory.plugin.sh` | Linux only (agentmemory CLI guard + `memconsolidate`; loaded by `.bashrc` plugin loader) |
 | `~/.config/fontconfig/fonts.conf`      | `.config/fontconfig/fonts.conf`           | Linux only (fontconfig for non-GNOME apps) |
 | `~/.config/systemd/user/agentmemory.service` | `.config/systemd/user/agentmemory.service` | Linux only (agentmemory engine user service; auto-launched on login) |
+| `~/.config/systemd/user/herdr.service` | `.config/systemd/user/herdr.service` | Linux only (herdr workspace server user service; auto-launched on login) |
 | `~/.local/bin/dev-backup.sh` | `.local/bin/dev-backup.sh` | Linux only (dev backup helper) |
 | `~/.local/bin/clip2zen` | `.local/bin/clip2zen` | macOS only (clipboard image → zenless OS temp `/tmp/clip2zen`, reboot-wiped; copies remote path so agy can attach it; Hammerspoon hotkey hyperkey+I) |
 | `~/.config/systemd/user/dev-backup.service` | `.config/systemd/user/dev-backup.service` | Linux only (dev backup user service) |

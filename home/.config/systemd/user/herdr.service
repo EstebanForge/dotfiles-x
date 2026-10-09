@@ -1,0 +1,20 @@
+[Unit]
+Description=herdr: terminal workspace server for AI coding agents
+# Wait for the user session to be up — the unit needs $XDG_RUNTIME_DIR
+# and the runtime socket dir provided by the user manager.
+After=default.target
+
+[Service]
+Type=simple
+# systemd user units do not source ~/.bashrc, and herdr spawns shells
+# and coding agents in panes, so PATH must carry ~/.local/bin (where
+# herdr and the agents live) and the Linuxbrew dirs.
+Environment=PATH=%h/.local/bin:%h/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=%h
+ExecStart=%h/.local/bin/herdr server
+# `herdr server stop` is the clean exit path; only respawn on crashes.
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target

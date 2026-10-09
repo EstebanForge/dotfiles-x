@@ -2,9 +2,14 @@
 # ghost.plugin.sh - Fish-style ghost text suggestions for Bash 5.x
 #
 # Suggestions from history appear as gray text after the cursor.
-#   Right / End        -> accept full suggestion (Tab stays completion)
-#   Alt-F / Ctrl-F     -> accept next word
+#   Right / Alt-F /    -> accept ONE suggestion word per press ("wicket cw de"
+#   Ctrl-F                + Right -> "wicket cw deploy " + ghost "staging");
+#                         stock forward-char when the cursor is mid-line
+#   Ctrl-E / End       -> accept full suggestion (Tab stays completion)
 #   Up / Down arrow    -> browse history (ghost text cleared)
+#   Enter / Ctrl-J     -> run what you typed; painted ghost text is erased
+#                         first, so scrollback never shows a command you
+#                         didn't run (it pollutes copied terminal output)
 #
 # MIT License - part of dotfiles-x
 # Inspired by https://github.com/h-jangra/Ghost.sh (no license, unmaintained).
@@ -15,7 +20,11 @@
 # matched), Up/Down macros whose bodies contained unbound bytes (readline
 # aborted and swallowed the keypress: arrows went dead on terminals sending
 # normal-mode \e[A codes), app-mode arrow variants, Ctrl-E end-of-line, and
-# PROMPT_COMMAND array clobbering (dropped systemd's OSC hook on Fedora).
+# PROMPT_COMMAND array clobbering (dropped systemd's OSC hook on Fedora),
+# Right-arrow accepted the whole suggestion in one press (now one word per
+# press; Ctrl-E / End accept all), painted ghost surviving Enter, and
+# readline's post-rc tty-char mapping silently disabling the DEL / Ctrl-U
+# bindings (stock backspace ran; ghost went stale).
 
 [[ $- != *i* ]] && return
 [[ -n "${_GHOST_LOADED:-}" ]] && return
@@ -93,9 +102,22 @@ _ghost_get_suggestion() {
 # Note: ANSI.SYS \e[s and \e[u are not supported by mosh's terminal emulator.
 # Limitation: \e[%dG (CHA) clamps to the current row; lines wider than the
 # terminal width render or clear at the wrong column. Suggestion text itself
-# is stripped of C0 controls above, but ANSI SGR (\e[...m) in a history entry
-# would still be replayed verbatim.
+# is stripped of C0 controls above, so a history SGR code degrades to literal
+# "[...m" text (the ESC byte is gone); no escape can be replayed.
 _ghost_render() {
+    # readline maps the tty special chars (ERASE=\x7f, KILL=\C-u) onto their
+    # stock functions at readline INIT time, which happens AFTER rc sourcing,
+    # silently undoing the \C-? / \C-u bindings registered below -- even the
+    # first prompt's refresh runs before it. The first RENDER is always after
+    # init (it fires on the first keystroke), so re-apply the two bindings
+    # there, once. DEL as the very first keystroke of the session hits stock
+    # rubout, which is a no-op on an empty line: no visible difference.
+    if [[ -z "${_GHOST_TTY_REBOUND:-}" ]]; then
+        _GHOST_TTY_REBOUND=1
+        bind -x '"\C-?": _ghost_backspace'
+        bind -x '"\C-u": _ghost_kill_line'
+    fi
+
     if [[ $READLINE_POINT -eq ${#READLINE_LINE} ]]; then
         _ghost_get_suggestion "$READLINE_LINE"
     else
@@ -104,7 +126,7 @@ _ghost_render() {
 
     local col=$(( _ghost_prompt_len + ${#READLINE_LINE} + 1 ))
     if [[ -n "$_ghost_suggestion" ]]; then
-        printf '\e7\e[%dG%s%s\e[0m\e8' \
+        printf '\e7\e[%dG\e[K%s%s\e[0m\e8' \
             "$col" "$_ghost_color" "$_ghost_suggestion" >&2
     else
         printf '\e7\e[%dG\e[K\e8' "$col" >&2
@@ -120,17 +142,27 @@ _ghost_insert() {
     _ghost_render
 }
 
-# Accept the suggestion: if cursor is mid-line, advance one char (standard
-# right-arrow behavior); otherwise append the whole ghost text.
+# Right arrow: if cursor is mid-line, advance one char (standard forward-char);
+# at the tail, accept ONE whitespace-delimited word of the ghost text per
+# press, then re-render so the remaining suggestion stays ghost. Walking one
+# word per press lets partial commands run (e.g. "wicket cw deploy" without
+# "staging") instead of forcing the whole history line in. Full accept is
+# _ghost_end (Ctrl-E / End).
 _ghost_accept() {
     if [[ $READLINE_POINT -lt ${#READLINE_LINE} ]]; then
         READLINE_POINT=$(( READLINE_POINT + 1 ))
     elif [[ -n "$_ghost_suggestion" ]]; then
-        READLINE_LINE+="$_ghost_suggestion"
+        # Leading spaces ride along with the word: a suggestion like " staging"
+        # must not spend a whole press on the bare space (fish/zsh walk feel).
+        local rest="$_ghost_suggestion"
+        local lead="${rest%%[! ]*}" # spaces before the next word ("", " ")
+        rest="${rest#"$lead"}"
+        local word="${rest%% *}" # next word, no trailing space
+        [[ "$rest" == *' '* ]] && word+=' '
+        READLINE_LINE+="$lead$word"
         READLINE_POINT=${#READLINE_LINE}
-        _ghost_suggestion=""
     fi
-    _ghost_render
+    _ghost_render # recomputes the suggestion from the extended line
 }
 
 # End of line: accept the ghost suggestion when at the tail, then move to
@@ -141,17 +173,6 @@ _ghost_end() {
         _ghost_suggestion=""
     fi
     READLINE_POINT=${#READLINE_LINE}
-    _ghost_render
-}
-
-# Accept only the next whitespace-delimited word of the suggestion.
-_ghost_accept_word() {
-    [[ -n "$_ghost_suggestion" ]] || return
-    local word="${_ghost_suggestion%% *}"
-    [[ "$_ghost_suggestion" == *' '* ]] && word+=' '
-    READLINE_LINE+="$word"
-    READLINE_POINT=${#READLINE_LINE}
-    _ghost_suggestion="${_ghost_suggestion#"$word"}"
     _ghost_render
 }
 
@@ -219,15 +240,18 @@ for ((_ghost_i = 32; _ghost_i <= 255; _ghost_i++)); do
 done
 unset _ghost_i _ghost_oct _ghost_char _ghost_argq _ghost_keyspec
 
-# Accept full suggestion. Tab is NOT rebound: filename completion is worth
-# more than a second accept key (Right / End / Ctrl-E all accept).
+# Accept suggestion one word per press (see _ghost_accept). Tab is NOT
+# rebound: filename completion is worth more than a second accept key.
 bind -x '"\e[C":  _ghost_accept' # Right arrow (normal mode)
 bind -x '"\eOC":  _ghost_accept' # Right arrow (application mode)
-bind -x '"\C-e":  _ghost_end'    # End (accepts ghost text when at line tail)
+bind -x '"\ef":   _ghost_accept' # Alt-F
+bind -x '"\C-f":  _ghost_accept' # Ctrl-F (overrides Bash default forward-char)
 
-# Accept next word
-bind -x '"\ef":  _ghost_accept_word' # Alt-F
-bind -x '"\C-f": _ghost_accept_word' # Ctrl-F (overrides Bash default forward-char)
+# Full accept
+bind -x '"\C-e":  _ghost_end'    # End-of-line (accepts ghost text at tail)
+bind -x '"\e[F":  _ghost_end'    # End key (normal mode)
+bind -x '"\eOF":  _ghost_end'    # End key (application mode)
+bind -x '"\e[4~": _ghost_end'    # End key (tmux/screen/PuTTY/Linux console)
 
 # Line-edit ops that need ghost re-render (both cursor-key modes)
 bind -x '"\e[D": _ghost_left'        # Left arrow (normal mode)
@@ -247,6 +271,22 @@ bind -x '"\C-a": _ghost_home'        # Home
 # redirected). Stale ghost text after arrow navigation self-corrects on the
 # next keystroke (every printable byte re-renders) and at the next prompt
 # (_ghost_refresh), so stock arrows are the simpler, silent choice.
+
+# Enter/Ctrl-J must erase the painted ghost BEFORE the newline is emitted,
+# or the faded suggestion survives into scrollback and reads as part of the
+# executed command. readline has no pre-accept hook, so Enter is a macro that
+# fires a private bind -x key (the eraser), then a private key bound to the
+# stock accept-line function. The sequences \e[99~ / \e[98~ are never sent by
+# a physical key, so the chain only triggers from the macro.
+_ghost_pre_accept() {
+    _ghost_suggestion=""
+    local col=$(( _ghost_prompt_len + ${#READLINE_LINE} + 1 ))
+    printf '\e7\e[%dG\e[K\e8' "$col" >&2
+}
+bind -x '"\e[99~": _ghost_pre_accept'
+bind '"\e[98~": accept-line'
+bind -s '"\C-m": "\e[99~\e[98~"' # Enter
+bind -s '"\C-j": "\e[99~\e[98~"' # Ctrl-J (same accept semantics)
 
 # Refresh on each prompt draw. PROMPT_COMMAND may be an ARRAY (bash 5.1+;
 # Fedora's 80-systemd-osc-context.sh appends to it as one). String-appending

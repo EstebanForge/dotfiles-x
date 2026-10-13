@@ -10,6 +10,7 @@ Assist the user. Do no harm to the system. When unsure, STOP and ask. Order of p
 
 - User: Esteban. Home: `$HOME` (`~`).
 - Role: system configuration, maintenance, troubleshooting, development.
+- Machines: macOS workstation `ATTD-ZenX`; Linux workstation `ATTD-Zenless` (Fedora, runs the Docker stacks). Detect with `hostname`.
 
 ## 2. Detect Your Environment
 
@@ -22,6 +23,7 @@ MUST NOT assume the OS. Detect at session start and branch on the result.
 | Shell | `echo $SHELL` | `zsh` (macOS) \| `bash` (Linux) |
 | Package manager | `command -v brew dnf apt flatpak` | `brew` (all) + `dnf`/`flatpak` (Fedora) + `apt`/`flatpak` (Deb) |
 | Init / service mgr | `uname -s`; `pidof systemd` | `launchd` (macOS) \| `systemd` (Linux) |
+| Hostname | `hostname` | `ATTD-ZenX` (Darwin) \| `ATTD-Zenless` (Linux) |
 
 MUST NOT hardcode paths like `/Users/esteban` or `~/Library`. Use `$HOME` and branch on the detected OS.
 
@@ -109,11 +111,11 @@ Notes: `sleep 1` lets VoiceInk init first; raise to 3 or 5 if needed, then reloa
 
 ### macOS: zenless localhost tunnel (pf redirect)
 
-Problem: `https://localhost` serves a site stack on the remote machine `zenless`. Two halves must both live: an ssh local forward (user-owned) and a pf port redirect (root-owned). The pf half dies silently when something flushes pf mid-session (the NordVPN privileged helper is the prime suspect; it lives in `/Library/PrivilegedHelperTools/`). After that, `tunnel up` still said "up" because it only checked the ssh half. Fixed: the `tunnel` function now proves the full chain via port 443 and prints the repair command on split state.
+Problem: `https://localhost` on `ATTD-ZenX` serves a site stack running on the Linux machine `ATTD-Zenless` (ssh host alias `tunneless`). Two halves must both live: an ssh local forward (user-owned) and a pf port redirect (root-owned). The pf half dies silently when something flushes pf mid-session (the NordVPN privileged helper is the prime suspect; it lives in `/Library/PrivilegedHelperTools/`). After that, `tunnel up` still said "up" because it only checked the ssh half. Fixed: the `tunnel` function now proves the full chain via port 443 and prints the repair command on split state.
 
 Components (machine-local, not symlinked by dots):
 
-- ssh half: `ssh -fN tunneless` binds `127.0.0.1:8080`, `127.0.0.1:8443`, and `127.0.0.1:8025` (Mailpit UI) on the Mac, forwarding to ports 80/443/8025 on `zenless`. Host stanza lives in the ssh config managed by `~/.config/estebanforge/ssh-hosts.sh`.
+- ssh half: `ssh -fN tunneless` binds `127.0.0.1:8080`, `127.0.0.1:8443`, and `127.0.0.1:8025` (Mailpit UI) on the Mac, forwarding to ports 80/443/8025 on `ATTD-Zenless`. Host stanza lives in the ssh config managed by `~/.config/estebanforge/ssh-hosts.sh`.
 - pf half: `/etc/pf.anchors/tunneless` redirects `lo0` 80 -> 8080 and 443 -> 8443. Loaded by `rdr-anchor`/`load anchor` lines in `/etc/pf.conf`.
 - Boot loader: `/Library/LaunchDaemons/com.user.pf.plist` runs `pfctl -f /etc/pf.conf && pfctl -e` at load. Log: `/var/log/com.user.pf.log` (no timestamps).
 
@@ -160,3 +162,11 @@ Notes:
 - Stanzas with vault-only keys (`.pub` on disk, private key in the agent) carry `IdentityAgent ~/.ssh/agent.sock` next to `IdentityFile` and `IdentitiesOnly yes`. The `IdentityAgent` line reaches the agent in non-interactive shells, where `~/.bashrc` was skipped and `SSH_AUTH_SOCK` is stale. A stanza missing the line fails with `no such identity` then `Permission denied (publickey)`: add the line. `IdentitiesOnly yes` stays safe, ssh matches the `.pub` file against the agent. Verify the agent holds a key: the fingerprint from `ssh-keygen -lf ~/.ssh/<name>.pub` appears in `ssh-add -l`.
 - `IdentityFile` is a cumulative option: a `Host github.com` stanza plus a command-line `-i` pub file offers BOTH keys, config entry first, so a second key can silently authenticate as the first account. Deterministic per-repo routing for agent-only keys: a repo-local ssh config (`ssh -F <config>`) holding only the wanted `IdentityFile` + `IdentitiesOnly yes` + `IdentityAgent`, wired via `core.sshCommand`.
 - MUST NOT store or log the master password or `BW_SESSION`.
+
+### Linux: tailscale serve owns 443 on the tailnet IP
+
+Problem: Rootless-podman stacks publish `0.0.0.0:443`. `tailscale serve` binds 443 on `tailscale0`. A wildcard publish fails to start when any specific address already holds the port. Symptom: `rootlessport listen tcp 0.0.0.0:443: bind: address already in use` during stack start.
+
+Solution (applied 2026-10-13): couch-pi (a local service on `127.0.0.1:8090`) is served on 8443 instead of 443: `tailscale serve --https=8443 --bg http://127.0.0.1:8090`. Tailnet URL: `https://<machine>.<tailnet>.ts.net:8443`. Keep serve off 443, so the stacks can keep publishing `0.0.0.0:443`. Revert only if the stacks move to loopback publishes first.
+
+Gate: `ss -tln '( sport = :443 )'`. A listener on `100.100.10.10` (tailscale0) is `tailscaled`, not a stack. Port 443 on `127.0.0.1` or `0.0.0.0` belongs to the running stack nginx.

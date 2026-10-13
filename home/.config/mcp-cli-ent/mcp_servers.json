@@ -117,6 +117,23 @@
       "persistent": false,
       "timeout": 30
     },
+    "ghidra": {
+      "enabled": true,
+      "description": "GhidraMCP: decompile, list functions/imports/exports, rename symbols. Needs Ghidra GUI running with the GhidraMCP plugin (HTTP :8080). Headless mode runs ad-hoc via uvx + PyGhidra",
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--python",
+        "3.13",
+        "--from",
+        "git+https://github.com/LaurieWired/GhidraMCP",
+        "ghidra-mcp",
+        "--ghidra-server",
+        "http://127.0.0.1:8192/"
+      ],
+      "persistent": true,
+      "timeout": 300
+    },
     "ai-vision": {
       "enabled": true,
       "description": "Image and video analysis via AI vision models (Gemini)",

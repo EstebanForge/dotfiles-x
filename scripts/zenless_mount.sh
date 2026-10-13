@@ -20,6 +20,7 @@
 #   zenless_mount.sh install   Install/refresh the LaunchDaemon (sudo)
 #   zenless_mount.sh plist     Print the embedded plist (no changes)
 #   zenless_mount.sh status    Show daemon + mountpoint + mount state
+#   zenless_mount.sh check     Probe wiring, exit 1 if any layer is dead
 
 # Re-exec under Bash when invoked from another shell (e.g. zsh zenless_mount.sh).
 source "$(dirname "$0")/lib/bash_compat.sh"
@@ -175,12 +176,55 @@ do_status() {
     mount | grep -F "$REAL_MOUNT" || echo "not mounted (autofs is lazy; access the path to mount)"
 }
 
+do_check() {
+    # Wiring probe for `dots doctor`: no sudo, no side effects. Detects the
+    # broken END state (any killer: OS upgrade, editor, restore) instead of
+    # trying to attribute a cause. The trigger check is the proof layer:
+    # automountd only mounts it when the master-map line is live, so a plain
+    # directory at $REAL_MOUNT cannot fake a pass.
+    local failed=0
+
+    if grep -Eq '^/-[[:space:]]+auto_nfs([[:space:]]|$)' /etc/auto_master; then
+        echo "OK: /etc/auto_master registers the auto_nfs direct map"
+    else
+        echo "BROKEN: /etc/auto_master has no '/- auto_nfs' line (macOS upgrade reset?)"
+        failed=1
+    fi
+
+    if [[ -f "$AUTO_NFS" ]] && grep -q "^$REAL_MOUNT " "$AUTO_NFS"; then
+        echo "OK: $AUTO_NFS maps $REAL_MOUNT"
+    else
+        echo "BROKEN: no entry for $REAL_MOUNT in $AUTO_NFS"
+        failed=1
+    fi
+
+    if [[ -L "$MOUNT_POINT" && "$(readlink "$MOUNT_POINT")" == "$REAL_MOUNT" ]]; then
+        echo "OK: $MOUNT_POINT -> $REAL_MOUNT"
+    else
+        echo "BROKEN: $MOUNT_POINT missing or pointing elsewhere"
+        failed=1
+    fi
+
+    if mount | grep -F "$REAL_MOUNT" >/dev/null; then
+        echo "OK: autofs trigger is mounted at $REAL_MOUNT"
+    else
+        echo "BROKEN: no autofs trigger at $REAL_MOUNT"
+        failed=1
+    fi
+
+    if (( failed )); then
+        echo "Run 'dots zenless-mount' to heal."
+        exit 1
+    fi
+}
+
 case "${1:-install}" in
     install) do_install ;;
     plist)   print_plist ;;
     status)  do_status ;;
+    check)   do_check ;;
     *)
-        echo "Usage: $0 {install|plist|status}" >&2
+        echo "Usage: $0 {install|plist|status|check}" >&2
         exit 1
         ;;
 esac

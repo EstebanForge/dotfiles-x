@@ -1075,7 +1075,21 @@ health_check() {
             ;;
     esac
 
-    # 8. Final summary and recommendations
+    # 8. Check Zenless NFS wiring (macOS). Upgrades reset /etc/auto_master,
+    # orphaning /etc/auto_nfs. Gated on the map file existing: it is
+    # machine-local, so Macs that never opted in stay silent.
+    if [[ "$DISTRO" == "macos" && -f /etc/auto_nfs ]]; then
+        echo ""
+        print_status "8. Checking Zenless NFS wiring..."
+        if bash "$DOTFILES_DIR/scripts/zenless_mount.sh" check; then
+            print_success "✅ Zenless NFS wiring is intact"
+        else
+            print_warning "⚠️  Zenless NFS wiring broken - run 'dots zenless-mount' to heal"
+            ((++warnings))
+        fi
+    fi
+
+    # 9. Final summary and recommendations
     echo ""
     print_header "Health Check Summary"
 
@@ -1094,7 +1108,7 @@ health_check() {
             print_status "  • Run 'sysup' to update outdated packages"
             print_status "  • Check specific warnings above for detailed fixes"
         fi
-        print_status "  • Run 'dots health' periodically to monitor system health"
+        print_status "  • Run 'dots doctor' periodically to monitor system health"
         return 0
     else
         print_error "❌ $issues critical issue(s) found!"
@@ -1134,7 +1148,7 @@ COMMANDS:
     restore [commit]          Restore to a git commit (default: HEAD)
     restore [commit] --force  Skip confirmation prompt
     history                   Show recent git history
-    health                    Run comprehensive health check
+    doctor                    Run comprehensive health check
     crontab [action]          Manage crontab entries (install/show/remove/backup/service)
     backup [run|list]         Run backup scripts (agentmemory, etc.)
     wheeltani                 Wayland-Wheeltani middle-mouse autoscroll (Fedora/Wayland)
@@ -1151,7 +1165,7 @@ EXAMPLES:
     dots migrate                        # Apply pending one-time migrations
     dots sync                           # Pull latest and reinstall
     dots restore HEAD~1                 # Roll back one commit
-    dots health                         # Run health diagnostics
+    dots doctor                         # Run health diagnostics
     dots crontab show                   # Show scheduled jobs
     dots wheeltani                     # (Re)run Wayland-Wheeltani mouse setup
     dots zenless-mount                 # (Re)install Zenless NFS mount self-heal
@@ -1216,7 +1230,7 @@ show_menu() {
             4)  main install --configure; return 0 ;;
             5)  main install --crontab; return 0 ;;
             6)  main status; return 0 ;;
-            7)  main health; return 0 ;;
+            7)  main doctor; return 0 ;;
             8)  main sync; return 0 ;;
             9)  main push; return 0 ;;
             10) main cleanup; return 0 ;;
@@ -1301,7 +1315,7 @@ main() {
         "migrate")
             run_migrations
             ;;
-        "health"|"check")
+        "doctor")
             health_check
             ;;
         "crontab")

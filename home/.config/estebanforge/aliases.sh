@@ -38,3 +38,13 @@ else
     alias .....='cd ../../../..'
     alias ......='cd ../../../../..'
 fi
+
+# --- Zenless NFS self-heal (macOS) ---
+# macOS upgrades reset /etc/auto_master to stock, which orphans /etc/auto_nfs
+# and kills the autofs trigger until the wiring is restored. The logic lives
+# in scripts/zenless_mount.sh (dots zenless-mount); this wrapper keeps the
+# repair a one-word command after an upgrade. The script self-guards and
+# errors out on non-macOS hosts, so defining it everywhere is harmless.
+zenless-heal() {
+    dots zenless-mount "${1:-install}"
+}

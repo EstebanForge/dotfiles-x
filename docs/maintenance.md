@@ -9,7 +9,7 @@ To manage a new configuration file:
 1. Place the source file under the [home/](../home/) directory.
 2. Edit the `dotfiles` array in [dots.sh](../dots.sh) to include the mapping `"relative_source:relative_target"`.
 3. Add the mapping to the `cleanup_symlinks` function in [dots.sh](../dots.sh).
-4. Add the mapping to the platform branch of `show_status` in [dots.sh](../dots.sh) as well. `show_status` keeps its own copy of the list; skipping it leaves `dots status` and `dots health` blind to the file.
+4. Add the mapping to the platform branch of `show_status` in [dots.sh](../dots.sh) as well. `show_status` keeps its own copy of the list; skipping it leaves `dots status` and `dots doctor` blind to the file.
 5. Run `./dots.sh install` to generate the symlink.
 
 ## Package Management

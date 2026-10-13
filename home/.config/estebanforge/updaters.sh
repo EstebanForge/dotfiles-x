@@ -10,7 +10,7 @@ sysup() {
     echo ""
     echo "Checking dotfile health..."
     if command -v dots >/dev/null 2>&1; then
-        dots health
+        dots doctor
     else
         echo "dots not found on PATH (expected ~/.local/bin/dots)"
     fi
@@ -29,5 +29,5 @@ sysup-full() {
 }
 
 dots-check() {
-    dots health
+    dots doctor
 }

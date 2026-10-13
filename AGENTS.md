@@ -53,7 +53,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `lib/npm_globals.sh`: Global npm packages, per-package fault-isolated. Sourced by `install_macos.sh`, `install_rpm.sh`, and `install_deb.sh`.
     *   `lib/backup/`: Backup helpers (`backup.sh` runner plus per-target scripts); exposed as `dots backup`.
     *   `luks_tpm_enroll.sh`: LUKS2 to TPM2 enrollment for passwordless disk unlock (Linux; status/enroll/remove).
-    *   `zenless_mount.sh`: Wires the `auto_nfs` direct map into `auto_master` (trigger under `/System/Volumes/Data/mnt`, since the sealed root has no `/mnt`) and restores the `/Volumes/Zenless` symlink to it via root LaunchDaemon (macOS; `dots zenless-mount`).
+    *   `zenless_mount.sh`: Wires the `auto_nfs` direct map into `auto_master` (trigger under `/System/Volumes/Data/mnt`, since the sealed root has no `/mnt`) and restores the `/Volumes/Zenless` symlink to it via root LaunchDaemon (macOS; `dots zenless-mount`). Its `check` subcommand probes the wiring (no sudo) and feeds the macOS item in `dots doctor`. On-demand shell wrapper: `zenless-heal` in `home/.config/estebanforge/aliases.sh`.
     *   `wheeltani_autoscroll.sh`: Wayland middle-mouse-hold autoscroll setup (Fedora/Wayland; `dots wheeltani`).
     *   `debloat_services.sh`: Disables dead-weight services and removes the deprecated ABRT stack (Fedora).
     *   `hyperkey_keyd.sh`: Capslock-to-hyper modifier via keyd (Fedora).
@@ -151,7 +151,7 @@ dots restore                             # Restore to latest commit
 dots restore <commit>                    # Restore to specific commit
 dots restore <commit> --force            # Skip confirmation prompt
 dots history                             # Show recent git history (last 10 commits)
-dots health                              # Comprehensive health check
+dots doctor                              # Comprehensive health check
 dots crontab install                     # Install crontab entries
 dots crontab show                        # Show current crontab entries
 dots crontab remove                      # Remove all crontab entries
@@ -161,7 +161,7 @@ dots version                             # Show script version
 dots help                                # Show help message
 ```
 
-**Aliases:** `setup`=`install`, `clean`=`cleanup`, `st`=`status`, `s`=`sync`, `p`=`push`, `r`=`restore`, `log`=`history`, `check`=`health`
+**Aliases:** `setup`=`install`, `clean`=`cleanup`, `st`=`status`, `s`=`sync`, `p`=`push`, `r`=`restore`, `log`=`history`
 
 ### Files Managed by dots
 
@@ -213,7 +213,7 @@ dots help                                # Show help message
 
 ## Development Conventions
 
-*   **Adding new dotfiles:** Add the file to `home/` using its final filename relative to `$HOME` (e.g., `.myconfig`). Then register it in THREE places in `dots.sh`: the `dotfiles` array in `setup_dotfiles`, the `cleanup_symlinks` function, and the platform branch of `show_status`. Skipping `show_status` makes `dots status` and `dots health` blind to the file.
+*   **Adding new dotfiles:** Add the file to `home/` using its final filename relative to `$HOME` (e.g., `.myconfig`). Then register it in THREE places in `dots.sh`: the `dotfiles` array in `setup_dotfiles`, the `cleanup_symlinks` function, and the platform branch of `show_status`. Skipping `show_status` makes `dots status` and `dots doctor` blind to the file.
 *   **Adding new packages:** Add `brew install` / `brew install --cask` lines to `install_macos.sh`, or the equivalent `dnf install` / `apt install` lines to `install_rpm.sh` / `install_deb.sh`.
 *   **Adding crontab entries:** Edit `scripts/crontab.sh` (platform-specific behavior is keyed off `detect_distro` at the top of the script).
 *   **Customizing settings:** `configure_macos.sh` uses `defaults write` commands; `configure_rpm.sh` and `configure_deb.sh` use `gsettings`/`dconf` commands.

@@ -2,7 +2,7 @@
 # ghost.plugin.sh - Fish-style ghost text suggestions for Bash 5.x
 #
 # Suggestions from history appear as gray text after the cursor.
-#   Right / Alt-F /    -> accept ONE suggestion word per press ("php artisan de"
+#   Right / Alt-F /    -> accept ONE suggestion word per press ("php artisan deplo"
 #   Ctrl-F                + Right -> "php artisan deploy " + ghost "staging");
 #                         stock forward-char when the cursor is mid-line
 #   Ctrl-E / End       -> accept full suggestion (Tab stays completion)

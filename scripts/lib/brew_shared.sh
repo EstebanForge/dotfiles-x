@@ -5,7 +5,6 @@
 SHARED_BREW_TAPS=(
     "EstebanForge/tap"
     "rtk-ai/tap"
-    "RimantasZ/ctoken"
 )
 
 SHARED_BREW_FORMULAE=(
@@ -23,7 +22,6 @@ SHARED_BREW_FORMULAE=(
     "cargo-c"
     "cloudflared"
     "composer"
-    "RimantasZ/ctoken/ctoken"
     "deno"
     "eza"
     "fastfetch"

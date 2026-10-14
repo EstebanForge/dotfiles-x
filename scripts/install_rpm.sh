@@ -328,6 +328,9 @@ install_shared_brew_packages
 # Install Bun (official installer)
 install_bun_cli
 
+# Install ctoken (cargo from git; tap formula broken on Linux)
+install_ctoken_cli
+
 # Install global npm packages (Node is provided by Homebrew)
 install_npm_globals
 

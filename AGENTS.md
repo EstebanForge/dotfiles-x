@@ -45,7 +45,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `lib/profile_picture.sh`: Shared Linux helper that sets the user profile picture (AccountsService icon + `~/.face`). Sourced by `configure_rpm.sh` and `configure_deb.sh`.
     *   `lib/agentmemory.sh`: Installs + enables the agentmemory engine as a host service (LaunchAgent on macOS, systemd user unit on Linux). The npm package itself is installed by `lib/npm_globals.sh`. Sourced by `configure_macos.sh`, `configure_rpm.sh`, and `configure_deb.sh`.
     *   `lib/bash_compat.sh`: Re-exec-with-Bash guard sourced by every script so they work when invoked from another shell (e.g. `zsh install_rpm.sh`).
-    *   `lib/cli_installers.sh`: Curl-pipe-to-shell CLI installers (Antigravity, Claude Code, Codex, Bun, phpvm) with shared rc-file cleanup. Sourced by the platform `install_*.sh` scripts.
+    *   `lib/cli_installers.sh`: CLI installers (Antigravity, Claude Code, Codex, Bun, phpvm via curl-pipe; ctoken via cargo from git) with shared rc-file cleanup. Sourced by the platform `install_*.sh` scripts.
     *   `lib/fonts_shared.sh`: Shared Iosevka + SF Pro font install for Linux. Sourced by `install_rpm.sh` and `install_deb.sh`.
     *   `lib/themes_shared.sh`: Shared Flat Remix GNOME theme install for Linux.
     *   `lib/icons_reversal_shared.sh`: Shared Reversal icon theme install for Linux (color variant via `REVERSAL_COLOR`).

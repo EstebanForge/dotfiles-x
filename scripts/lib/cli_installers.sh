@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Curl-pipe-to-shell CLI installers, unified.
+# CLI installers, unified: curl-pipe-to-shell plus one cargo-from-git install.
 #
 # Each entry: binary name, install URL, curl flags, pipe target, and an
 # optional rc-strip marker. The marker (when set) names the "# Added by
@@ -92,4 +92,20 @@ install_phpvm_cli() {
     # -f is mandatory: without it an HTTP error page pipes into bash and
     # "succeeds". -o- sends the body to stdout for the pipe.
     install_curl_cli "phpvm" phpvm "https://raw.githubusercontent.com/Thavarshan/phpvm/main/install.sh" "-fsSLo-" bash
+}
+
+# Ctoken (LLM token counter). The Homebrew tap formula is broken on Linux,
+# so both platforms build from the git source with cargo instead.
+install_ctoken_cli() {
+    if command -v ctoken >/dev/null 2>&1; then
+        echo "ctoken already installed, skipping."
+        return
+    fi
+    if ! command -v cargo >/dev/null 2>&1; then
+        echo "WARNING: cargo not found; skipping ctoken." >&2
+        return
+    fi
+    echo "Installing ctoken via cargo..."
+    cargo install --git https://github.com/RimantasZ/ctoken ctoken \
+        || echo "  WARNING: cargo install failed: ctoken (continuing)" >&2
 }

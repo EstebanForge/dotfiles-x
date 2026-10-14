@@ -26,7 +26,9 @@ run_dots install > "$SANDBOX/install.log" 2>&1 || fail "install exited non-zero"
 [[ -L "$SB_HOME/AGENTS.md" ]] || fail "AGENTS.md is not a symlink"
 [[ "$(readlink "$SB_HOME/AGENTS.md")" == "$REPO_DIR/home/AGENTS.md" ]] || fail "AGENTS.md has the wrong target"
 [[ -f "$SB_HOME/.secrets" ]] || fail ".secrets was not created"
-perms="$(stat -f '%Lp' "$SB_HOME/.secrets" 2>/dev/null || stat -c '%a' "$SB_HOME/.secrets")"
+# GNU stat has no -f format flag (-f means filesystem status), so try it
+# second; BSD stat has no -c, so order GNU first for Linux.
+perms="$(stat -c '%a' "$SB_HOME/.secrets" 2>/dev/null || stat -f '%Lp' "$SB_HOME/.secrets")"
 [[ "$perms" == "600" ]] || fail ".secrets perms are $perms, expected 600"
 [[ -L "$SB_HOME/.local/bin/dots" ]] || fail ".local/bin/dots is not a symlink"
 if [[ "$(uname)" == "Darwin" ]]; then

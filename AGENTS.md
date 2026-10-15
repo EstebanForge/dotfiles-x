@@ -57,6 +57,7 @@ The project uses a symlink-based approach with automation scripts to achieve thi
     *   `wheeltani_autoscroll.sh`: Wayland middle-mouse-hold autoscroll setup (Fedora/Wayland; `dots wheeltani`).
     *   `debloat_services.sh`: Disables dead-weight services and removes the deprecated ABRT stack (Fedora).
     *   `hyperkey_keyd.sh`: Capslock-to-hyper modifier via keyd (Fedora).
+ *   `fwupd_polkit.sh`: Polkit rule for passwordless fwupd metadata refresh and firmware updates (Linux; wheel users; unattended topgrade firmware step).
 
 *   `assets/`: Static binary assets committed to the repo. Currently holds `profile-picture.jpg` (Esteban's GitHub avatar), applied as the login/user picture by the configure scripts.
 

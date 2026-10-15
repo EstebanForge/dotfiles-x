@@ -205,6 +205,8 @@ setup_dotfiles() {
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
         ".config/ghostty/config:.config/ghostty/config"
         ".config/zed/settings.json:.config/zed/settings.json"
+        ".config/herdr/config.toml:.config/herdr/config.toml"
+        ".config/herdr-auto-title/config.env:.config/herdr-auto-title/config.env"
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
         ".config/estebanforge/aliases.sh:.config/estebanforge/aliases.sh"
@@ -409,6 +411,8 @@ cleanup_symlinks() {
         ".config/topgrade/topgrade.toml"
         ".config/ghostty/config"
         ".config/zed/settings.json"
+        ".config/herdr/config.toml"
+        ".config/herdr-auto-title/config.env"
         ".config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml"
         ".config/estebanforge/ssh-hosts.sh"
@@ -446,6 +450,8 @@ show_status() {
         ".config/topgrade/topgrade.toml:.config/topgrade/topgrade.toml"
         ".config/ghostty/config:.config/ghostty/config"
         ".config/zed/settings.json:.config/zed/settings.json"
+        ".config/herdr/config.toml:.config/herdr/config.toml"
+        ".config/herdr-auto-title/config.env:.config/herdr-auto-title/config.env"
         ".config/mcp-cli-ent/mcp_servers.json:.config/mcp-cli-ent/mcp_servers.json"
         ".config/gh/config.yml:.config/gh/config.yml"
         ".config/estebanforge/aliases.sh:.config/estebanforge/aliases.sh"
@@ -1184,6 +1190,8 @@ FILES MANAGED:
     ~/.config/topgrade/topgrade.toml    Update manager configuration
     ~/.config/ghostty/config            Ghostty terminal configuration
     ~/.config/zed/settings.json         Zed editor configuration
+    ~/.config/herdr/config.toml         Herdr client config (sidebar rows)
+    ~/.config/herdr-auto-title/config.env  Auto Title plugin config
     ~/.config/mcp-cli-ent/mcp_servers.json  MCP server registry
     ~/.config/gh/config.yml             GitHub CLI configuration
 

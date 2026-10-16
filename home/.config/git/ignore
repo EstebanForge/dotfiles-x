@@ -106,6 +106,7 @@ config.codekit
 # Work #
 ########
 **/mu-plugins/stack-local-autologin.php
+**/wicket-local-autologin.php
 
 # LLM Agents #
 ##############

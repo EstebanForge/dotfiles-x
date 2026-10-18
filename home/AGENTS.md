@@ -115,7 +115,7 @@ Problem: `https://localhost` on `ATTD-ZenX` serves a site stack running on the L
 
 Components (machine-local, not symlinked by dots):
 
-- ssh half: `ssh -fN tunneless` binds `127.0.0.1:8080`, `127.0.0.1:8443`, and `127.0.0.1:8025` (Mailpit UI) on the Mac, forwarding to ports 80/443/8025 on `ATTD-Zenless`. Host stanza lives in the ssh config managed by `~/.config/estebanforge/ssh-hosts.sh`.
+- ssh half: `ssh -fN tunneless` binds `127.0.0.1:8080`, `127.0.0.1:8443`, and `127.0.0.1:8025` (Mailpit UI) on the Mac, forwarding to ports 80/443/8025 on `ATTD-Zenless`. Host stanza lives in the ssh config managed by `~/.config/estebanforge/ssh-hosts.sh`. `tunnel` also discovers extra site ports from the stack's listeners on zenless (`ss -tlnp`, web-server process names, loopback binds, Caddy admin 2019 excluded) and appends them as `-L` flags on the same connection; `tunnel refresh` rebuilds when site ports drift, and `tunnel status` reports drift without touching anything.
 - pf half: `/etc/pf.anchors/tunneless` redirects `lo0` 80 -> 8080 and 443 -> 8443. Loaded by `rdr-anchor`/`load anchor` lines in `/etc/pf.conf`.
 - Boot loader: `/Library/LaunchDaemons/com.user.pf.plist` runs `pfctl -f /etc/pf.conf && pfctl -e` at load. Log: `/var/log/com.user.pf.log` (no timestamps).
 
@@ -129,7 +129,7 @@ sudo pfctl -f /etc/pf.conf && sudo pfctl -e   # reload rules, ensure enabled
 
 Self-heal: `tunnel up` repairs a reverted or misplaced tunneless setup in `/etc/pf.conf` (missing or out-of-order `rdr-anchor "tunneless"` / `load anchor` lines, e.g. after the macOS 27.0 upgrade on 2026-09-18): it strips and reinserts the lines in valid category order (pf requires translation rules above filtering), backs up to `pf.conf.bak.<timestamp>`, syntax-checks with `pfctl -nf`, then reloads. The bare command above remains for simple flushes.
 
-Notes: pf loads cleanly at boot per the daemon log, so recurring deaths are mid-session flushes. If it dies again, correlate with NordVPN connect/disconnect times before blaming the boot daemon. Verify end to end: `curl -skI https://localhost/` must return 200.
+Notes: pf loads cleanly at boot per the daemon log, so recurring deaths are mid-session flushes. If it dies again, correlate with NordVPN connect/disconnect times before blaming the boot daemon. Verify end to end: `curl -skI https://<site>.localhost/` must return 200 for a site the stack serves. `https://localhost/` and `127.0.0.1` refuse TLS by design (Caddy routes by SNI hostname and has no site block for them), so a handshake failure there is not a tunnel fault.
 
 ### Linux: Bitwarden SSH key bridge (`bw-ssh`)
 

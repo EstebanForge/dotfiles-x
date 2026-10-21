@@ -79,6 +79,10 @@ elif [[ -x "$HOME/.linuxbrew/bin/brew" ]]; then
     eval "$($HOME/.linuxbrew/bin/brew shellenv)"
 fi
 
+# System pkgconfig first: brew's openssl@4 pc file would win, and its
+# libssl is unloadable from cargo-built binaries (they get no rpath).
+export PKG_CONFIG_PATH=/usr/lib64/pkgconfig
+
 ######################################
 # SSH Agent (Bitwarden Flatpak)      #
 ######################################

@@ -22,5 +22,5 @@ tab_bar_position = "top"
 pane_history = false
 
 [theme]
-name = "catppuccin"
+name = "tokyo-night"
 auto_switch = false

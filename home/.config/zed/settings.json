@@ -7,6 +7,10 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "remove_trailing_whitespace_on_save": true,
+  "show_whitespaces": "all",
+  "proxy": "",
+  "suggest_extensions": false,
   "disable_ai": true,
   "enable_language_server": false,
   "cli_default_open_behavior": "new_window",
@@ -75,7 +79,7 @@
   },
   "base_keymap": "SublimeText",
   "ui_font_size": 17.0,
-  "buffer_font_size": 17.0,
+  "buffer_font_size": 18.0,
   "theme": {
     "mode": "dark",
     "light": "One Light",

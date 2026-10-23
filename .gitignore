@@ -62,6 +62,7 @@ typescript.*
 .zed/
 *.code-workspace
 .history/
+*.gpui-lock
 
 # Agent tooling local state (pi, codegraph, etc.)
 .pi/

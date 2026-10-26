@@ -167,6 +167,6 @@ Notes:
 
 Problem: Rootless-podman stacks publish `0.0.0.0:443`. `tailscale serve` binds 443 on `tailscale0`. A wildcard publish fails to start when any specific address already holds the port. Symptom: `rootlessport listen tcp 0.0.0.0:443: bind: address already in use` during stack start.
 
-Solution (applied 2026-10-13): couch-pi (a local service on `127.0.0.1:8090`) is served on 8443 instead of 443: `tailscale serve --https=8443 --bg http://127.0.0.1:8090`. Tailnet URL: `https://<machine>.<tailnet>.ts.net:8443`. Keep serve off 443, so the stacks can keep publishing `0.0.0.0:443`. Revert only if the stacks move to loopback publishes first.
+Solution (applied 2026-10-13): couch-pi (a local service on `127.0.0.1:8090`) is served on 48443 instead of 443: `tailscale serve --https=48443 --bg http://127.0.0.1:8090` (migrated from 8443 on 2026-10-26; 48443 is unassigned, above 1023, and below the ephemeral range). Tailnet URL: `https://<machine>.<tailnet>.ts.net:48443`. Keep serve off 443, so the stacks can keep publishing `0.0.0.0:443`. Revert only if the stacks move to loopback publishes first.
 
 Gate: `ss -tln '( sport = :443 )'`. A listener on `100.100.10.10` (tailscale0) is `tailscaled`, not a stack. Port 443 on `127.0.0.1` or `0.0.0.0` belongs to the running stack nginx.

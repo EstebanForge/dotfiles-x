@@ -232,6 +232,9 @@ setup_dotfiles() {
         dotfiles+=(".config/environment.d/freetype.conf:.config/environment.d/freetype.conf")
         dotfiles+=(".config/fontconfig/fonts.conf:.config/fontconfig/fonts.conf")
         dotfiles+=(".config/systemd/user/agentmemory.service:.config/systemd/user/agentmemory.service")
+        dotfiles+=(".local/bin/agentmemory-maint:.local/bin/agentmemory-maint")
+        dotfiles+=(".config/systemd/user/agentmemory-maint.service:.config/systemd/user/agentmemory-maint.service")
+        dotfiles+=(".config/systemd/user/agentmemory-maint.timer:.config/systemd/user/agentmemory-maint.timer")
         dotfiles+=(".local/bin/dev-backup.sh:.local/bin/dev-backup.sh")
         dotfiles+=(".config/systemd/user/dev-backup.service:.config/systemd/user/dev-backup.service")
         dotfiles+=(".config/systemd/user/dev-backup.timer:.config/systemd/user/dev-backup.timer")
@@ -389,6 +392,9 @@ cleanup_symlinks() {
         ".bash/plugins/ghost.plugin.sh"
         ".bash/plugins/agentmemory.plugin.sh"
         ".config/systemd/user/agentmemory.service"
+        ".local/bin/agentmemory-maint"
+        ".config/systemd/user/agentmemory-maint.service"
+        ".config/systemd/user/agentmemory-maint.timer"
         ".config/systemd/user/herdr.service"
         ".local/bin/dev-backup.sh"
         ".local/bin/clip2zen"
@@ -477,6 +483,9 @@ show_status() {
         dotfiles+=(".config/environment.d/freetype.conf:.config/environment.d/freetype.conf")
         dotfiles+=(".config/fontconfig/fonts.conf:.config/fontconfig/fonts.conf")
         dotfiles+=(".config/systemd/user/agentmemory.service:.config/systemd/user/agentmemory.service")
+        dotfiles+=(".local/bin/agentmemory-maint:.local/bin/agentmemory-maint")
+        dotfiles+=(".config/systemd/user/agentmemory-maint.service:.config/systemd/user/agentmemory-maint.service")
+        dotfiles+=(".config/systemd/user/agentmemory-maint.timer:.config/systemd/user/agentmemory-maint.timer")
         dotfiles+=(".local/bin/dev-backup.sh:.local/bin/dev-backup.sh")
         dotfiles+=(".config/systemd/user/dev-backup.service:.config/systemd/user/dev-backup.service")
         dotfiles+=(".config/systemd/user/dev-backup.timer:.config/systemd/user/dev-backup.timer")

@@ -1,0 +1,6 @@
+[Unit]
+Description=agentmemory weekly maintenance (eviction + index rebuild)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/agentmemory-maint

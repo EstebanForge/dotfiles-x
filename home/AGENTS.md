@@ -170,3 +170,37 @@ Problem: Rootless-podman stacks publish `0.0.0.0:443`. `tailscale serve` binds 4
 Solution (applied 2026-10-13): couch-pi (a local service on `127.0.0.1:8090`) is served on 48443 instead of 443: `tailscale serve --https=48443 --bg http://127.0.0.1:8090` (migrated from 8443 on 2026-10-26; 48443 is unassigned, above 1023, and below the ephemeral range). Tailnet URL: `https://<machine>.<tailnet>.ts.net:48443`. Keep serve off 443, so the stacks can keep publishing `0.0.0.0:443`. Revert only if the stacks move to loopback publishes first.
 
 Gate: `ss -tln '( sport = :443 )'`. A listener on `100.100.10.10` (tailscale0) is `tailscaled`, not a stack. Port 443 on `127.0.0.1` or `0.0.0.0` belongs to the running stack nginx.
+
+### Linux: agentmemory server (local instance)
+
+Problem: agentmemory runs on this machine as a systemd --user service (migrated from Unraid `whitebox` on 2026-10-26; the whitebox container is stopped and retired). The iii engine heap-loads the whole state store, so RAM tracks store size and grows without maintenance. Deletions never shrink the persisted bm25 index shards; only an index rebuild does.
+
+Solution (applied 2026-10-26): pruned 50k stale observations (engine RSS 3.97G to 1.16G, unit 1.5G, store 3.1G to 240M) and automated the keep-lean loop below.
+
+Components:
+
+- Service: `~/.config/systemd/user/agentmemory.service` (repo-symlinked) with `MemoryHigh=2G` / `MemoryMax=3G` so runaway growth kills the unit, not the desktop.
+- Launcher: `~/.local/bin/agentmemory-local` (real file, NOT repo-tracked): starts the engine separately (`MALLOC_ARENA_MAX=2`, config copied to `~/.config/agentmemory/iii.yaml`, engine log `~/.local/state/agentmemory/engine.log`), polls `livez` up to 30 min, then execs `agentmemory --no-engine` attach mode. Exists because the CLI hardcodes a 15s readiness abort that loses to multi-GB store hydration.
+- Weekly maintenance: `agentmemory-maint.timer` (Sun 04:00 +15m jitter, Persistent) runs `~/.local/bin/agentmemory-maint` (repo-symlinked, registered in `dots.sh`): eviction pass, then bm25 index rebuild (stop unit, move `state_store.db/mem%3Aindex*` aside, start, wait livez, sanity smart-search, delete stale shards only on success; auto-restore on failure).
+- Evict cost trap: the real evict pass recovers each stale session individually; with `AGENTMEMORY_AUTO_COMPRESS=true` plus a provider key that is one LLM summarize per session. The script dry-runs first and skips the real pass when staleSessions > 200. Bulk catch-ups must be supervised.
+- Lean env (`~/.agentmemory/.env`, mode 600): `AGENTMEMORY_AUDIT_RETENTION_MONTHS=9`, `AGENTMEMORY_CAPTURE_OUTPUT_MAX=3000`, `CONSOLIDATION_INTERVAL_MS=43200000`. Keep `EMBEDDING_PROVIDER` unset (BM25-only; enabling embeddings grows RAM).
+- Last-resort backup: whitebox's stopped agentmemory container still holds the pristine pre-migration store (the pre-prune data tar on whitebox was deleted 2026-10-26 once the pruned local store proved stable).
+
+Management:
+
+```bash
+systemctl --user restart agentmemory          # ready again in ~10-25s
+journalctl --user -u agentmemory -f           # service log
+~/.local/bin/agentmemory-maint                # manual maintenance run
+cat ~/.local/state/agentmemory/maint.log      # maintenance history
+cat ~/.local/state/agentmemory/engine.log     # engine log
+curl -H "Authorization: Bearer $(cat ~/.agentmemory/secret)" \
+  http://localhost:3111/agentmemory/health    # must return 200
+```
+
+Notes:
+
+- REST bearer secret lives in `~/.agentmemory/secret`; pi sessions get URL + secret via `~/.config/environment.d/agentmemory.conf`.
+- `~/.config/systemd/user` and `~/.local/bin/agentmemory-maint` are symlinks into the dotfiles repo; edit through either path, it is the same file.
+- After pruning observations, run a rebuild (or wait for the weekly timer): deletion alone does not lower RSS.
+- Eviction thresholds are store-config, not env: key `eviction` in the config store (defaults stale 30d, lowImportance 90d with importance < 3, 10k obs/project cap).

@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# Weekly agentmemory maintenance: eviction pass, then bm25 index rebuild.
+# The engine heap-loads persisted index shards whole and deletions never shrink
+# them, so the rebuild is the only path that returns index RAM to live-data size.
+set -euo pipefail
+
+DATA_DIR="$HOME/.local/share/agentmemory"
+STATE_DIR="$HOME/.local/state/agentmemory"
+SECRET_FILE="$HOME/.agentmemory/secret"
+BASE="http://127.0.0.1:3111"
+LOG="$STATE_DIR/maint.log"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+STALE_DIR="$DATA_DIR/index-stale-$STAMP"
+CURL_CFG="$(mktemp)"
+trap 'rm -f "$CURL_CFG"' EXIT
+
+log() { printf '%s %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG"; }
+
+[[ -r "$SECRET_FILE" ]] || { log "FATAL: $SECRET_FILE unreadable"; exit 1; }
+mkdir -p "$STATE_DIR"
+
+printf 'header = "Authorization: Bearer %s"\n' "$(cat "$SECRET_FILE")" > "$CURL_CFG"
+
+api() { curl -fsS -m 120 -K "$CURL_CFG" -H "Content-Type: application/json" "$@"; }
+
+evict() {
+	local mode="$1" body="$2" out rc
+	if out="$(api -m 300 -X POST "$BASE/agentmemory/evict" -d "$body" 2>/dev/null)"; then rc=0; else rc=$?; fi
+	log "evict $mode: rc=$rc $(printf '%s' "$out" | python3 -c 'import json,sys
+try: d=json.load(sys.stdin); print({k: v for k, v in d.items() if isinstance(v, (int, float))})
+except Exception: print("(unparsed)")' 2>/dev/null || true)"
+	return "$rc"
+}
+
+# The real evict recovers stale sessions one by one (an LLM summarize each when
+# AUTO_COMPRESS is on), so bulk backlogs must never run unattended.
+evict_pass() {
+	local dry stale
+	dry="$(api -X POST "$BASE/agentmemory/evict" -d '{"dryRun":true}' 2>/dev/null || echo '{}')"
+	stale="$(printf '%s' "$dry" | python3 -c 'import json,sys
+print(json.load(sys.stdin).get("staleSessions", 0))' 2>/dev/null || echo 0)"
+	log "evict dry: staleSessions=$stale"
+	if [[ "$stale" -gt 200 ]]; then
+		log "evict real: SKIPPED, staleSessions=$stale exceeds steady-state guard (200); run the catch-up manually"
+		return 0
+	fi
+	evict real '{}'
+}
+
+rebuild_index() {
+	log "rebuild: stopping agentmemory.service"
+	systemctl --user stop agentmemory.service
+	mkdir -p "$STALE_DIR"
+	if ! mv "$DATA_DIR"/state_store.db/mem%3Aindex%3A* "$STALE_DIR"/ 2>/dev/null; then
+		log "rebuild: no stale index shards found; restarting"
+		systemctl --user start agentmemory.service
+		return 0
+	fi
+	log "rebuild: moved $(find "$STALE_DIR" -maxdepth 1 -type f | wc -l) shards aside ($(du -sh --apparent-size "$STALE_DIR" | cut -f1))"
+	systemctl --user start agentmemory.service
+
+	local i ready=0
+	for i in $(seq 1 120); do
+		sleep 5
+		if curl -fsS -m 2 "$BASE/agentmemory/livez" >/dev/null 2>&1; then ready=1; break; fi
+	done
+	if [[ "$ready" -ne 1 ]]; then
+		log "rebuild: FAILED to become ready in 10m; restoring stale shards"
+		systemctl --user stop agentmemory.service
+		mv "$STALE_DIR"/* "$DATA_DIR"/state_store.db/
+		systemctl --user start agentmemory.service
+		return 1
+	fi
+	log "rebuild: livez ready after ~$((i * 5))s"
+
+	if ! api -X POST "$BASE/agentmemory/smart-search" -d '{"query":"agentmemory","limit":1}' \
+		| python3 -c 'import json, sys
+sys.exit(0 if json.load(sys.stdin).get("results") else 1)' >/dev/null 2>&1; then
+		log "rebuild: search sanity FAILED; stale shards kept at $STALE_DIR for inspection"
+		return 1
+	fi
+
+	case "$STALE_DIR" in
+	"$DATA_DIR"/index-stale-*) rm -rf "$STALE_DIR" ;;
+	*) log "rebuild: refusing to delete unexpected path $STALE_DIR"; return 1 ;;
+	esac
+	log "rebuild: stale shards removed"
+}
+
+log "=== maintenance start ==="
+evict_pass
+rebuild_index
+log "=== maintenance done ==="

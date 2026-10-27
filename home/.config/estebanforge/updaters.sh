@@ -31,3 +31,43 @@ sysup-full() {
 dots-check() {
     dots doctor
 }
+
+sysclean() {
+    echo "Starting system cleanup..."
+
+    if command -v brew >/dev/null 2>&1; then
+        echo "Cleaning Homebrew cache..."
+        brew cleanup --prune=all
+    fi
+
+    if command -v podman >/dev/null 2>&1; then
+        echo "Pruning Podman system..."
+        podman system prune -f
+    fi
+
+    if command -v npm >/dev/null 2>&1; then
+        echo "Cleaning npm cache..."
+        npm cache clean --force
+    fi
+
+    if command -v go >/dev/null 2>&1; then
+        echo "Cleaning Go caches..."
+        go clean -cache
+        go clean -modcache
+    fi
+
+    if command -v cargo-cache >/dev/null 2>&1; then
+        echo "Cleaning Cargo cache..."
+        cargo cache -a
+    elif [ -d "${CARGO_HOME:-$HOME/.cargo}/registry/cache" ]; then
+        echo "Cleaning Cargo registry cache..."
+        rm -rf "${CARGO_HOME:-$HOME/.cargo}/registry/cache"/*
+    fi
+
+    if command -v journalctl >/dev/null 2>&1; then
+        echo "Vacuuming user journal logs..."
+        journalctl --user --vacuum-size=200M 2>/dev/null || true
+    fi
+
+    echo "System cleanup complete!"
+}

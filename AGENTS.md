@@ -204,7 +204,7 @@ dots help                                # Show help message
 | `~/.config/estebanforge/ssh-hosts.sh` | `.config/estebanforge/ssh-hosts.sh`  | All platforms (SSH host wrappers with Bitwarden agent pre-flight; sourced by `.zshrc` and `.bashrc`) |
 | `~/.config/estebanforge/aliases.sh` | `.config/estebanforge/aliases.sh`    | All platforms (cross-shell aliases: ls family, cat, artisan, dot navigation) |
 | `~/.config/estebanforge/env.sh` | `.config/estebanforge/env.sh`          | All platforms (cross-shell exports and PATH: EDITOR, composer, `~/.local/bin`, opencode, LM Studio, phpvm) |
-| `~/.config/estebanforge/updaters.sh` | `.config/estebanforge/updaters.sh`  | All platforms (`sysup`, `sysup-full`, `dots-check` via the global `dots` command) |
+| `~/.config/estebanforge/updaters.sh` | `.config/estebanforge/updaters.sh`  | All platforms (`sysup`, `sysup-full`, `sysclean`, `dots-check` via the global `dots` command) |
 | `~/.config/estebanforge/devtools.sh` | `.config/estebanforge/devtools.sh`  | All platforms (brew-based helpers: `brewup`, `phpv`) |
 | `~/.local/bin/dots`                 | `dots.sh`                                | Global `dots` command       |
 

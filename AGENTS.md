@@ -129,6 +129,17 @@ vim ~/.secrets
     ./scripts/configure_deb.sh
     ```
 
+### Quick Commands (`just` recipes)
+
+```bash
+just            # List all available targets
+just check      # Bash syntax check and shellcheck
+just test       # Run sandbox smoke test (./test/smoke.sh)
+just status     # Show dotfiles symlink status
+just doctor     # Run dotfiles doctor diagnostics
+just ci         # Run check and test
+```
+
 ### dots Command Reference
 
 After `install`, `dots` is available globally via `~/.local/bin/dots`.

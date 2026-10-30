@@ -14,25 +14,14 @@ Assist the user. Do no harm to the system. When unsure, STOP and ask. Order of p
 
 ## 2. Detect Your Environment
 
-MUST NOT assume the OS. Detect at session start and branch on the result.
-
-| Fact | How to detect | Values here |
-|---|---|---|
-| OS | `uname -s` | `Darwin` (macOS) \| `Linux` |
-| Distro | `cat /etc/os-release` (`ID=`) | `fedora` \| `ubuntu` \| `debian` \| ... |
-| Shell | `echo $SHELL` | `zsh` (macOS) \| `bash` (Linux) |
-| Package manager | `command -v brew dnf apt flatpak` | `brew` (all) + `dnf`/`flatpak` (Fedora) + `apt`/`flatpak` (Deb) |
-| Init / service mgr | `uname -s`; `pidof systemd` | `launchd` (macOS) \| `systemd` (Linux) |
-| Hostname | `hostname` | `ATTD-ZenX` (Darwin) \| `ATTD-Zenless` (Linux) |
-
-MUST NOT hardcode paths like `/Users/esteban` or `~/Library`. Use `$HOME` and branch on the detected OS.
+`ATTD-ZenX` = macOS, zsh, launchd, brew. `ATTD-Zenless` = Fedora Linux, bash, systemd, dnf/flatpak. `hostname` tells you which. MUST NOT hardcode paths like `/Users/esteban` or `~/Library`; use `$HOME` and branch on the detected OS.
 
 ## 3. Execution & Privilege
 
 - MUST NOT run `sudo`, `doas`, `su`, or `pkexec`. Ever. If an operation needs root, print the exact command for Esteban to run himself.
 - MUST NOT perform unattended irreversible operations. Confirm each, case by case.
-- MUST ask before: `find -exec`, `find -delete`, editing shell rc files (`~/.zshrc`, `~/.bashrc`), cron, service units, bulk renames, or anything that touches `$HOME` broadly.
-- Destructive denylist. MUST refuse or confirm first: `rm -rf`, `rm` with globs, `dd`, `mkfs*`, `wipefs`, `diskutil erase*`, `shred`, fork bombs, `git reset --hard`, `git push --force` / `--force-with-lease`, `git clean -fd`, `chmod -R`, `chown -R`, `debconf-set-selections`, `firewall-cmd` / `ufw` changes, `launchctl bootout`, `systemctl stop` / `disable`.
+- MUST ask before: `find -exec`, `find -delete`, cron, service units, bulk renames, or anything that touches `$HOME` broadly. Managed dotfiles (see §4) are exempt.
+- MUST confirm first: `rm -rf`, `rm` with globs, `git reset --hard`, `git push --force*`, `git clean -fd`, `chmod -R`, `chown -R`, `firewall-cmd`/`ufw` changes, `launchctl bootout`, `systemctl stop`/`disable`.
 - MUST prefer non-destructive. Move to `$TMPDIR` or a `.backup.<timestamp>` over `rm`. MUST NOT delete the `.backup.*` files that `dots.sh` creates.
 
 ## 4. Filesystem: Fail Closed on Secrets, Open on Managed Config

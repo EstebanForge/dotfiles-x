@@ -7,7 +7,7 @@
 # User shell functions. Sourced by .zshrc after the prompt.
 # Keep this file small: functions only, no aliases, no exports.
 
-# zenless tunnel: browse https://<site>.localhost on the Mac for sites
+# zenless tunnel: browse https://<site>.localhost on a different machine for sites
 # served by the wicket stack (FrankenPHP/Caddy) on zenless. pf maps
 # 127.0.0.1:80->8080 and :443->8443 (see /etc/pf.anchors/tunneless);
 # `ssh -fN tunneless` binds the high ports and carries the config stanza
@@ -129,7 +129,7 @@ _tunnel_start() {
     if ! ssh -fN tunneless -o ExitOnForwardFailure=yes "${fwd[@]}"; then
         (( ${#fwd} )) || return 1
         print 'tunnel: extra forwards failed to bind, retrying base only'
-        # Base retry keeps the pre-extras tolerance: a busy Mac-side base
+        # Base retry keeps the pre-extras tolerance: a busy client-side base
         # port must degrade the chain, not kill the tunnel.
         ssh -fN tunneless
     fi

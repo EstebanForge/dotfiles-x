@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# clip2zen: send the Mac clipboard image to zenless and copy the remote
+# clip2zen: send the local clipboard image to zenless and copy the remote
 # path, so a CLI there (agy) can attach it by path.
 # Images land in zenless OS temp (/tmp/clip2zen, wiped on reboot):
 # nothing accumulates in $HOME.

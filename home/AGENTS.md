@@ -10,11 +10,11 @@ Assist the user. Do no harm to the system. When unsure, STOP and ask. Order of p
 
 - User: Esteban. Home: `$HOME` (`~`).
 - Role: system configuration, maintenance, troubleshooting, development.
-- Machines: macOS workstation `ATTD-ZenX`; Linux workstation `ATTD-Zenless` (Fedora, runs the Docker stacks). Detect with `hostname`.
+- Machines: macOS workstation `ATTD-ZenX`, Linux workstation `ATTD-Zenless` (Fedora, runs the Docker stacks), secondary Linux laptop, and other client devices.
 
 ## 2. Detect Your Environment
 
-`ATTD-ZenX` = macOS, zsh, launchd, brew. `ATTD-Zenless` = Fedora Linux, bash, systemd, dnf/flatpak. `hostname` tells you which. MUST NOT hardcode paths like `/Users/esteban` or `~/Library`; use `$HOME` and branch on the detected OS.
+macOS (`ATTD-ZenX`): zsh, launchd, brew. Linux (`ATTD-Zenless`, Linux laptops): bash, systemd, dnf/flatpak/apt. Detect OS with `uname -s` or distro detection, and specific machine with `hostname`. MUST NOT hardcode paths like `/Users/esteban` or `~/Library`; use `$HOME` and branch on the detected OS.
 
 ## 3. Execution & Privilege
 
@@ -100,11 +100,11 @@ Notes: `sleep 1` lets VoiceInk init first; raise to 3 or 5 if needed, then reloa
 
 ### macOS: zenless localhost tunnel (pf redirect)
 
-Problem: `https://localhost` on `ATTD-ZenX` serves a site stack running on the Linux machine `ATTD-Zenless` (ssh host alias `tunneless`). Two halves must both live: an ssh local forward (user-owned) and a pf port redirect (root-owned). The pf half dies silently when something flushes pf mid-session (the NordVPN privileged helper is the prime suspect; it lives in `/Library/PrivilegedHelperTools/`). After that, `tunnel up` still said "up" because it only checked the ssh half. Fixed: the `tunnel` function now proves the full chain via port 443 and prints the repair command on split state.
+Problem: `https://localhost` on a client machine (e.g. `ATTD-ZenX` or another laptop) serves a site stack running on the Linux machine `ATTD-Zenless` (ssh host alias `tunneless`). Two halves must both live: an ssh local forward (user-owned) and a pf port redirect (root-owned). The pf half dies silently when something flushes pf mid-session (the NordVPN privileged helper is the prime suspect; it lives in `/Library/PrivilegedHelperTools/`). After that, `tunnel up` still said "up" because it only checked the ssh half. Fixed: the `tunnel` function now proves the full chain via port 443 and prints the repair command on split state.
 
 Components (machine-local, not symlinked by dots):
 
-- ssh half: `ssh -fN tunneless` binds `127.0.0.1:8080`, `127.0.0.1:8443`, and `127.0.0.1:8025` (Mailpit UI) on the Mac, forwarding to ports 80/443/8025 on `ATTD-Zenless`. Host stanza lives in the ssh config managed by `~/.config/estebanforge/ssh-hosts.sh`. `tunnel` also discovers extra site ports from the stack's listeners on zenless (`ss -tlnp`, web-server process names, loopback binds, Caddy admin 2019 excluded) and appends them as `-L` flags on the same connection; `tunnel refresh` rebuilds when site ports drift, and `tunnel status` reports drift without touching anything.
+- ssh half: `ssh -fN tunneless` binds `127.0.0.1:8080`, `127.0.0.1:8443`, and `127.0.0.1:8025` (Mailpit UI) on the client machine, forwarding to ports 80/443/8025 on `ATTD-Zenless`. Host stanza lives in the ssh config managed by `~/.config/estebanforge/ssh-hosts.sh`. `tunnel` also discovers extra site ports from the stack's listeners on zenless (`ss -tlnp`, web-server process names, loopback binds, Caddy admin 2019 excluded) and appends them as `-L` flags on the same connection; `tunnel refresh` rebuilds when site ports drift, and `tunnel status` reports drift without touching anything.
 - pf half: `/etc/pf.anchors/tunneless` redirects `lo0` 80 -> 8080 and 443 -> 8443. Loaded by `rdr-anchor`/`load anchor` lines in `/etc/pf.conf`.
 - Boot loader: `/Library/LaunchDaemons/com.user.pf.plist` runs `pfctl -f /etc/pf.conf && pfctl -e` at load. Log: `/var/log/com.user.pf.log` (no timestamps).
 

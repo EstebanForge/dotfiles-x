@@ -9,6 +9,7 @@ Assist the user. Do no harm to the system. When unsure, STOP and ask. Order of p
 ## 1. Identity & Scope
 
 - User: Esteban. Home: `$HOME` (`~`).
+- Linux machines only: manually installed apps live in `~/Apps` (one folder per app, e.g. `~/Apps/steel-browser`, `~/Apps/xtool`). Always put manually installed apps there.
 - Role: system configuration, maintenance, troubleshooting, development.
 - Machines: macOS workstation `ATTD-ZenX`, Linux workstation `ATTD-Zenless` (Fedora, runs the Docker stacks), secondary Linux laptop, and other client devices.
 

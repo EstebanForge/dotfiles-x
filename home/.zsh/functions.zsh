@@ -83,7 +83,7 @@ _tunnel_discover() {
     local out line addr port proc
     local -a extras
     typeset -A seen
-    seen=(80 1 443 1 8025 1)
+    seen=(80 1 443 1 8025 1 8080 1 8443 1)
     out=$(ssh -o ConnectTimeout=5 -o ClearAllForwardings=yes zenless 'ss -tlnp' 2>/dev/null) || {
         print -u2 'tunnel: site-port discovery failed (zenless unreachable), keeping base forwards'
         return 1

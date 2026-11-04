@@ -18,7 +18,12 @@
       "command": "npx",
       "args": [
         "-y",
-        "@playwright/mcp@latest"
+        "@playwright/mcp@latest",
+        "--browser",
+        "chrome",
+        "--sandbox",
+        "--executable-path",
+        "/usr/bin/chromium-browser"
       ],
       "persistent": true,
       "timeout": 60

@@ -87,19 +87,21 @@ export PKG_CONFIG_PATH=/usr/lib64/pkgconfig
 # SSH Agent (Bitwarden Flatpak)      #
 ######################################
 
-# Use the Bitwarden Flatpak SSH agent on Linux when its socket is present.
-# Flatpak stores the socket under ~/.var/app/... (not ~/.bitwarden-ssh-agent.sock).
-# Otherwise fall back to the systemd ssh-agent socket set up by the bw-ssh bridge.
-# Gate on the socket: hosts without the bridge keep whatever SSH_AUTH_SOCK they
-# already have (inherited agent, keyring), instead of pointing at a dead path.
+# Prefer the bw-ssh bridge agent (systemd ssh-agent at ~/.ssh/agent.sock):
+# it works on headless hosts and keeps working when the desktop app is
+# closed. Fall back to the Bitwarden desktop Flatpak socket on hosts with
+# the desktop app but no bridge. Gate on the socket: hosts with neither
+# keep whatever SSH_AUTH_SOCK they already have (inherited agent, keyring).
 if [[ "$(uname)" == "Linux" ]]; then
-    _BW_SSH_SOCK="$HOME/.var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock"
-    if [[ -S "$_BW_SSH_SOCK" ]]; then
-        export SSH_AUTH_SOCK="$_BW_SSH_SOCK"
-    elif [[ -S "$HOME/.ssh/agent.sock" ]]; then
+    if [[ -S "$HOME/.ssh/agent.sock" ]]; then
         export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
+    else
+        _BW_SSH_SOCK="$HOME/.var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock"
+        if [[ -S "$_BW_SSH_SOCK" ]]; then
+            export SSH_AUTH_SOCK="$_BW_SSH_SOCK"
+        fi
+        unset _BW_SSH_SOCK
     fi
-    unset _BW_SSH_SOCK
 fi
 
 ######################################

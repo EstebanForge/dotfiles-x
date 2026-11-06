@@ -73,16 +73,16 @@ _tunnel_pf_repair() {
     sudo pfctl -f "$pfconf" && sudo pfctl -e
 }
 
-# Site ports listening on zenless, one per line. The wicket stack binds a
-# loopback port per site, so the set is dynamic and stays unknown to the
-# tunnel. Loopback/wildcard binds and named web processes only: keeps out
-# adb, chrome devtools, agent ports and the tailscale interface. Root-owned
-# listeners hide their process name from ss, which keeps non-stack services
-# out by default. 2019 would be the Caddy admin endpoint, not a site.
-_tunnel_discover() {
-    local out line addr port proc
+# Inspect zenless listeners to choose base forward targets and discovered extras.
+# Base HTTPS: if zenless:443 is listening (podman), target 443. Else if
+# zenless:8443 is listening (lserve), target 8443. Defaults to 443.
+# Base HTTP: if zenless:80 is listening, target 80; else if 8080, target 8080.
+# Loopback/wildcard binds and named web processes only: keeps out adb,
+# chrome devtools, agent ports and tailscale. 2019 is Caddy admin endpoint.
+_tunnel_inspect() {
+    local out line addr port proc r_https=443 r_http=80
     local -a extras
-    typeset -A seen
+    typeset -A seen listeners
     seen=(80 1 443 1 8025 1 8080 1 8443 1)
     out=$(ssh -o ConnectTimeout=5 -o ClearAllForwardings=yes zenless 'ss -tlnp' 2>/dev/null) || {
         print -u2 'tunnel: site-port discovery failed (zenless unreachable), keeping base forwards'
@@ -96,6 +96,7 @@ _tunnel_discover() {
             *) continue ;;
         esac
         port=${addr##*:}
+        listeners[$port]=1
         proc=${line#*\"}
         proc=${proc%%\"*}
         [[ $proc =~ ^(frankenphp|caddy|php.*|wicket|nginx|httpd|apache2|traefik)$ ]] || continue
@@ -103,35 +104,72 @@ _tunnel_discover() {
         (( seen[$port]++ )) && continue
         extras+=($port)
     done
-    (( ${#extras} )) && print -lr -- $extras
+
+    if (( listeners[443] )); then
+        r_https=443
+    elif (( listeners[8443] )); then
+        r_https=8443
+    fi
+
+    if (( listeners[80] )); then
+        r_http=80
+    elif (( listeners[8080] )); then
+        r_http=8080
+    fi
+
+    print "BASE_HTTPS:$r_https"
+    print "BASE_HTTP:$r_http"
+    for port in $extras; do
+        print "EXTRA:$port"
+    done
     return 0
 }
 
-# One ssh connection carries the stanza base plus discovered extras as -L
-# flags (CLI -L does not suppress the stanza, and a second connection would
-# double-bind 8080/8443). The kill/pgrep pattern must match every argv
-# shape the tunnel has ever started (legacy had options after the host),
-# else a stale ssh survives its own rebuild and rebinds all clash. Probing
-# local ports first keeps one busy port from tripping ExitOnForwardFailure
+# Compatibility alias for external callers
+_tunnel_discover() {
+    local line lines
+    lines=$(_tunnel_inspect) || return 1
+    for line in ${(f)lines}; do
+        [[ $line == EXTRA:* ]] && print -- "${line#EXTRA:}"
+    done
+    return 0
+}
+
+# One ssh connection carries base forwards (8080/8443 auto-targeted to
+# podman 80/443 or lserve 8080/8443) plus discovered extras as -L flags.
+# Probing local ports first keeps one busy port from tripping ExitOnForwardFailure
 # and killing the whole tunnel.
 _tunnel_start() {
-    local port extras
-    local -a fwd
-    if extras=$(_tunnel_discover); then
-        for port in ${(f)extras}; do
-            if nc -z 127.0.0.1 "$port" 2>/dev/null; then
-                print "tunnel: local port $port busy, skipping zenless:$port"
-            else
-                fwd+=(-L "127.0.0.1:${port}:127.0.0.1:${port}")
-            fi
+    local line r_https=443 r_http=80 port lines
+    local -a fwd extras
+    if lines=$(_tunnel_inspect); then
+        for line in ${(f)lines}; do
+            case $line in
+                BASE_HTTPS:*) r_https=${line#BASE_HTTPS:} ;;
+                BASE_HTTP:*)  r_http=${line#BASE_HTTP:} ;;
+                EXTRA:*)      extras+=("${line#EXTRA:}") ;;
+            esac
         done
     fi
+
+    # Base web forwards: local 8443 (pf :443 target) and 8080 (pf :80 target)
+    fwd+=(-L "127.0.0.1:8443:127.0.0.1:${r_https}")
+    fwd+=(-L "127.0.0.1:8080:127.0.0.1:${r_http}")
+
+    for port in $extras; do
+        if nc -z 127.0.0.1 "$port" 2>/dev/null; then
+            print "tunnel: local port $port busy, skipping zenless:$port"
+        else
+            fwd+=(-L "127.0.0.1:${port}:127.0.0.1:${port}")
+        fi
+    done
+
     if ! ssh -fN tunneless -o ExitOnForwardFailure=yes "${fwd[@]}"; then
         (( ${#fwd} )) || return 1
         print 'tunnel: extra forwards failed to bind, retrying base only'
-        # Base retry keeps the pre-extras tolerance: a busy client-side base
-        # port must degrade the chain, not kill the tunnel.
-        ssh -fN tunneless
+        ssh -fN tunneless -o ExitOnForwardFailure=yes \
+            -L "127.0.0.1:8443:127.0.0.1:${r_https}" \
+            -L "127.0.0.1:8080:127.0.0.1:${r_http}"
     fi
 }
 
@@ -169,12 +207,28 @@ _tunnel_forwarded_ports() {
 # A port held by another local app can never be forwarded, so it is neither
 # fresh nor carried; the stderr hint keeps that from being silent.
 _tunnel_unforwarded() {
-    local port extras
-    local -a fresh
+    local line lines port r_https=443 r_http=80 current_https args
+    local -a fresh extras
     typeset -A carried
-    extras=$(_tunnel_discover) || return 1
+    lines=$(_tunnel_inspect) || return 1
+    for line in ${(f)lines}; do
+        case $line in
+            BASE_HTTPS:*) r_https=${line#BASE_HTTPS:} ;;
+            BASE_HTTP:*)  r_http=${line#BASE_HTTP:} ;;
+            EXTRA:*)      extras+=("${line#EXTRA:}") ;;
+        esac
+    done
+
+    args=$(ps -ww -p $(pgrep -f 'ssh -f.?N.*tunneless') -o args= 2>/dev/null)
+    if [[ $args =~ '127\.0\.0\.1:8443:127\.0\.0\.1:([0-9]+)' ]]; then
+        current_https=$match[1]
+        if [[ -n $current_https && $current_https != $r_https ]]; then
+            fresh+=("target:${current_https}->${r_https}")
+        fi
+    fi
+
     for port in $(_tunnel_forwarded_ports); do carried[$port]=1; done
-    for port in ${(f)extras}; do
+    for port in $extras; do
         (( ${+carried[$port]} )) && continue
         if nc -z 127.0.0.1 "$port" 2>/dev/null; then
             print -u2 "tunnel: local port $port busy (not the tunnel), cannot forward zenless:$port"
@@ -220,7 +274,7 @@ _tunnel_443_ok() {
 # carries traffic, not that a specific site answers. The browser (SNI) is
 # the site test. Lists what the ssh connection actually binds locally.
 _tunnel_report() {
-    local forwarded
+    local forwarded args target label
     local -a ports
     forwarded=$(_tunnel_forwarded_ports)
     ports=(${(f)forwarded})
@@ -228,7 +282,16 @@ _tunnel_report() {
         print 'tunnel: chain down (pf redirect or ssh half); run `tunnel up`'
         return 1
     fi
-    print 'tunnel: up (pf + ssh + zenless:443 reachable, TCP proof)'
+    args=$(ps -ww -p $(pgrep -f 'ssh -f.?N.*tunneless') -o args= 2>/dev/null)
+    if [[ $args =~ '127\.0\.0\.1:8443:127\.0\.0\.1:([0-9]+)' ]]; then
+        target=$match[1]
+    fi
+    case "$target" in
+        8443) label='lserve' ;;
+        443)  label='podman' ;;
+        *)    label='web' ;;
+    esac
+    print "tunnel: up (pf + ssh -> zenless:${target:-443} [$label], TCP proof)"
     print "tunnel: forwarded local ports: ${(on)ports}"
     print 'tunnel: browse https://<site>.localhost (SNI rides the chain; browser is the site test)'
 }

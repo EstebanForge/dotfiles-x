@@ -224,6 +224,7 @@ setup_dotfiles() {
         dotfiles+=("Library/LaunchAgents/com.user.copyfile-disable.plist:Library/LaunchAgents/com.user.copyfile-disable.plist")
         dotfiles+=(".zsh/functions.zsh:.zsh/functions.zsh")
         dotfiles+=(".local/bin/clip2zen:.local/bin/clip2zen")
+        dotfiles+=(".config/topgrade.d/macos.toml:.config/topgrade.d/macos.toml")
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")
@@ -385,6 +386,7 @@ cleanup_symlinks() {
         ".config/linearmouse/linearmouse.json"
         "Library/LaunchAgents/com.user.copyfile-disable.plist"
         ".zsh/functions.zsh"
+        ".config/topgrade.d/macos.toml"
         ".bashrc"
         ".config/environment.d/gnome-wayland.conf"
         ".config/environment.d/freetype.conf"
@@ -475,6 +477,7 @@ show_status() {
         dotfiles+=("Library/LaunchAgents/com.user.copyfile-disable.plist:Library/LaunchAgents/com.user.copyfile-disable.plist")
         dotfiles+=(".zsh/functions.zsh:.zsh/functions.zsh")
         dotfiles+=(".local/bin/clip2zen:.local/bin/clip2zen")
+        dotfiles+=(".config/topgrade.d/macos.toml:.config/topgrade.d/macos.toml")
     else
         dotfiles+=(".bashrc:.bashrc")
         dotfiles+=(".bash/plugins/ghost.plugin.sh:.bash/plugins/ghost.plugin.sh")

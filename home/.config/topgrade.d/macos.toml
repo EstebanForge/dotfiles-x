@@ -1,0 +1,4 @@
+# macOS-specific Topgrade overrides
+# Automatically merged with ~/.config/topgrade/topgrade.toml
+[misc]
+disable = ["tailscale"]

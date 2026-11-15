@@ -36,6 +36,12 @@ REAL_MOUNT="/System/Volumes/Data/mnt/Zenless"
 SERVER="192.168.10.100"
 AUTO_NFS="/etc/auto_nfs"
 
+target_server() {
+    local host
+    host="$(awk -v k="$REAL_MOUNT" '$1 == k { sub(/:.*/, "", $NF); print $NF }' "$AUTO_NFS" 2>/dev/null || true)"
+    echo "${host:-$SERVER}"
+}
+
 print_plist() {
     # && is XML-escaped; launchd hands the string to /bin/bash verbatim.
     cat <<'EOF'
@@ -77,12 +83,14 @@ repair_now() {
 
     # autofs mounts on first access. Trigger it only when the server answers,
     # otherwise `ls` blocks until the NFS timeout.
-    if ping -c 1 -t 2 "$SERVER" >/dev/null 2>&1; then
-        echo "Triggering lazy mount (server $SERVER reachable)..."
+    local srv
+    srv="$(target_server)"
+    if ping -c 1 -t 2 "$srv" >/dev/null 2>&1; then
+        echo "Triggering lazy mount (server $srv reachable)..."
         ls "$MOUNT_POINT" >/dev/null
         echo "Mounted: $(mount | grep -F "$REAL_MOUNT" || echo 'will appear on next access')"
     else
-        echo "Server $SERVER unreachable; mount will appear on first access once it is up."
+        echo "Server $srv unreachable; mount will appear on first access once it is up."
     fi
 }
 
@@ -193,6 +201,14 @@ do_check() {
 
     if [[ -f "$AUTO_NFS" ]] && grep -q "^$REAL_MOUNT " "$AUTO_NFS"; then
         echo "OK: $AUTO_NFS maps $REAL_MOUNT"
+        local srv
+        srv="$(target_server)"
+        if dscacheutil -q host -a name "$srv" | grep -q '^name:'; then
+            echo "OK: NFS server $srv resolves"
+        else
+            echo "BROKEN: NFS server $srv in $AUTO_NFS does not resolve"
+            failed=1
+        fi
     else
         echo "BROKEN: no entry for $REAL_MOUNT in $AUTO_NFS"
         failed=1

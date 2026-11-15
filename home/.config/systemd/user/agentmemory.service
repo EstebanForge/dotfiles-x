@@ -4,9 +4,13 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=%h/.local/bin/agentmemory-local
+# CLI 0.9.33 manages its own worker-compose project (engine 0.25.1 + state/http/agentmemory
+# workers); the old agentmemory-local engine launcher is retired with it. iii compose stays
+# in the foreground, so systemd tracks the whole stack through this one process.
+ExecStart=%h/.agentmemory/bin/iii compose --namespace agentmemory-3111 --up --file %h/.local/share/agentmemory/compose/worker-compose.yaml
 WorkingDirectory=%h
 Environment=PATH=/home/linuxbrew/.linuxbrew/bin:/usr/local/bin:/usr/bin:/bin
+Environment=MALLOC_ARENA_MAX=2
 MemoryHigh=4G
 MemoryMax=6G
 Restart=on-failure

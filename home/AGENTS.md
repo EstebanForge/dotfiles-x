@@ -165,31 +165,34 @@ Gate: `ss -tln '( sport = :443 )'`. A listener on `100.100.10.10` (tailscale0) i
 
 Problem: agentmemory runs on this machine as a systemd --user service (migrated from Unraid `whitebox` on 2026-10-26; the whitebox container is stopped and retired). The iii engine heap-loads the whole state store, so RAM tracks store size and grows without maintenance. Deletions never shrink the persisted bm25 index shards; only an index rebuild does.
 
-Solution (applied 2026-10-26): pruned 50k stale observations (engine RSS 3.97G to 1.16G, unit 1.5G, store 3.1G to 240M) and automated the keep-lean loop below.
+Solution (applied 2026-10-26): pruned 50k stale observations (engine RSS 3.97G to 1.16G, store 3.1G to 240M). Solution (applied 2026-11-15): dropped the hand-rolled engine launcher for the stock CLI compose flow after a CLI/engine version-skew crash loop (see Notes).
 
 Components:
 
-- Service: `~/.config/systemd/user/agentmemory.service` (repo-symlinked) with `MemoryHigh=2G` / `MemoryMax=3G` so runaway growth kills the unit, not the desktop.
-- Launcher: `~/.local/bin/agentmemory-local` (real file, NOT repo-tracked): starts the engine separately (`MALLOC_ARENA_MAX=2`, config copied to `~/.config/agentmemory/iii.yaml`, engine log `~/.local/state/agentmemory/engine.log`), polls `livez` up to 30 min, then execs `agentmemory --no-engine` attach mode. Exists because the CLI hardcodes a 15s readiness abort that loses to multi-GB store hydration.
+- Service: `~/.config/systemd/user/agentmemory.service` (repo-symlinked): ExecStart runs `iii compose --namespace agentmemory-3111 --up --file ~/.local/share/agentmemory/compose/worker-compose.yaml` in the foreground, so one tracked process owns the whole stack. Carries `MALLOC_ARENA_MAX=2`, `MemoryHigh=4G` / `MemoryMax=6G`, `Restart=on-failure`.
+- Stack: the CLI (0.9.33) generates and manages the compose project: engine iii 0.25.1 plus containers state 0.22.22 (same `state_store.db` path as before), http 0.22.8 (REST 3111, viewer 3113) and the agentmemory worker itself. Project files live under `~/.local/share/agentmemory/compose/` and `compose-state/`.
 - Weekly maintenance: `agentmemory-maint.timer` (Sun 04:00 +15m jitter, Persistent) runs `~/.local/bin/agentmemory-maint` (repo-symlinked, registered in `dots.sh`): eviction pass, then bm25 index rebuild (stop unit, move `state_store.db/mem%3Aindex*` aside, start, wait livez, sanity smart-search, delete stale shards only on success; auto-restore on failure).
 - Evict cost trap: the real evict pass recovers each stale session individually; with `AGENTMEMORY_AUTO_COMPRESS=true` plus a provider key that is one LLM summarize per session. The script dry-runs first and skips the real pass when staleSessions > 200. Bulk catch-ups must be supervised.
-- Lean env (`~/.agentmemory/.env`, mode 600): `AGENTMEMORY_AUDIT_RETENTION_MONTHS=9`, `AGENTMEMORY_CAPTURE_OUTPUT_MAX=3000`, `CONSOLIDATION_INTERVAL_MS=43200000`. Keep `EMBEDDING_PROVIDER` unset (BM25-only; enabling embeddings grows RAM).
+- Lean env (`~/.agentmemory/.env`, mode 600): `AGENTMEMORY_AUDIT_RETENTION_MONTHS=9`, `AGENTMEMORY_CAPTURE_OUTPUT_MAX=3000`, `CONSOLIDATION_INTERVAL_MS=43200000`, `AGENTMEMORY_III_VERSION=0.25.1` (must track the CLI's engine pin). Keep `EMBEDDING_PROVIDER` unset (BM25-only; enabling embeddings grows RAM).
 - Last-resort backup: whitebox's stopped agentmemory container still holds the pristine pre-migration store (the pre-prune data tar on whitebox was deleted 2026-10-26 once the pruned local store proved stable).
 
 Management:
 
 ```bash
-systemctl --user restart agentmemory          # ready again in ~10-25s
-journalctl --user -u agentmemory -f           # service log
+systemctl --user restart agentmemory          # ready again in ~20-30s
+journalctl --user -u agentmemory -f           # stack log (engine + workers)
 ~/.local/bin/agentmemory-maint                # manual maintenance run
 cat ~/.local/state/agentmemory/maint.log      # maintenance history
-cat ~/.local/state/agentmemory/engine.log     # engine log
+agentmemory status                            # health, counts, heap
 curl -H "Authorization: Bearer $(cat ~/.agentmemory/secret)" \
   http://localhost:3111/agentmemory/health    # must return 200
 ```
 
 Notes:
 
+- Version coupling: the CLI pins iii via `III_PINNED_VERSION` (0.9.33 -> 0.25.1) and probes `state::list_keys` at boot; a stale engine never registers it and the unit crash-loops (2026-11-15: 118 restarts over ~5h after the weekly maintenance restart loaded the new CLI). `AGENTMEMORY_III_VERSION` in `.env` overrides the pin; bump it with every CLI update or delete it.
+- iii 0.25.1 rejects legacy config.yaml worker blocks (`UNSUPPORTED_CONFIG_WORKERS`). Never reintroduce the old `~/.config/agentmemory/iii.yaml` worker list or the deleted `agentmemory-local` launcher (removed 2026-11-15).
+- Stop the stack through `systemctl --user stop agentmemory`; a bare `agentmemory stop` exits cleanly and leaves the unit inactive.
 - REST bearer secret lives in `~/.agentmemory/secret`; pi sessions get URL + secret via `~/.config/environment.d/agentmemory.conf`.
 - `~/.config/systemd/user` and `~/.local/bin/agentmemory-maint` are symlinks into the dotfiles repo; edit through either path, it is the same file.
 - After pruning observations, run a rebuild (or wait for the weekly timer): deletion alone does not lower RSS.

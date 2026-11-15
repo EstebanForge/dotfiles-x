@@ -1,0 +1,11 @@
+[Unit]
+Description=Unlock the gnome-keyring login keyring with its empty password (headless boot)
+After=gnome-keyring-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.local/bin/gnome-keyring-unlock-empty.py
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

@@ -243,6 +243,8 @@ setup_dotfiles() {
         dotfiles+=(".config/systemd/user/prune-macjunk.service:.config/systemd/user/prune-macjunk.service")
         dotfiles+=(".config/systemd/user/prune-macjunk.timer:.config/systemd/user/prune-macjunk.timer")
         dotfiles+=(".config/systemd/user/herdr.service:.config/systemd/user/herdr.service")
+        dotfiles+=(".config/systemd/user/gnome-keyring-unlock.service:.config/systemd/user/gnome-keyring-unlock.service")
+        dotfiles+=(".local/bin/gnome-keyring-unlock-empty.py:.local/bin/gnome-keyring-unlock-empty.py")
         # Ptyxis terminal palettes (Catppuccin). Ptyxis reads .palette files
         # from ~/.local/share/org.gnome.Ptyxis/palettes/ at runtime.
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette")
@@ -395,6 +397,8 @@ cleanup_symlinks() {
         ".bash/plugins/agentmemory.plugin.sh"
         ".config/systemd/user/agentmemory.service"
         ".local/bin/agentmemory-maint"
+        ".config/systemd/user/gnome-keyring-unlock.service"
+        ".local/bin/gnome-keyring-unlock-empty.py"
         ".config/systemd/user/agentmemory-maint.service"
         ".config/systemd/user/agentmemory-maint.timer"
         ".config/systemd/user/herdr.service"
@@ -496,6 +500,8 @@ show_status() {
         dotfiles+=(".config/systemd/user/prune-macjunk.service:.config/systemd/user/prune-macjunk.service")
         dotfiles+=(".config/systemd/user/prune-macjunk.timer:.config/systemd/user/prune-macjunk.timer")
         dotfiles+=(".config/systemd/user/herdr.service:.config/systemd/user/herdr.service")
+        dotfiles+=(".config/systemd/user/gnome-keyring-unlock.service:.config/systemd/user/gnome-keyring-unlock.service")
+        dotfiles+=(".local/bin/gnome-keyring-unlock-empty.py:.local/bin/gnome-keyring-unlock-empty.py")
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Latte.palette")
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Frappe.palette")
         dotfiles+=(".local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette:.local/share/org.gnome.Ptyxis/palettes/Catppuccin Macchiato.palette")

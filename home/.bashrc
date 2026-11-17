@@ -83,6 +83,14 @@ fi
 # libssl is unloadable from cargo-built binaries (they get no rpath).
 export PKG_CONFIG_PATH=/usr/lib64/pkgconfig
 
+# Baluard serves the SSH agent on a per-boot runtime path; export it only
+# while the socket exists so tools like ssh-add do not hit a stale agent
+# before the daemon unit starts. Per-host IdentityAgent stanzas still pin
+# ~/.ssh/agent.sock (a symlink to the same socket).
+if [ -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/baluard/baluard-agent.sock" ]; then
+    export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/baluard/baluard-agent.sock"
+fi
+
 ######################################
 # Shared shell functions (bash + zsh) #
 ######################################

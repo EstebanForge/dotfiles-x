@@ -248,12 +248,6 @@ _tunnel_adopt_extras() {
     fresh=$(_tunnel_unforwarded) || return 0
     [[ -n $fresh ]] || return 0
     print "tunnel: new site ports, rebuilding ssh: ${fresh//$'\n'/ }"
-    # Preflight before the kill: a failed rebuild must not be the thing
-    # that takes a working tunnel down.
-    _bw_ssh_preflight "$HOME/.ssh/attd-zenless" || {
-        print 'tunnel: ssh preflight failed, keeping the running tunnel'
-        return 1
-    }
     pkill -f 'ssh -f.?N.*tunneless'
     _tunnel_ssh_gone || { print 'tunnel: old ssh would not die; run `tunnel refresh`'; return 1; }
     _tunnel_start || { print 'tunnel: rebuild failed; run `tunnel refresh`'; return 1; }
@@ -308,7 +302,6 @@ tunnel() {
                 return 0
             fi
             if ! nc -z 127.0.0.1 8443 2>/dev/null; then
-                _bw_ssh_preflight "$HOME/.ssh/attd-zenless" || return 1
                 _tunnel_start || return 1
             fi
             if nc -z 127.0.0.1 443 2>/dev/null; then
@@ -348,7 +341,6 @@ tunnel() {
         refresh)
             pkill -f 'ssh -f.?N.*tunneless' && print 'tunnel: ssh stopped for rebuild'
             _tunnel_ssh_gone || { print 'tunnel: old ssh would not die; kill it manually'; return 1; }
-            _bw_ssh_preflight "$HOME/.ssh/attd-zenless" || return 1
             _tunnel_start || return 1
             _tunnel_report
             ;;
@@ -377,5 +369,5 @@ tunnel() {
     esac
 }
 
-# SSH host wrappers (attd-zenless + Bitwarden agent pre-flight) live in
+# SSH host wrappers (attd-zenless, plain pass-throughs) live in
 # ~/.config/estebanforge/ssh-hosts.sh, shared with .bashrc.

@@ -40,7 +40,7 @@ trap 'rm -f "$local_tmp"' EXIT
 pngpaste "$local_tmp" 2>/dev/null || fail "no image in the clipboard"
 
 # BatchMode: never hang a hidden hotkey run on a password prompt; the
-# Bitwarden agent either has the key or the run fails visibly.
+# agent either has the key or the run fails visibly.
 ssh_opts=(-o BatchMode=yes -o ConnectTimeout=5)
 
 # One round trip: ensure the OS-temp dir exists. The path is absolute

@@ -170,12 +170,6 @@ ZSH_AUTOSUGGEST_USE_ASYNC=1
 # https://github.com/ajeetdsouza/zoxide
 eval "$(zoxide init zsh)"
 
-# Bitwarden SSH-Agent (macOS)
-if [[ "$(uname)" == "Darwin" ]]; then
-    export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
-    launchctl setenv SSH_AUTH_SOCK "$SSH_AUTH_SOCK"
-fi
-
 # EDITOR, brewup, phpv: shared in ~/.config/estebanforge/env.sh and
 # ~/.config/estebanforge/devtools.sh.
 

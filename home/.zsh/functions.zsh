@@ -255,10 +255,12 @@ _tunnel_adopt_extras() {
 
 # pf takes a beat to answer on 443 right after pfctl -f, so the first probe
 # after a reload can fail on an otherwise healthy redirect. Retry briefly.
+# TLS, not TCP: a local app can squat 443 and satisfy nc; only the chain
+# (zenless nginx) completes a handshake.
 _tunnel_443_ok() {
     local try
     for try in 1 2 3; do
-        nc -z 127.0.0.1 443 2>/dev/null && return 0
+        curl -sk --max-time 3 -o /dev/null https://127.0.0.1/ 2>/dev/null && return 0
         (( try < 3 )) && sleep 1
     done
     return 1
@@ -272,8 +274,17 @@ _tunnel_report() {
     local -a ports
     forwarded=$(_tunnel_forwarded_ports)
     ports=(${(f)forwarded})
-    if ! nc -z 127.0.0.1 443 2>/dev/null; then
-        print 'tunnel: chain down (pf redirect or ssh half); run `tunnel up`'
+    # A pfctl -f ruleset swap drops loopback SYNs for a beat, so one failed
+    # probe right after a reload is not evidence; retry once.
+    if ! nc -z 127.0.0.1 8443 2>/dev/null; then
+        sleep 1
+        nc -z 127.0.0.1 8443 2>/dev/null || {
+            print 'tunnel: chain down (ssh half not running); run `tunnel up`'
+            return 1
+        }
+    fi
+    if ! _tunnel_443_ok; then
+        print 'tunnel: chain down (pf redirect); run `tunnel up`'
         return 1
     fi
     args=$(ps -ww -p $(pgrep -f 'ssh -f.?N.*tunneless') -o args= 2>/dev/null)
@@ -295,8 +306,9 @@ tunnel() {
     local fresh
     case "$cmd" in
         up)
-            # 443 proves pf + ssh reach a zenless web port.
-            if nc -z 127.0.0.1 443 2>/dev/null; then
+            # 8443 is the tunnel's own bind, so it identifies the ssh half;
+            # the TLS probe on 443 rejects a local app squatting the port.
+            if nc -z 127.0.0.1 8443 2>/dev/null && _tunnel_443_ok; then
                 _tunnel_adopt_extras
                 _tunnel_report
                 return 0
@@ -304,13 +316,13 @@ tunnel() {
             if ! nc -z 127.0.0.1 8443 2>/dev/null; then
                 _tunnel_start || return 1
             fi
-            if nc -z 127.0.0.1 443 2>/dev/null; then
+            if _tunnel_443_ok; then
                 _tunnel_report
                 return 0
             fi
             # pf disabled by a previous `tunnel down`: rules are still loaded,
             # just re-enable. Interactive reload below stays for broken rules.
-            if sudo pfctl -e >/dev/null 2>&1 && nc -z 127.0.0.1 443 2>/dev/null; then
+            if sudo pfctl -e >/dev/null 2>&1 && _tunnel_443_ok; then
                 _tunnel_report
                 return 0
             fi
@@ -346,16 +358,22 @@ tunnel() {
             ;;
         status)
             # Read-only on purpose: drift is reported, never healed here.
-            if nc -z 127.0.0.1 443 2>/dev/null; then
-                _tunnel_report
-                if ! fresh=$(_tunnel_unforwarded); then
-                    print 'tunnel: site drift check skipped (zenless unreachable)'
-                elif [[ -n $fresh ]]; then
-                    print "tunnel: unforwarded site ports: ${fresh//$'\n'/ }" '-> run `tunnel refresh`'
+            if nc -z 127.0.0.1 8443 2>/dev/null; then
+                if _tunnel_443_ok; then
+                    _tunnel_report
+                    if ! fresh=$(_tunnel_unforwarded); then
+                        print 'tunnel: site drift check skipped (zenless unreachable)'
+                    elif [[ -n $fresh ]]; then
+                        print "tunnel: unforwarded site ports: ${fresh//$'\n'/ }" '-> run `tunnel refresh`'
+                    fi
+                else
+                    print 'tunnel: ssh half up, pf half down'
+                    print 'repair: run `tunnel up` (heals pf.conf if reverted, then reloads) or: sudo pfctl -f /etc/pf.conf && sudo pfctl -e'
+                    return 1
                 fi
-            elif nc -z 127.0.0.1 8443 2>/dev/null; then
-                print 'tunnel: ssh half up, pf half down'
-                print 'repair: run `tunnel up` (heals pf.conf if reverted, then reloads) or: sudo pfctl -f /etc/pf.conf && sudo pfctl -e'
+            elif nc -z 127.0.0.1 443 2>/dev/null; then
+                print 'tunnel: down (something other than the tunnel answers local 443)'
+                print 'hint: an app is squatting port 443 while pf is not redirecting; run `tunnel up`'
                 return 1
             else
                 print 'tunnel: down'

@@ -170,6 +170,12 @@ ZSH_AUTOSUGGEST_USE_ASYNC=1
 # https://github.com/ajeetdsouza/zoxide
 eval "$(zoxide init zsh)"
 
+# Baluard SSH-Agent (macOS)
+if [[ "$(uname)" == "Darwin" ]]; then
+    export SSH_AUTH_SOCK="$HOME/Library/Application Support/baluard/baluard-agent.sock"
+    launchctl setenv SSH_AUTH_SOCK "$SSH_AUTH_SOCK"
+fi
+
 # EDITOR, brewup, phpv: shared in ~/.config/estebanforge/env.sh and
 # ~/.config/estebanforge/devtools.sh.
 
@@ -423,3 +429,9 @@ eval "$(/Users/esteban/.local/bin/mise activate zsh)"
 
 # Added by Kiri: its docker and kiri commands (kiri setup --uninstall removes this)
 case ":$PATH:" in *":$HOME/.kiri/bin:"*) ;; *) export PATH="$PATH:$HOME/.kiri/bin" ;; esac
+# >>> Photon CLI >>>
+case ":$PATH:" in
+  *:'/Users/esteban/.photon/bin':*) ;;
+  *) export PATH="$PATH":'/Users/esteban/.photon/bin' ;;
+esac
+# <<< Photon CLI <<<

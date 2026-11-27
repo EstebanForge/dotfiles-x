@@ -121,37 +121,27 @@ Self-heal: `tunnel up` repairs a reverted or misplaced tunneless setup in `/etc/
 
 Notes: pf loads cleanly at boot per the daemon log, so recurring deaths are mid-session flushes. If it dies again, correlate with NordVPN connect/disconnect times before blaming the boot daemon. Verify end to end: `curl -skI https://<site>.localhost/` must return 200 for a site the stack serves. `https://localhost/` and `127.0.0.1` refuse TLS by design (Caddy routes by SNI hostname and has no site block for them), so a handshake failure there is not a tunnel fault.
 
-### Linux: Bitwarden SSH key bridge (`bw-ssh`)
+### Linux: Baluard credential vault and SSH agent
 
-Headless Linux has no Bitwarden desktop app, and the `bw` CLI cannot act as an ssh-agent (that is a desktop-app feature only). On hosts where the bridge is installed, vault SSH keys are pulled by `bw` and loaded into a real systemd `ssh-agent`. The bridge is machine-local, not part of this repo; gate on `command -v bw-ssh` before using this section.
+Baluard (`~/.local/bin/baluard`) is the credential manager on this machine: a git-native password manager with a daemon that serves the OpenSSH agent. Bitwarden and the old `bw-ssh` bridge are retired here; do not reach for `bw` or `bw-ssh` commands. The agent socket is `/run/user/1000/baluard/baluard-agent.sock`, and `~/.ssh/agent.sock` symlinks to it, so `ssh` and `git` find the agent automatically.
 
-Use this fix only when the ssh agent is down. Gate: `ssh-add -l`. Keys listed means the agent is alive and loaded; stop here. No agent, a connection error, or an empty key list: continue.
+Gate: `baluard ssh status`. Daemon running + agent listening + vaults unlocked means the agent is fine; stop there. `ssh-add -l` answering `agent refused operation` means the vault is LOCKED, not broken. An ssh push failing with `Permission denied (publickey)` right after working pushes is almost always this — check the vault state before re-trying git.
 
-Components (already installed and enabled on bridge hosts):
-
-- Service: `~/.config/systemd/user/ssh-agent.service` runs `ssh-agent` on the fixed socket `~/.ssh/agent.sock`. Enabled; survives reboots and logouts.
-- Shell env: `~/.bashrc` exports `SSH_AUTH_SOCK=$HOME/.ssh/agent.sock` when the Bitwarden desktop/Flatpak socket is absent, so `ssh` and `git` use the agent automatically.
-- Tool: `~/.local/bin/bw-ssh` (on `PATH` via `~/.local/bin`).
-
-Management:
+Unlock is interactive with the master password and belongs to the human. Hand the command to Esteban to run in his terminal; agents MUST NOT handle the password or any session token:
 
 ```bash
-bw-ssh status   # agent socket, loaded keys, vault status
-bw-ssh list     # SSH key items (Bitwarden item type 5) in the vault
-bw-ssh load     # unlock vault, extract each sshKey.privateKey, ssh-add it to the agent
+baluard unlock          # Esteban runs this; prompt takes the master password
+baluard ssh status      # re-check: "1 unlocked" means go
+baluard agents policy   # agent credential-request policy (enabled + auto_approve here)
 ```
-
-How it works: `bw list items` JSON is filtered for `.type==5`; each `.sshKey.privateKey` is piped to `ssh-add -`. A locked vault triggers `bw unlock --raw` first.
 
 Notes:
 
-- `bw-ssh load` prompts for the master password. Hand the command to Esteban to run; agents MUST NOT handle the password.
-- Keys stay decrypted in the agent only. Re-run `bw-ssh load` after a reboot or agent restart.
-- Run `bw sync` before `bw-ssh load` after any vault change. The bw CLI cache never auto-syncs and the desktop app syncing does not refresh it, so a newly added vault key stays invisible to the bridge until the CLI cache is refreshed (symptom: load succeeds for old items but silently skips the new one).
-- This is a bridge, not the Bitwarden agent. SSH agent forwarding and desktop-agent prompts do not apply.
+- The agent refuses every operation while the vault is locked. Nothing needs restarting after unlock; the next ssh/git call just works.
+- `baluard agents pending|approve|deny` is the human approver surface for agent credential requests, and `baluard agents revoke` kills every agent grant for the vault.
+- Keys serve from the vault through the daemon; there is no separate load step after a reboot, only the unlock.
 - Stanzas with vault-only keys (`.pub` on disk, private key in the agent) carry `IdentityAgent ~/.ssh/agent.sock` next to `IdentityFile` and `IdentitiesOnly yes`. The `IdentityAgent` line reaches the agent in non-interactive shells, where `~/.bashrc` was skipped and `SSH_AUTH_SOCK` is stale. A stanza missing the line fails with `no such identity` then `Permission denied (publickey)`: add the line. `IdentitiesOnly yes` stays safe, ssh matches the `.pub` file against the agent. Verify the agent holds a key: the fingerprint from `ssh-keygen -lf ~/.ssh/<name>.pub` appears in `ssh-add -l`.
 - `IdentityFile` is a cumulative option: a `Host github.com` stanza plus a command-line `-i` pub file offers BOTH keys, config entry first, so a second key can silently authenticate as the first account. Deterministic per-repo routing for agent-only keys: a repo-local ssh config (`ssh -F <config>`) holding only the wanted `IdentityFile` + `IdentitiesOnly yes` + `IdentityAgent`, wired via `core.sshCommand`.
-- MUST NOT store or log the master password or `BW_SESSION`.
 
 ### Linux: tailscale serve owns 443 on the tailnet IP
 

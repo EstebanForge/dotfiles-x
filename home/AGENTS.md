@@ -123,7 +123,7 @@ Notes: pf loads cleanly at boot per the daemon log, so recurring deaths are mid-
 
 ### Linux: Baluard credential vault and SSH agent
 
-Baluard (`~/.local/bin/baluard`) is the credential manager on this machine: a git-native password manager with a daemon that serves the OpenSSH agent. Bitwarden and the old `bw-ssh` bridge are retired here; do not reach for `bw` or `bw-ssh` commands. The agent socket is `/run/user/1000/baluard/baluard-agent.sock`, and `~/.ssh/agent.sock` symlinks to it, so `ssh` and `git` find the agent automatically.
+Baluard (`~/.local/bin/baluard`) is the credential manager on this machine: a git-native password manager with a daemon that serves the OpenSSH agent. The agent socket is `/run/user/1000/baluard/baluard-agent.sock`, and `~/.ssh/agent.sock` symlinks to it, so `ssh` and `git` find the agent automatically.
 
 Gate: `baluard ssh status`. Daemon running + agent listening + vaults unlocked means the agent is fine; stop there. `ssh-add -l` answering `agent refused operation` means the vault is LOCKED, not broken. An ssh push failing with `Permission denied (publickey)` right after working pushes is almost always this — check the vault state before re-trying git.
 

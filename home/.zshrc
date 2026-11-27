@@ -439,5 +439,5 @@ esac
 # zenless initramfs rescue: answer the disk passphrase over LAN when boot stalls (tang down)
 zenless-unlock() {
   print "zenless initramfs: answer the disk passphrase prompt"
-  command ssh -t -o ConnectTimeout=5 root@192.168.10.100 systemd-tty-ask-password-agent
+  command ssh -t -o IdentitiesOnly=yes -o IdentityFile=~/.ssh/default.pub -o ConnectTimeout=5 root@192.168.10.100 systemd-tty-ask-password-agent
 }
